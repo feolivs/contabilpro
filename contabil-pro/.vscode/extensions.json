@@ -1,0 +1,49 @@
+{
+  "recommendations": [
+    // Essential
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    
+    // React/Next.js
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    
+    // Git
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    
+    // Testing
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "cucumber.cucumber-official",
+    
+    // Database
+    "supabase.supabase-vscode",
+    "mtxr.sqltools",
+    
+    // Utilities
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    "usernamehw.errorlens",
+    "christian-kohler.npm-intellisense",
+    "ms-vscode.vscode-json",
+    
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    
+    // Theme (optional)
+    "github.github-vscode-theme",
+    "pkief.material-icon-theme"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify",
+    "ms-vscode.vscode-css-peek"
+  ]
+}
