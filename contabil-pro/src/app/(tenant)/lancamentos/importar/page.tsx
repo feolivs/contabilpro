@@ -1,10 +1,26 @@
-﻿export default function ImportarLancamentosPage() {
+﻿import Link from 'next/link'
+
+import { requirePermission } from '@/lib/rbac'
+import { Button } from '@/components/ui/button'
+
+import { EntryImportForm } from '../entry-import-form'
+
+export default async function ImportarLancamentosPage() {
+  await requirePermission('lancamentos.write')
+
   return (
-    <section className='space-y-4 p-6'>
-      <h1 className='text-2xl font-semibold'>Importar arquivos</h1>
-      <p className='text-sm text-muted-foreground'>
-        Pipeline de importacao (OFX, CSV, XML) sera integrado aqui com idempotencia e auditoria.
-      </p>
-    </section>
+    <div className='space-y-6'>
+      <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+        <div className='space-y-1'>
+          <h1 className='text-3xl font-bold tracking-tight'>Importar lancamentos</h1>
+          <p className='text-muted-foreground'>Carregue um CSV para inserir lancamentos em lote com validacao padrao.</p>
+        </div>
+        <Button asChild variant='outline'>
+          <Link href='/lancamentos'>Voltar para a lista</Link>
+        </Button>
+      </div>
+
+      <EntryImportForm />
+    </div>
   )
 }

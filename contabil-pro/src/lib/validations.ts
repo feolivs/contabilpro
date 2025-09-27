@@ -27,6 +27,21 @@ export const entrySchema = z.object({
   created_at: z.date().optional(),
 })
 
+export const bankAccountSchema = z.object({
+  id: z.string().uuid().optional(),
+  tenant_id: z.string().uuid(),
+  name: z.string().min(1, 'Name is required'),
+  bank_code: z.string().min(1, 'Bank code is required'),
+  bank_name: z.string().min(1, 'Bank name is required'),
+  agency: z.string().min(1, 'Agency is required'),
+  account_number: z.string().min(1, 'Account number is required'),
+  account_type: z.enum(['checking', 'savings', 'investment']).default('checking'),
+  balance: z.number().optional(),
+  is_active: z.boolean().optional(),
+  created_at: z.date().optional(),
+  updated_at: z.date().optional(),
+})
+
 // Schema para Conta Contábil
 export const accountSchema = z.object({
   id: z.string().uuid().optional(),
@@ -67,6 +82,7 @@ export const bankTransactionSchema = z.object({
 
 export type Client = z.infer<typeof clientSchema>
 export type Entry = z.infer<typeof entrySchema>
+export type BankAccount = z.infer<typeof bankAccountSchema>
 export type Account = z.infer<typeof accountSchema>
 export type Document = z.infer<typeof documentSchema>
 export type BankTransaction = z.infer<typeof bankTransactionSchema>

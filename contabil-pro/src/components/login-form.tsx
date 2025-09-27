@@ -1,49 +1,120 @@
+'use client'
+
+import { useActionState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { loginAction } from '@/actions/auth'
+import { initialLoginFormState } from '@/lib/auth-helpers'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next')
+
+  const [state, formAction, isPending] = useActionState(loginAction, initialLoginFormState)
+
+  // Log para debug
+  useEffect(() => {
+    if (state.status !== 'idle') {
+      console.log('Login form state:', state)
+    }
+  }, [state])
+
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props} data-testid="login-form">
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardTitle>Entre na sua conta</CardTitle>
+          <CardDescription>Digite seu email e senha para acessar o sistema</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={formAction}>
+            {/* Campo hidden para o parâmetro next */}
+            {next && <input type="hidden" name="next" value={next} />}
+
             <div className='flex flex-col gap-6'>
+              {/* Mensagem de erro */}
+              {state.status === 'error' && state.message && (
+                <Alert variant="destructive">
+                  <AlertDescription>{state.message}</AlertDescription>
+                </Alert>
+              )}
+
               <div className='grid gap-3'>
                 <Label htmlFor='email'>Email</Label>
-                <Input id='email' type='email' placeholder='m@example.com' required />
+                <Input
+                  id='email'
+                  name='email'
+                  type='email'
+                  placeholder='seu@email.com'
+                  required
+                  disabled={isPending}
+                  data-testid="email-input"
+                  aria-invalid={state.fieldErrors?.email ? 'true' : 'false'}
+                />
+                {state.fieldErrors?.email && (
+                  <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
+                )}
               </div>
+
               <div className='grid gap-3'>
                 <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
+                  <Label htmlFor='password'>Senha</Label>
                   <a
-                    href='#'
+                    href='/forgot-password'
                     className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
                   >
-                    Forgot your password?
+                    Esqueceu sua senha?
                   </a>
                 </div>
-                <Input id='password' type='password' required />
+                <Input
+                  id='password'
+                  name='password'
+                  type='password'
+                  required
+                  disabled={isPending}
+                  data-testid="password-input"
+                  aria-invalid={state.fieldErrors?.password ? 'true' : 'false'}
+                />
+                {state.fieldErrors?.password && (
+                  <p className="text-sm text-destructive">{state.fieldErrors.password[0]}</p>
+                )}
               </div>
+
               <div className='flex flex-col gap-3'>
-                <Button type='submit' className='w-full'>
-                  Login
+                <Button
+                  type='submit'
+                  className='w-full'
+                  disabled={isPending}
+                  data-testid="login-button"
+                >
+                  {isPending ? 'Entrando...' : 'Entrar'}
                 </Button>
-                <Button variant='outline' className='w-full'>
-                  Login with Google
+
+                <Button
+                  variant='outline'
+                  className='w-full'
+                  disabled={isPending}
+                  type="button"
+                  onClick={() => {
+                    // TODO: Implementar OAuth com Google
+                    alert('Login com Google será implementado em breve')
+                  }}
+                >
+                  Entrar com Google
                 </Button>
               </div>
             </div>
+
             <div className='mt-4 text-center text-sm'>
-              Don&apos;t have an account?{' '}
-              <a href='#' className='underline underline-offset-4'>
-                Sign up
+              Não tem uma conta?{' '}
+              <a href='/register' className='underline underline-offset-4'>
+                Criar conta
               </a>
             </div>
           </form>

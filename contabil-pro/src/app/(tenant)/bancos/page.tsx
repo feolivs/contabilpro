@@ -1,17 +1,38 @@
 ﻿import Link from 'next/link'
 
-export default function BancosPage() {
+import { getBankAccounts } from '@/actions/bank-accounts'
+import { requirePermission } from '@/lib/rbac'
+import { Button } from '@/components/ui/button'
+
+import { BankAccountForm } from './bank-account-form'
+import { BankAccountsTable } from './bank-accounts-table'
+
+export default async function BancosPage() {
+  await requirePermission('bancos.read')
+
+  const result = await getBankAccounts()
+  const accounts = result.success && Array.isArray(result.data) ? result.data : []
+
   return (
-    <section className='space-y-4 p-6'>
-      <div className='flex items-center justify-between'>
-        <h1 className='text-2xl font-semibold'>Bancos</h1>
-        <Link className='text-sm text-primary' href='/dashboard'>
-          Voltar para o dashboard
-        </Link>
+    <div className='space-y-6'>
+      <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+        <div className='space-y-1'>
+          <h1 className='text-3xl font-bold tracking-tight'>Contas bancarias</h1>
+          <p className='text-muted-foreground'>Controle saldos, status e integracoes bancarias por conta.</p>
+        </div>
+        <div className='flex flex-wrap items-center gap-2'>
+          <Button asChild variant='outline' size='sm'>
+            <Link href='/bancos/importar'>Importar transacoes</Link>
+          </Button>
+          <Button asChild size='sm'>
+            <Link href='/bancos/novo'>Nova conta</Link>
+          </Button>
+        </div>
       </div>
-      <p className='text-sm text-muted-foreground'>
-        Area de bancos em construcao. Em breve voce vera os widgets e workflows dedicados aqui.
-      </p>
-    </section>
+
+      <BankAccountForm />
+
+      <BankAccountsTable accounts={accounts} />
+    </div>
   )
 }

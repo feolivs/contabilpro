@@ -5,7 +5,7 @@ Funcionalidade: Autenticação e Autorização
   Para acessar as funcionalidades contábeis
 
   Contexto:
-    Dado que existe um tenant "Empresa Demo" com slug "empresa-demo"
+    Dado que existe um tenant "ContabilPRO Demo" com slug "contabil-pro-demo"
     E existe um usuário "demo@contabilpro.com" associado ao tenant
 
   Cenário: Login com credenciais válidas
