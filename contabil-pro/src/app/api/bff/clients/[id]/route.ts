@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server'
+﻿import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { requirePermission } from '@/lib/rbac'
@@ -98,7 +98,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 // DELETE /api/bff/clients/[id] - Deletar cliente
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Guard RBAC - verificar permissão

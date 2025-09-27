@@ -6,7 +6,9 @@ export default function DashboardPage() {
     <div className='space-y-6 p-6'>
       <header className='space-y-1'>
         <h1 className='text-3xl font-bold tracking-tight'>Dashboard</h1>
-        <p className='text-sm text-muted-foreground'>Resumo do dia para o escritorio selecionado.</p>
+        <p className='text-sm text-muted-foreground'>
+          Resumo do dia para o escritorio selecionado.
+        </p>
       </header>
 
       <SectionCards />

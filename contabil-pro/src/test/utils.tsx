@@ -1,11 +1,9 @@
-import React from 'react'
+﻿import React from 'react'
 import { ThemeProvider } from 'next-themes'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { RenderOptions } from '@testing-library/react'
-import { render } from '@testing-library/react'
+import { render as rtlRender, type RenderOptions } from '@testing-library/react'
 
-// Mock data para testes
 export const mockTenant = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   name: 'Test Tenant',
@@ -58,14 +56,13 @@ export const mockEntry = {
   client_id: mockClient.id,
   account_id: mockAccount.id,
   description: 'Test Entry',
-  amount: 1000.0,
+  amount: 1000,
   type: 'debit' as const,
   date: new Date().toISOString().split('T')[0],
   created_by: mockUser.id,
   created_at: new Date().toISOString(),
 }
 
-// Provider personalizado para testes
 interface AllTheProvidersProps {
   children: React.ReactNode
 }
@@ -92,11 +89,9 @@ const AllTheProviders = ({ children }: AllTheProvidersProps) => {
   )
 }
 
-// Função customizada de render
 const customRender = (ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
-  render(ui, { wrapper: AllTheProviders, ...options })
+  rtlRender(ui, { wrapper: AllTheProviders, ...options })
 
-// Helper para simular sessão autenticada
 export const mockAuthSession = {
   user: {
     id: mockUser.id,
@@ -110,17 +105,12 @@ export const mockAuthSession = {
   role: 'owner',
 }
 
-// Helper para criar Server Action mock
-export const createServerActionMock = <T extends any[], R>(
-  implementation?: (...args: T) => Promise<{ success: boolean; data?: R; error?: string }>,
-) => {
-  return vi.fn().mockImplementation(implementation || (async () => ({ success: true, data: null })))
-}
+export const createServerActionMock = <R,>(
+  implementation?: () => Promise<{ success: boolean; data?: R; error?: string }>
+) => vi.fn().mockImplementation(implementation ?? (async () => ({ success: true, data: null })))
 
-// Helper para simular delay em testes assíncronos
-export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+export const delay = (ms: number) => new Promise(resolve => globalThis.setTimeout(resolve, ms))
 
-// Helper para criar dados de formulário
 export const createFormData = (data: Record<string, string>) => {
   const formData = new FormData()
   Object.entries(data).forEach(([key, value]) => {
@@ -129,6 +119,5 @@ export const createFormData = (data: Record<string, string>) => {
   return formData
 }
 
-// Re-export everything
 export * from '@testing-library/react'
 export { customRender as render }

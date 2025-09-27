@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { revalidatePath } from 'next/cache'
 
@@ -47,7 +47,7 @@ export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
         *,
         client:clients(name),
         account:accounts(name, code)
-      `,
+      `
       )
       .single()
 
@@ -68,7 +68,7 @@ export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
 
 export async function createEntryFromForm(
   _prevState: EntryFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<EntryFormState> {
   const input = {
     client_id: (formData.get('client_id') ?? '').toString(),
@@ -121,7 +121,7 @@ export async function getEntries() {
         *,
         client:clients(name),
         account:accounts(name, code)
-      `,
+      `
       )
       .order('date', { ascending: false })
 

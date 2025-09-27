@@ -124,7 +124,7 @@ export async function middleware(request: NextRequest) {
           cookies.forEach(cookie => pendingCookies.push(cookie))
         },
       },
-    },
+    }
   )
 
   const {
@@ -195,6 +195,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest).*)',
   ],
 }
-
-
-

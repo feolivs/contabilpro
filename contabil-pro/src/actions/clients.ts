@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { revalidatePath } from 'next/cache'
 
@@ -65,7 +65,7 @@ export async function createClient(input: z.infer<typeof baseClientSchema>) {
 
 export async function createClientFromForm(
   _prevState: ClientFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ClientFormState> {
   const input = {
     name: (formData.get('name') ?? '').toString(),

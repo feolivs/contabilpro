@@ -99,7 +99,7 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
           // noop - middleware will set cookies on the response side
         },
       },
-    },
+    }
   )
 
   const { data, error } = await supabase
@@ -137,7 +137,7 @@ export async function getTenantById(id: string): Promise<Tenant | null> {
         },
         setAll() {},
       },
-    },
+    }
   )
 
   const { data, error } = await supabase

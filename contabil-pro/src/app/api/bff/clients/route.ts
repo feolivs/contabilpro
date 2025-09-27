@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server'
+﻿import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { requirePermission } from '@/lib/rbac'
@@ -13,9 +13,9 @@ const baseClientSchema = clientSchema.omit({
 })
 
 // GET /api/bff/clients - Listar clientes
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Guard RBAC - verificar permissão
+    // Guard RBAC - verificar permissao
     const context = await requirePermission('clientes.read')
 
     // Buscar clientes no Supabase
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro na API de clientes:', error)
 
-    if (error instanceof Error && error.message.includes('Permissão negada')) {
+    if (error instanceof Error && error.message.includes('permissao negada')) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 // POST /api/bff/clients - Criar cliente
 export async function POST(request: NextRequest) {
   try {
-    // Guard RBAC - verificar permissão
+    // Guard RBAC - verificar permissao
     const context = await requirePermission('clientes.write')
 
     const body = await request.json()
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Erro na API de clientes:', error)
 
-    if (error instanceof Error && error.message.includes('Permissão negada')) {
+    if (error instanceof Error && error.message.includes('permissao negada')) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
 
