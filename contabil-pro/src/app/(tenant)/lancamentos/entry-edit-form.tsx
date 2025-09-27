@@ -6,11 +6,20 @@ import { initialEntryFormState, updateEntryFromForm } from '@/actions/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { Entry } from '@/lib/validations'
 
 interface EntryEditFormProps {
-  entry: Entry & { client?: { name?: string | null }; account?: { name?: string | null; code?: string | null } }
+  entry: Entry & {
+    client?: { name?: string | null }
+    account?: { name?: string | null; code?: string | null }
+  }
 }
 
 function formatDateInput(value: string | Date | null | undefined) {
@@ -36,7 +45,9 @@ export function EntryEditForm({ entry }: EntryEditFormProps) {
 
       <div>
         <h2 className='text-lg font-semibold'>Editar lancamento</h2>
-        <p className='text-sm text-muted-foreground'>Ajuste identificadores, valores ou tipo do lancamento conforme necessario.</p>
+        <p className='text-sm text-muted-foreground'>
+          Ajuste identificadores, valores ou tipo do lancamento conforme necessario.
+        </p>
       </div>
 
       <div className='grid gap-2 md:grid-cols-2 md:gap-4'>
@@ -115,7 +126,13 @@ export function EntryEditForm({ entry }: EntryEditFormProps) {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='date'>Data</Label>
-          <Input id='date' name='date' type='date' defaultValue={formatDateInput(entry.date)} disabled={isPending} />
+          <Input
+            id='date'
+            name='date'
+            type='date'
+            defaultValue={formatDateInput(entry.date)}
+            disabled={isPending}
+          />
           {state.fieldErrors?.date && (
             <p className='text-sm text-destructive'>{state.fieldErrors.date.join(', ')}</p>
           )}
@@ -124,7 +141,12 @@ export function EntryEditForm({ entry }: EntryEditFormProps) {
 
       <div className='grid gap-2'>
         <Label htmlFor='document_id'>Documento vinculado (opcional)</Label>
-        <Input id='document_id' name='document_id' defaultValue={entry.document_id ?? ''} disabled={isPending} />
+        <Input
+          id='document_id'
+          name='document_id'
+          defaultValue={entry.document_id ?? ''}
+          disabled={isPending}
+        />
         {state.fieldErrors?.document_id && (
           <p className='text-sm text-destructive'>{state.fieldErrors.document_id.join(', ')}</p>
         )}

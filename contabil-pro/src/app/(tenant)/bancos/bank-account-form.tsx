@@ -6,21 +6,38 @@ import { createBankAccountFromForm, initialBankAccountFormState } from '@/action
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export function BankAccountForm() {
-  const [state, action, isPending] = useActionState(createBankAccountFromForm, initialBankAccountFormState)
+  const [state, action, isPending] = useActionState(
+    createBankAccountFromForm,
+    initialBankAccountFormState
+  )
 
   return (
     <form action={action} className='grid gap-4 rounded-lg border bg-card p-6 shadow-sm'>
       <div>
         <h2 className='text-lg font-semibold'>Adicionar conta bancaria</h2>
-        <p className='text-sm text-muted-foreground'>Informe dados da conta para acompanhar saldos e conciliacoes.</p>
+        <p className='text-sm text-muted-foreground'>
+          Informe dados da conta para acompanhar saldos e conciliacoes.
+        </p>
       </div>
 
       <div className='grid gap-2'>
         <Label htmlFor='name'>Nome interno</Label>
-        <Input id='name' name='name' placeholder='Conta corrente principal' required disabled={isPending} />
+        <Input
+          id='name'
+          name='name'
+          placeholder='Conta corrente principal'
+          required
+          disabled={isPending}
+        />
         {state.fieldErrors?.name && (
           <p className='text-sm text-destructive'>{state.fieldErrors.name.join(', ')}</p>
         )}
@@ -36,7 +53,13 @@ export function BankAccountForm() {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='bank_name'>Nome do banco</Label>
-          <Input id='bank_name' name='bank_name' placeholder='Banco do Brasil' required disabled={isPending} />
+          <Input
+            id='bank_name'
+            name='bank_name'
+            placeholder='Banco do Brasil'
+            required
+            disabled={isPending}
+          />
           {state.fieldErrors?.bank_name && (
             <p className='text-sm text-destructive'>{state.fieldErrors.bank_name.join(', ')}</p>
           )}
@@ -53,9 +76,17 @@ export function BankAccountForm() {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='account_number'>Conta</Label>
-          <Input id='account_number' name='account_number' placeholder='12345-6' required disabled={isPending} />
+          <Input
+            id='account_number'
+            name='account_number'
+            placeholder='12345-6'
+            required
+            disabled={isPending}
+          />
           {state.fieldErrors?.account_number && (
-            <p className='text-sm text-destructive'>{state.fieldErrors.account_number.join(', ')}</p>
+            <p className='text-sm text-destructive'>
+              {state.fieldErrors.account_number.join(', ')}
+            </p>
           )}
         </div>
       </div>
@@ -79,7 +110,14 @@ export function BankAccountForm() {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='balance'>Saldo inicial</Label>
-          <Input id='balance' name='balance' type='number' step='0.01' placeholder='0.00' disabled={isPending} />
+          <Input
+            id='balance'
+            name='balance'
+            type='number'
+            step='0.01'
+            placeholder='0.00'
+            disabled={isPending}
+          />
           {state.fieldErrors?.balance && (
             <p className='text-sm text-destructive'>{state.fieldErrors.balance.join(', ')}</p>
           )}

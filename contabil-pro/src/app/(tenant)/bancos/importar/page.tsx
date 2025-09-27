@@ -1,8 +1,8 @@
 ﻿import Link from 'next/link'
 
 import { getBankAccounts } from '@/actions/bank-accounts'
-import { requirePermission } from '@/lib/rbac'
 import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/rbac'
 
 import { BankTransactionImportForm } from '../bank-transaction-import-form'
 
@@ -10,7 +10,9 @@ interface ImportarTransacoesPageProps {
   searchParams?: { account?: string }
 }
 
-export default async function ImportarTransacoesPage({ searchParams }: ImportarTransacoesPageProps) {
+export default async function ImportarTransacoesPage({
+  searchParams,
+}: ImportarTransacoesPageProps) {
   await requirePermission('bancos.write')
 
   const result = await getBankAccounts()
@@ -29,7 +31,9 @@ export default async function ImportarTransacoesPage({ searchParams }: ImportarT
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Importar transacoes bancarias</h1>
-          <p className='text-muted-foreground'>Selecione a conta e envie o arquivo com as movimentacoes para conciliacao.</p>
+          <p className='text-muted-foreground'>
+            Selecione a conta e envie o arquivo com as movimentacoes para conciliacao.
+          </p>
         </div>
         <Button asChild variant='outline'>
           <Link href='/bancos'>Voltar para a lista</Link>

@@ -2,10 +2,10 @@
 import { notFound } from 'next/navigation'
 
 import { getEntryById } from '@/actions/entries'
-import { requirePermission } from '@/lib/rbac'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { requirePermission } from '@/lib/rbac'
 
 interface LancamentoDetalheProps {
   params: { id: string }
@@ -55,7 +55,9 @@ export default async function LancamentoDetalhePage({ params }: LancamentoDetalh
 
   const entry = result.data
   const clientName = entry.client?.name ?? 'Nao associado'
-  const accountName = entry.account?.code ? `${entry.account.code} - ${entry.account.name ?? ''}` : entry.account?.name ?? 'Nao associado'
+  const accountName = entry.account?.code
+    ? `${entry.account.code} - ${entry.account.name ?? ''}`
+    : (entry.account?.name ?? 'Nao associado')
 
   return (
     <div className='space-y-6'>
@@ -85,7 +87,9 @@ export default async function LancamentoDetalhePage({ params }: LancamentoDetalh
         <CardContent className='grid gap-4 sm:grid-cols-2'>
           <div className='space-y-1 rounded-lg border bg-muted/20 p-4'>
             <p className='text-xs uppercase text-muted-foreground'>Valor</p>
-            <p className='text-lg font-semibold text-foreground'>{formatCurrency(entry.amount ?? 0)}</p>
+            <p className='text-lg font-semibold text-foreground'>
+              {formatCurrency(entry.amount ?? 0)}
+            </p>
           </div>
           <div className='space-y-1 rounded-lg border bg-muted/20 p-4'>
             <p className='text-xs uppercase text-muted-foreground'>Data</p>

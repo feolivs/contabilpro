@@ -152,11 +152,7 @@ export async function getClientById(id: string) {
       throw new Error('Nao foi possivel preparar o contexto de seguranca.')
     }
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
 
     if (error) {
       throw new Error(`Erro ao buscar cliente: ${error.message}`)
@@ -319,9 +315,7 @@ export async function importClientsFromCSV(
       }
     }
 
-    const headers = lines[0]
-      .split(',')
-      .map(header => header.trim().toLowerCase())
+    const headers = lines[0].split(',').map(header => header.trim().toLowerCase())
 
     const session = await requireAuth()
     const supabase = await setRLSContext(session)

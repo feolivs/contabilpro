@@ -290,9 +290,7 @@ export async function updateEntryFromForm(
     amount,
     type: formData.get('type') ? formData.get('type')!.toString() : undefined,
     date,
-    document_id: formData.get('document_id')
-      ? formData.get('document_id')!.toString()
-      : undefined,
+    document_id: formData.get('document_id') ? formData.get('document_id')!.toString() : undefined,
   }
 
   const parsed = updateEntrySchema.safeParse(input)
@@ -446,9 +444,7 @@ export async function importEntriesFromCSV(
       }
     }
 
-    const headers = lines[0]
-      .split(',')
-      .map(header => header.trim().toLowerCase())
+    const headers = lines[0].split(',').map(header => header.trim().toLowerCase())
 
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -475,7 +471,8 @@ export async function importEntriesFromCSV(
       })
 
       const normalizedType = row.type ? row.type.toLowerCase() : undefined
-      const typeValue = normalizedType === 'debit' || normalizedType === 'credit' ? normalizedType : undefined
+      const typeValue =
+        normalizedType === 'debit' || normalizedType === 'credit' ? normalizedType : undefined
 
       const amountValue = row.amount?.replace(',', '.') ?? ''
       const parsedAmount = amountValue.length > 0 ? Number(amountValue) : Number.NaN
@@ -530,7 +527,8 @@ export async function importEntriesFromCSV(
     console.error('Erro ao importar lancamentos:', error)
     return {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Erro desconhecido ao importar lancamentos.',
+      message:
+        error instanceof Error ? error.message : 'Erro desconhecido ao importar lancamentos.',
     }
   }
 }

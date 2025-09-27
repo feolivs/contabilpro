@@ -2,11 +2,18 @@
 import { notFound } from 'next/navigation'
 
 import { getBankAccountById } from '@/actions/bank-accounts'
-import { requirePermission } from '@/lib/rbac'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { requirePermission } from '@/lib/rbac'
 
 interface ContaBancariaDetalheProps {
   params: { id: string }
@@ -61,7 +68,9 @@ export default async function ContaBancariaDetalhePage({ params }: ContaBancaria
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>{account.name}</h1>
-          <p className='text-muted-foreground'>Dados completos e extrato sincronizado da conta bancaria.</p>
+          <p className='text-muted-foreground'>
+            Dados completos e extrato sincronizado da conta bancaria.
+          </p>
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Badge variant={account.is_active === false ? 'secondary' : 'default'}>
@@ -79,7 +88,9 @@ export default async function ContaBancariaDetalhePage({ params }: ContaBancaria
       <Card>
         <CardHeader>
           <CardTitle>Resumo da conta</CardTitle>
-          <CardDescription>Informacoes cadastradas para integracoes e conciliacoes.</CardDescription>
+          <CardDescription>
+            Informacoes cadastradas para integracoes e conciliacoes.
+          </CardDescription>
         </CardHeader>
         <CardContent className='grid gap-4 sm:grid-cols-2'>
           <div className='space-y-1 rounded-lg border bg-muted/20 p-4'>
@@ -96,11 +107,15 @@ export default async function ContaBancariaDetalhePage({ params }: ContaBancaria
           </div>
           <div className='space-y-1 rounded-lg border bg-muted/20 p-4'>
             <p className='text-xs uppercase text-muted-foreground'>Tipo de conta</p>
-            <p className='text-sm font-medium text-foreground'>{account.account_type ?? 'Nao definido'}</p>
+            <p className='text-sm font-medium text-foreground'>
+              {account.account_type ?? 'Nao definido'}
+            </p>
           </div>
           <div className='space-y-1 rounded-lg border bg-muted/20 p-4'>
             <p className='text-xs uppercase text-muted-foreground'>Saldo atual</p>
-            <p className='text-lg font-semibold text-foreground'>{formatCurrency(account.balance ?? 0)}</p>
+            <p className='text-lg font-semibold text-foreground'>
+              {formatCurrency(account.balance ?? 0)}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -132,11 +147,17 @@ export default async function ContaBancariaDetalhePage({ params }: ContaBancaria
                       <TableCell>{formatDate(transaction.date)}</TableCell>
                       <TableCell>
                         <p className='font-medium text-foreground'>{transaction.description}</p>
-                        <p className='text-xs text-muted-foreground'>Ref: {transaction.external_id}</p>
+                        <p className='text-xs text-muted-foreground'>
+                          Ref: {transaction.external_id}
+                        </p>
                       </TableCell>
-                      <TableCell className='text-right'>{formatCurrency(transaction.amount)}</TableCell>
+                      <TableCell className='text-right'>
+                        {formatCurrency(transaction.amount)}
+                      </TableCell>
                       <TableCell>
-                        <Badge variant={transaction.status === 'reconciled' ? 'default' : 'secondary'}>
+                        <Badge
+                          variant={transaction.status === 'reconciled' ? 'default' : 'secondary'}
+                        >
                           {transaction.status}
                         </Badge>
                       </TableCell>

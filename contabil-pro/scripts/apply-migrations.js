@@ -42,14 +42,22 @@ async function applyMigrations() {
       console.log(`📝 Aplicando migration: ${file}`)
       const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8')
       
-      const { error } = await supabase.rpc('exec_sql', { sql })
-      
-      if (error) {
-        console.error(`❌ Erro na migration ${file}:`, error)
-        // Continuar com as próximas migrations
-      } else {
-        console.log(`✅ Migration ${file} aplicada`)
+      // Dividir SQL em comandos individuais (separados por ;)
+      const commands = sql.split(';').filter(cmd => cmd.trim().length > 0)
+
+      for (const command of commands) {
+        if (command.trim()) {
+          const { error } = await supabase.rpc('exec', { sql: command.trim() })
+
+          if (error) {
+            console.error(`❌ Erro no comando SQL:`, error)
+            console.error(`Comando: ${command.trim().substring(0, 100)}...`)
+            // Continuar com os próximos comandos
+          }
+        }
       }
+
+      console.log(`✅ Migration ${file} aplicada`)
     }
     
     // 2. Aplicar policies (RLS)
@@ -63,14 +71,22 @@ async function applyMigrations() {
       console.log(`🔐 Aplicando policy: ${file}`)
       const sql = fs.readFileSync(path.join(policiesDir, file), 'utf8')
       
-      const { error } = await supabase.rpc('exec_sql', { sql })
-      
-      if (error) {
-        console.error(`❌ Erro na policy ${file}:`, error)
-        // Continuar com as próximas policies
-      } else {
-        console.log(`✅ Policy ${file} aplicada`)
+      // Dividir SQL em comandos individuais (separados por ;)
+      const commands = sql.split(';').filter(cmd => cmd.trim().length > 0)
+
+      for (const command of commands) {
+        if (command.trim()) {
+          const { error } = await supabase.rpc('exec', { sql: command.trim() })
+
+          if (error) {
+            console.error(`❌ Erro no comando SQL:`, error)
+            console.error(`Comando: ${command.trim().substring(0, 100)}...`)
+            // Continuar com os próximos comandos
+          }
+        }
       }
+
+      console.log(`✅ Policy ${file} aplicada`)
     }
     
     console.log('\n🎉 Migrations e policies aplicadas!')

@@ -14,13 +14,18 @@ export function ClientImportForm() {
     <form action={action} className='grid gap-4 rounded-lg border bg-card p-6 shadow-sm'>
       <div>
         <h2 className='text-lg font-semibold'>Importar clientes via CSV</h2>
-        <p className='text-sm text-muted-foreground'>Envie um arquivo com colunas nome, document, email, phone e address para cadastrar em lote.</p>
+        <p className='text-sm text-muted-foreground'>
+          Envie um arquivo com colunas nome, document, email, phone e address para cadastrar em
+          lote.
+        </p>
       </div>
 
       <div className='grid gap-2'>
         <Label htmlFor='file'>Arquivo CSV</Label>
         <Input id='file' name='file' type='file' accept='.csv' required disabled={isPending} />
-        <p className='text-xs text-muted-foreground'>O arquivo deve possuir cabecalho. Linhas invalidas serao ignoradas.</p>
+        <p className='text-xs text-muted-foreground'>
+          O arquivo deve possuir cabecalho. Linhas invalidas serao ignoradas.
+        </p>
       </div>
 
       {state.summary && (
@@ -29,7 +34,8 @@ export function ClientImportForm() {
             Processados: <span className='font-medium'>{state.summary.processed}</span>
           </p>
           <p>
-            Importados: <span className='font-medium text-emerald-600'>{state.summary.created}</span>
+            Importados:{' '}
+            <span className='font-medium text-emerald-600'>{state.summary.created}</span>
           </p>
           <p>
             Ignorados: <span className='font-medium text-destructive'>{state.summary.skipped}</span>

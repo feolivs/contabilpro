@@ -212,7 +212,10 @@ export async function createBankAccountFromForm(
   }
 }
 
-export async function updateBankAccount(id: string, input: z.infer<typeof updateBankAccountSchema>) {
+export async function updateBankAccount(
+  id: string,
+  input: z.infer<typeof updateBankAccountSchema>
+) {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -290,9 +293,13 @@ export async function updateBankAccountFromForm(
     account_number: formData.get('account_number')
       ? formData.get('account_number')!.toString()
       : undefined,
-    account_type: formData.get('account_type') ? formData.get('account_type')!.toString() : undefined,
+    account_type: formData.get('account_type')
+      ? formData.get('account_type')!.toString()
+      : undefined,
     balance,
-    is_active: formData.get('is_active') ? formData.get('is_active')!.toString() === 'true' : undefined,
+    is_active: formData.get('is_active')
+      ? formData.get('is_active')!.toString() === 'true'
+      : undefined,
   }
 
   const parsed = updateBankAccountSchema.safeParse(input)
@@ -394,9 +401,7 @@ export async function importBankTransactionsFromCSV(
       }
     }
 
-    const headers = lines[0]
-      .split(',')
-      .map(header => header.trim().toLowerCase())
+    const headers = lines[0].split(',').map(header => header.trim().toLowerCase())
 
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -421,7 +426,8 @@ export async function importBankTransactionsFromCSV(
       })
 
       const normalizedType = row.type ? row.type.toLowerCase() : undefined
-      const typeValue = normalizedType === 'debit' || normalizedType === 'credit' ? normalizedType : undefined
+      const typeValue =
+        normalizedType === 'debit' || normalizedType === 'credit' ? normalizedType : undefined
 
       const statusValue = row.status ? row.status.toLowerCase() : 'pending'
       const normalizedStatus = ['pending', 'reconciled', 'ignored'].includes(statusValue)

@@ -17,6 +17,8 @@ export async function loginAction(
   prevState: LoginFormState,
   formData: FormData
 ): Promise<LoginFormState> {
+  let redirectUrl: string | null = null
+
   try {
     // Extrair dados do formulário
     const email = formData.get('email') as string
@@ -130,9 +132,9 @@ export async function loginAction(
     }
 
     // Determinar URL de redirecionamento - SEMPRE com tenant específico
-    let redirectUrl = `/t/${tenant.slug}/dashboard`
+    redirectUrl = `/t/${tenant.slug}/dashboard`
 
-    if (next) {
+    if (next && next !== 'null' && next.trim() !== '') {
       try {
         // Validar se o next é uma URL válida e segura
         const nextUrl = new URL(next, 'http://localhost')
@@ -171,16 +173,25 @@ export async function loginAction(
       originalNext: next,
     })
 
-    // Redirecionar após login bem-sucedido
-    // IMPORTANTE: Sempre redireciona para URL completa com tenant específico
-    redirect(redirectUrl)
-
   } catch (error) {
     console.error('Erro inesperado no login:', error)
     return {
       status: 'error',
       message: 'Erro interno do servidor. Tente novamente.',
     }
+  }
+
+  // Redirecionar após login bem-sucedido
+  // IMPORTANTE: Sempre redireciona para URL completa com tenant específico
+  // O redirect() deve estar FORA do try/catch pois lança NEXT_REDIRECT
+  if (redirectUrl) {
+    redirect(redirectUrl)
+  }
+
+  // Fallback - não deveria chegar aqui
+  return {
+    status: 'error',
+    message: 'Erro interno: redirecionamento não configurado.',
   }
 }
 
@@ -190,32 +201,27 @@ export async function loginAction(
 async function getUserTenants(userId: string) {
   const supabase = await createServerClient()
 
-  const { data: userTenants, error } = await supabase
-    .from('user_tenants')
-    .select(`
-      tenant_id,
-      role,
-      joined_at,
-      tenants!inner(
-        id,
-        slug,
-        name,
-        status
-      )
-    `)
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .eq('tenants.status', 'active')
-    .order('joined_at', { ascending: false })
+  // Usar query SQL direta para evitar problemas com RLS e JOINs complexos
+  const { data: userTenants, error } = await supabase.rpc('get_user_tenants', {
+    p_user_id: userId
+  })
 
   if (error || !userTenants) {
+    console.error('Erro ao buscar tenants do usuário:', error)
     return { tenants: [], error }
   }
 
-  // Normalizar dados (lidar com array vs objeto)
-  const normalizedTenants = userTenants.map(ut => ({
-    ...ut,
-    tenants: Array.isArray(ut.tenants) ? ut.tenants[0] : ut.tenants,
+  // Mapear para o formato esperado
+  const normalizedTenants = userTenants.map((row: any) => ({
+    tenant_id: row.tenant_id,
+    role: row.role,
+    joined_at: row.joined_at,
+    tenants: {
+      id: row.tenant_id,
+      slug: row.slug,
+      name: row.name,
+      status: row.status
+    }
   }))
 
   return { tenants: normalizedTenants, error: null }

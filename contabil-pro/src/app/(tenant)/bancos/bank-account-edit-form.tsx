@@ -6,7 +6,13 @@ import { initialBankAccountFormState, updateBankAccountFromForm } from '@/action
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { BankAccount } from '@/lib/validations'
 
 interface BankAccountEditFormProps {
@@ -14,7 +20,10 @@ interface BankAccountEditFormProps {
 }
 
 export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
-  const [state, action, isPending] = useActionState(updateBankAccountFromForm, initialBankAccountFormState)
+  const [state, action, isPending] = useActionState(
+    updateBankAccountFromForm,
+    initialBankAccountFormState
+  )
 
   return (
     <form action={action} className='grid gap-4 rounded-lg border bg-card p-6 shadow-sm'>
@@ -22,7 +31,9 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
 
       <div>
         <h2 className='text-lg font-semibold'>Editar conta bancaria</h2>
-        <p className='text-sm text-muted-foreground'>Atualize apelidos, saldos e status da conta conectada.</p>
+        <p className='text-sm text-muted-foreground'>
+          Atualize apelidos, saldos e status da conta conectada.
+        </p>
       </div>
 
       <div className='grid gap-2'>
@@ -36,14 +47,24 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
       <div className='grid gap-2 md:grid-cols-2 md:gap-4'>
         <div className='grid gap-2'>
           <Label htmlFor='bank_code'>Codigo do banco</Label>
-          <Input id='bank_code' name='bank_code' defaultValue={account.bank_code} disabled={isPending} />
+          <Input
+            id='bank_code'
+            name='bank_code'
+            defaultValue={account.bank_code}
+            disabled={isPending}
+          />
           {state.fieldErrors?.bank_code && (
             <p className='text-sm text-destructive'>{state.fieldErrors.bank_code.join(', ')}</p>
           )}
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='bank_name'>Nome do banco</Label>
-          <Input id='bank_name' name='bank_name' defaultValue={account.bank_name} disabled={isPending} />
+          <Input
+            id='bank_name'
+            name='bank_name'
+            defaultValue={account.bank_name}
+            disabled={isPending}
+          />
           {state.fieldErrors?.bank_name && (
             <p className='text-sm text-destructive'>{state.fieldErrors.bank_name.join(', ')}</p>
           )}
@@ -60,9 +81,16 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='account_number'>Conta</Label>
-          <Input id='account_number' name='account_number' defaultValue={account.account_number} disabled={isPending} />
+          <Input
+            id='account_number'
+            name='account_number'
+            defaultValue={account.account_number}
+            disabled={isPending}
+          />
           {state.fieldErrors?.account_number && (
-            <p className='text-sm text-destructive'>{state.fieldErrors.account_number.join(', ')}</p>
+            <p className='text-sm text-destructive'>
+              {state.fieldErrors.account_number.join(', ')}
+            </p>
           )}
         </div>
       </div>
@@ -70,7 +98,11 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
       <div className='grid gap-2 md:grid-cols-3 md:gap-4'>
         <div className='grid gap-2'>
           <Label htmlFor='account_type'>Tipo de conta</Label>
-          <Select name='account_type' defaultValue={account.account_type ?? 'checking'} disabled={isPending}>
+          <Select
+            name='account_type'
+            defaultValue={account.account_type ?? 'checking'}
+            disabled={isPending}
+          >
             <SelectTrigger id='account_type'>
               <SelectValue placeholder='Selecione o tipo' />
             </SelectTrigger>
@@ -91,7 +123,11 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
             name='balance'
             type='number'
             step='0.01'
-            defaultValue={account.balance !== undefined && account.balance !== null ? account.balance.toString() : ''}
+            defaultValue={
+              account.balance !== undefined && account.balance !== null
+                ? account.balance.toString()
+                : ''
+            }
             disabled={isPending}
           />
           {state.fieldErrors?.balance && (
@@ -100,7 +136,11 @@ export function BankAccountEditForm({ account }: BankAccountEditFormProps) {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='is_active'>Status</Label>
-          <Select name='is_active' defaultValue={account.is_active ? 'true' : 'false'} disabled={isPending}>
+          <Select
+            name='is_active'
+            defaultValue={account.is_active ? 'true' : 'false'}
+            disabled={isPending}
+          >
             <SelectTrigger id='is_active'>
               <SelectValue placeholder='Selecione o status' />
             </SelectTrigger>

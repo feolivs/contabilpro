@@ -2,8 +2,8 @@
 import { notFound } from 'next/navigation'
 
 import { getEntryById } from '@/actions/entries'
-import { requirePermission } from '@/lib/rbac'
 import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/rbac'
 
 import { EntryEditForm } from '../../entry-edit-form'
 
@@ -25,7 +25,9 @@ export default async function EditarLancamentoPage({ params }: EditarLancamentoP
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Editar lancamento</h1>
-          <p className='text-muted-foreground'>Atualize valores, tipo ou vinculacoes deste lancamento.</p>
+          <p className='text-muted-foreground'>
+            Atualize valores, tipo ou vinculacoes deste lancamento.
+          </p>
         </div>
         <Button asChild variant='outline'>
           <Link href={`/lancamentos/${params.id}`}>Voltar para detalhes</Link>

@@ -2,7 +2,14 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import type { BankAccount } from '@/lib/validations'
 
 interface BankAccountsTableProps {
@@ -53,7 +60,9 @@ export function BankAccountsTable({ accounts }: BankAccountsTableProps) {
           {accounts.map(account => (
             <TableRow key={account.id}>
               <TableCell className='font-medium'>{account.name}</TableCell>
-              <TableCell>{account.bank_code} - {account.bank_name}</TableCell>
+              <TableCell>
+                {account.bank_code} - {account.bank_name}
+              </TableCell>
               <TableCell>{account.agency}</TableCell>
               <TableCell>{account.account_number}</TableCell>
               <TableCell className='text-right'>{formatCurrency(account.balance ?? 0)}</TableCell>

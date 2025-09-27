@@ -1,8 +1,8 @@
 ﻿import Link from 'next/link'
 
 import { getClients } from '@/actions/clients'
-import { requirePermission } from '@/lib/rbac'
 import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/rbac'
 
 import { ClientForm } from './client-form'
 import { ClientsTable } from './clients-table'

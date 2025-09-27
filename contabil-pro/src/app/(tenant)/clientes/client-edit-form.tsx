@@ -21,18 +21,14 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
 
       <div>
         <h2 className='text-lg font-semibold'>Editar dados do cliente</h2>
-        <p className='text-sm text-muted-foreground'>Atualize as informacoes cadastrais abaixo e salve para aplicar.</p>
+        <p className='text-sm text-muted-foreground'>
+          Atualize as informacoes cadastrais abaixo e salve para aplicar.
+        </p>
       </div>
 
       <div className='grid gap-2'>
         <Label htmlFor='name'>Nome</Label>
-        <Input
-          id='name'
-          name='name'
-          defaultValue={client.name}
-          required
-          disabled={isPending}
-        />
+        <Input id='name' name='name' defaultValue={client.name} required disabled={isPending} />
         {state.fieldErrors?.name && (
           <p className='text-sm text-destructive'>{state.fieldErrors.name.join(', ')}</p>
         )}
@@ -74,7 +70,12 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='address'>Endereco</Label>
-          <Input id='address' name='address' defaultValue={client.address ?? ''} disabled={isPending} />
+          <Input
+            id='address'
+            name='address'
+            defaultValue={client.address ?? ''}
+            disabled={isPending}
+          />
         </div>
       </div>
 

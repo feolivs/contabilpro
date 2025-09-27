@@ -2,8 +2,8 @@
 import { notFound } from 'next/navigation'
 
 import { getBankAccountById } from '@/actions/bank-accounts'
-import { requirePermission } from '@/lib/rbac'
 import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/rbac'
 
 import { BankAccountEditForm } from '../../bank-account-edit-form'
 
@@ -25,7 +25,9 @@ export default async function EditarContaBancariaPage({ params }: EditarContaBan
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Editar conta bancaria</h1>
-          <p className='text-muted-foreground'>Atualize apelidos, status ou saldo de abertura conforme necessario.</p>
+          <p className='text-muted-foreground'>
+            Atualize apelidos, status ou saldo de abertura conforme necessario.
+          </p>
         </div>
         <Button asChild variant='outline'>
           <Link href={`/bancos/${params.id}`}>Voltar para detalhes</Link>
