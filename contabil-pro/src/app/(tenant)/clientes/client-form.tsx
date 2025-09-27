@@ -8,16 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export function ClientForm() {
-  const [state, action, isPending] = useActionState(
-    createClientFromForm,
-    initialClientFormState
-  )
+  const [state, action, isPending] = useActionState(createClientFromForm, initialClientFormState)
 
   return (
-    <form
-      action={action}
-      className='grid gap-4 rounded-lg border bg-card p-6 shadow-sm'
-    >
+    <form action={action} className='grid gap-4 rounded-lg border bg-card p-6 shadow-sm'>
       <div>
         <h2 className='text-lg font-semibold'>Cadastrar cliente</h2>
         <p className='text-sm text-muted-foreground'>

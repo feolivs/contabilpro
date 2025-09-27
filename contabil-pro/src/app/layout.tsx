@@ -1,9 +1,9 @@
-import type { Metadata, Viewport } from 'next'
+﻿import type { Metadata, Viewport } from 'next'
 
 export const metadata: Metadata = {
-  title: 'ContabilPRO - Sistema Contábil Brasileiro',
-  description: 'Sistema contábil completo para empresas brasileiras com NFe, Open Finance e IA',
-  keywords: ['contabilidade', 'sistema contábil', 'NFe', 'Open Finance', 'Brasil', 'multi-tenant'],
+  title: 'ContabilPRO - Sistema Contabil Brasileiro',
+  description: 'Sistema Contabil completo para empresas brasileiras com NFe, Open Finance e IA',
+  keywords: ['contabilidade', 'sistema Contabil', 'NFe', 'Open Finance', 'Brasil', 'multi-tenant'],
   authors: [{ name: 'ContabilPRO Team' }],
   creator: 'ContabilPRO',
   publisher: 'ContabilPRO',
@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
 }
 
-// Layout raiz obrigatório com html/body - layouts específicos em route groups
+// Layout raiz obrigatorio com html/body - layouts especificos em route groups
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='pt-BR' suppressHydrationWarning>

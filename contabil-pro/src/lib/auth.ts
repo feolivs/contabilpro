@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { redirect } from 'next/navigation'
 
@@ -12,10 +12,10 @@ export interface AuthSession {
   role: string
 }
 
-// Verificar sessão e obter tenant_id do JWT
+// Verificar sessÃ£o e obter tenant_id do JWT
 export async function verifySession(): Promise<AuthSession | null> {
   try {
-    const supabase = await createServerClient()
+    const supabase = createServerClient()
 
     const {
       data: { session },
@@ -32,7 +32,7 @@ export async function verifySession(): Promise<AuthSession | null> {
     const role = (claims.role as string) || 'user'
 
     if (!tenant_id) {
-      console.error('Usuário sem tenant_id no JWT')
+      console.error('UsuÃ¡rio sem tenant_id no JWT')
       return null
     }
 
@@ -42,7 +42,7 @@ export async function verifySession(): Promise<AuthSession | null> {
       role,
     }
   } catch (error) {
-    console.error('Erro ao verificar sessão:', error)
+    console.error('Erro ao verificar sessÃ£o:', error)
     return null
   }
 }
@@ -53,13 +53,13 @@ export async function getCurrentTenantId(): Promise<string | null> {
   return session?.tenant_id || null
 }
 
-// Helper para verificar se usuário tem acesso ao tenant
+// Helper para verificar se usuÃ¡rio tem acesso ao tenant
 export async function verifyTenantAccess(tenant_id: string): Promise<boolean> {
   const session = await verifySession()
   return session?.tenant_id === tenant_id
 }
 
-// Middleware de autenticação para Server Actions
+// Middleware de autenticaÃ§Ã£o para Server Actions
 export async function requireAuth(): Promise<AuthSession> {
   const session = await verifySession()
 
@@ -78,7 +78,7 @@ export async function setRLSContext(session?: AuthSession) {
     return null
   }
 
-  const supabase = await createServerClient()
+  const supabase = createServerClient()
 
   await Promise.all([
     supabase.rpc('set_claim', {
@@ -94,7 +94,7 @@ export async function setRLSContext(session?: AuthSession) {
   return supabase
 }
 
-// Função para criar tenant_id claim no JWT (para uso em auth hooks)
+// FunÃ§Ã£o para criar tenant_id claim no JWT (para uso em auth hooks)
 export function createTenantClaim(tenant_id: string) {
   return {
     tenant_id,
@@ -104,7 +104,8 @@ export function createTenantClaim(tenant_id: string) {
 
 // Helper para logout
 export async function signOut() {
-  const supabase = await createServerClient()
+  const supabase = createServerClient()
   await supabase.auth.signOut()
   redirect('/login')
 }
+

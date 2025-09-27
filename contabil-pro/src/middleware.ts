@@ -1,52 +1,127 @@
-import type { NextRequest } from 'next/server'
+﻿import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { createServerClient } from '@supabase/ssr'
 
-import { resolveTenant } from './lib/tenants'
+import { extractTenantFromPath, resolveTenantSlug } from './lib/tenants'
+
+interface PendingCookie {
+  name: string
+  value: string
+  options?: Parameters<ReturnType<typeof NextResponse>['cookies']['set']>[2]
+}
+
+const PUBLIC_ROUTES = new Set<string>([
+  '/',
+  '/pricing',
+  '/about',
+  '/login',
+  '/register',
+  '/forgot-password',
+])
+
+const PUBLIC_PREFIXES = [
+  '/_next',
+  '/favicon',
+  '/sitemap',
+  '/robots',
+  '/manifest',
+  '/assets',
+  '/static',
+  '/api/webhooks',
+]
+
+const PRIVATE_SEGMENTS = [
+  '/dashboard',
+  '/clientes',
+  '/lancamentos',
+  '/bancos',
+  '/fiscal',
+  '/documentos',
+  '/tarefas',
+  '/propostas',
+  '/relatorios',
+  '/copiloto',
+  '/config',
+  '/api/bff',
+]
+
+function isBypassed(pathname: string): boolean {
+  if (pathname.includes('.')) {
+    return true
+  }
+
+  for (const prefix of PUBLIC_PREFIXES) {
+    if (pathname.startsWith(prefix)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+function isPublicRoute(pathname: string): boolean {
+  if (PUBLIC_ROUTES.has(pathname)) {
+    return true
+  }
+
+  return (
+    pathname === '/' ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/about') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password')
+  )
+}
+
+function requiresPrivateAccess(pathname: string): boolean {
+  if (pathname.startsWith('/t/')) {
+    return true
+  }
+
+  for (const segment of PRIVATE_SEGMENTS) {
+    if (pathname.startsWith(segment)) {
+      return true
+    }
+  }
+
+  return false
+}
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, host } = request.nextUrl
 
-  // Excluir rotas públicas e webhooks do matcher
-  if (
-    pathname.startsWith('/api/webhooks') ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon') ||
-    pathname.includes('.')
-  ) {
+  if (isBypassed(pathname)) {
     return NextResponse.next()
   }
 
-  // Detectar tenant (subdomínio ou path-based)
-  const tenant = await resolveTenant(request)
+  const tenantSlug = resolveTenantSlug(host, pathname)
+  const hasTenantContext = tenantSlug !== null
 
-  // Rotas públicas (landing, auth, etc.)
-  if (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname === '/') {
-    const response = NextResponse.next()
+  const protectRoute = hasTenantContext || requiresPrivateAccess(pathname)
 
-    // Injetar headers mesmo para rotas públicas (útil para analytics)
-    if (tenant) {
-      response.headers.set('x-tenant', tenant.slug)
-    }
-
-    return response
+  if (!protectRoute && isPublicRoute(pathname)) {
+    return NextResponse.next()
   }
 
-  // Verificar autenticação para rotas protegidas
+  if (!tenantSlug) {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  const pendingCookies: PendingCookie[] = []
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
+        getAll() {
+          return request.cookies.getAll()
         },
-        set() {
-          // Não podemos setar cookies no middleware
-        },
-        remove() {
-          // Não podemos remover cookies no middleware
+        setAll(cookies) {
+          cookies.forEach(cookie => pendingCookies.push(cookie))
         },
       },
     },
@@ -56,90 +131,70 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // Redirecionar para login se não autenticado
   if (!session?.user) {
-    const loginUrl = new URL('/login', request.url)
-    return NextResponse.redirect(loginUrl)
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
-  // Extrair dados do JWT
-  const claims = session.user.app_metadata || {}
-  const userTenantId = claims.tenant_id as string
-  const userRole = (claims.role as string) || 'user'
-  const userRoles = (claims.roles as string[]) || [userRole]
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-tenant', tenantSlug)
 
-  // Verificar acesso ao tenant
-  if (tenant && userTenantId !== tenant.id) {
-    const forbiddenUrl = new URL('/forbidden', request.url)
-    return NextResponse.redirect(forbiddenUrl)
+  const metadata = (session.user.app_metadata ?? {}) as Record<string, unknown>
+  const tenantId = typeof metadata.tenant_id === 'string' ? metadata.tenant_id : null
+  if (tenantId) {
+    requestHeaders.set('x-tenant-id', tenantId)
   }
 
-  // Rewrite /t/[tenant]/... → /(tenant)/...
-  if (pathname.startsWith('/t/')) {
-    const segments = pathname.split('/')
-    const tenantSlug = segments[2]
-    const restPath = segments.slice(3).join('/')
-
-    // Verificar se o tenant existe e o usuário tem acesso
-    if (!tenant || tenant.slug !== tenantSlug) {
-      const notFoundUrl = new URL('/404', request.url)
-      return NextResponse.redirect(notFoundUrl)
-    }
-
-    // Rewrite para route group (tenant)
-    const rewriteUrl = new URL(`/${restPath || 'dashboard'}`, request.url)
-    const response = NextResponse.rewrite(rewriteUrl)
-
-    // Injetar headers para Server Actions/BFF
-    response.headers.set('x-tenant', tenant.slug)
-    response.headers.set('x-tenant-id', tenant.id)
-    response.headers.set('x-user', session.user.id)
-    response.headers.set('x-user-email', session.user.email || '')
-    response.headers.set('x-roles', userRoles.join(','))
-
-    return response
+  requestHeaders.set('x-user', session.user.id)
+  if (session.user.email) {
+    requestHeaders.set('x-user-email', session.user.email)
   }
 
-  // Para rotas diretas do (tenant) group
-  if (
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/clientes') ||
-    pathname.startsWith('/lancamentos') ||
-    pathname.startsWith('/bancos') ||
-    pathname.startsWith('/fiscal') ||
-    pathname.startsWith('/documentos') ||
-    pathname.startsWith('/tarefas') ||
-    pathname.startsWith('/propostas') ||
-    pathname.startsWith('/relatorios') ||
-    pathname.startsWith('/copiloto') ||
-    pathname.startsWith('/config')
-  ) {
-    const response = NextResponse.next()
+  const rolesClaim = metadata.roles
+  const roleList =
+    Array.isArray(rolesClaim) && rolesClaim.length
+      ? rolesClaim.map(value => String(value))
+      : [typeof metadata.role === 'string' ? metadata.role : 'user']
+  requestHeaders.set('x-roles', roleList.join(','))
 
-    // Injetar headers de contexto
-    if (tenant) {
-      response.headers.set('x-tenant', tenant.slug)
-      response.headers.set('x-tenant-id', tenant.id)
-    }
-    response.headers.set('x-user', session.user.id)
-    response.headers.set('x-user-email', session.user.email || '')
-    response.headers.set('x-roles', userRoles.join(','))
+  const isApiRoute = pathname.startsWith('/api')
+  const tenantFromPath = extractTenantFromPath(pathname)
 
-    return response
+  let response: NextResponse
+
+  if (!isApiRoute && tenantFromPath) {
+    const segments = pathname.split('/').filter(Boolean)
+    const rest = segments.slice(2)
+    const targetPath = `/${rest.join('/') || 'dashboard'}`
+
+    const rewriteUrl = request.nextUrl.clone()
+    rewriteUrl.pathname = targetPath
+    response = NextResponse.rewrite(rewriteUrl, {
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  } else {
+    response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
   }
 
-  return NextResponse.next()
+  pendingCookies.forEach(cookie => {
+    response.cookies.set(cookie.name, cookie.value, cookie.options)
+  })
+
+  return response
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/webhooks (webhook routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-     */
-    '/((?!api/webhooks|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest).*)',
   ],
 }
+
+
+

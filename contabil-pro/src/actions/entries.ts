@@ -25,14 +25,13 @@ export const initialEntryFormState: EntryFormState = {
   fieldErrors: {},
 }
 
-// Server Action para criar lançamento contábil
 export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
 
     if (!supabase) {
-      throw new Error('Falha ao preparar contexto de segurança')
+      throw new Error('Falha ao preparar contexto de seguranca')
     }
 
     const validatedData = baseEntrySchema.parse(input)
@@ -53,13 +52,13 @@ export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
       .single()
 
     if (error) {
-      throw new Error(`Erro ao criar lançamento: ${error.message}`)
+      throw new Error(`Erro ao criar lancamento: ${error.message}`)
     }
 
     revalidatePath('/lancamentos')
     return { success: true, data }
   } catch (error) {
-    console.error('Erro ao criar lançamento:', error)
+    console.error('Erro ao criar lancamento:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido',
@@ -78,11 +77,7 @@ export async function createEntryFromForm(
     amount: Number(formData.get('amount') ?? 0),
     type: (formData.get('type') ?? '').toString(),
     date: formData.get('date') ? new Date(formData.get('date')!.toString()) : new Date(),
-    document_id: formData.get('document_id')
-      ? formData.get('document_id')!.toString()
-      : undefined,
-    tenant_id: undefined,
-    created_at: undefined,
+    document_id: formData.get('document_id') ? formData.get('document_id')!.toString() : undefined,
   }
 
   const parsed = baseEntrySchema.safeParse(input)
@@ -90,7 +85,7 @@ export async function createEntryFromForm(
   if (!parsed.success) {
     return {
       status: 'error',
-      message: 'Não foi possível validar o lançamento.',
+      message: 'Nao foi possivel validar o lancamento.',
       fieldErrors: parsed.error.flatten().fieldErrors,
     }
   }
@@ -100,24 +95,23 @@ export async function createEntryFromForm(
   if (!result.success) {
     return {
       status: 'error',
-      message: result.error ?? 'Erro desconhecido ao criar lançamento.',
+      message: result.error ?? 'Erro desconhecido ao criar lancamento.',
     }
   }
 
   return {
     status: 'success',
-    message: 'Lançamento registrado com sucesso.',
+    message: 'Lancamento registrado com sucesso.',
   }
 }
 
-// Server Action para listar lançamentos
 export async function getEntries() {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
 
     if (!supabase) {
-      throw new Error('Falha ao preparar contexto de segurança')
+      throw new Error('Falha ao preparar contexto de seguranca')
     }
 
     const { data, error } = await supabase
@@ -132,12 +126,12 @@ export async function getEntries() {
       .order('date', { ascending: false })
 
     if (error) {
-      throw new Error(`Erro ao buscar lançamentos: ${error.message}`)
+      throw new Error(`Erro ao buscar lancamentos: ${error.message}`)
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error('Erro ao buscar lançamentos:', error)
+    console.error('Erro ao buscar lancamentos:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido',
@@ -145,14 +139,13 @@ export async function getEntries() {
   }
 }
 
-// Server Action para classificar lançamento com IA
 export async function classifyEntry(entryId: string) {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
 
     if (!supabase) {
-      throw new Error('Falha ao preparar contexto de segurança')
+      throw new Error('Falha ao preparar contexto de seguranca')
     }
 
     const { data: entry, error: entryError } = await supabase
@@ -162,15 +155,14 @@ export async function classifyEntry(entryId: string) {
       .single()
 
     if (entryError) {
-      throw new Error(`Erro ao buscar lançamento: ${entryError.message}`)
+      throw new Error(`Erro ao buscar lancamento: ${entryError.message}`)
     }
 
-    // Simular classificação IA (placeholder)
     const aiClassification = {
       confidence: 0.85,
       suggested_account: 'receitas-vendas',
       keywords: ['venda', 'produto'],
-      explanation: 'Classificado como receita de vendas baseado na descrição',
+      explanation: 'Classificado como receita de vendas baseado na descricao',
     }
 
     const { error: insightError } = await supabase.from('ai_insights').insert({
@@ -189,7 +181,7 @@ export async function classifyEntry(entryId: string) {
     revalidatePath('/lancamentos')
     return { success: true, data: aiClassification }
   } catch (error) {
-    console.error('Erro ao classificar lançamento:', error)
+    console.error('Erro ao classificar lancamento:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido',

@@ -6,7 +6,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table'
 import type { Client } from '@/lib/validations'
 

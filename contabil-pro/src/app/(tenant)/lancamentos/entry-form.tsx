@@ -6,7 +6,13 @@ import { createEntryFromForm, initialEntryFormState } from '@/actions/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export function EntryForm() {
   const [state, action, isPending] = useActionState(createEntryFromForm, initialEntryFormState)
@@ -23,14 +29,26 @@ export function EntryForm() {
       <div className='grid gap-2 md:grid-cols-2 md:gap-4'>
         <div className='grid gap-2'>
           <Label htmlFor='client_id'>ID do cliente</Label>
-          <Input id='client_id' name='client_id' required disabled={isPending} placeholder='UUID do cliente' />
+          <Input
+            id='client_id'
+            name='client_id'
+            required
+            disabled={isPending}
+            placeholder='UUID do cliente'
+          />
           {state.fieldErrors?.client_id && (
             <p className='text-sm text-destructive'>{state.fieldErrors.client_id.join(', ')}</p>
           )}
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='account_id'>ID da conta</Label>
-          <Input id='account_id' name='account_id' required disabled={isPending} placeholder='UUID da conta' />
+          <Input
+            id='account_id'
+            name='account_id'
+            required
+            disabled={isPending}
+            placeholder='UUID da conta'
+          />
           {state.fieldErrors?.account_id && (
             <p className='text-sm text-destructive'>{state.fieldErrors.account_id.join(', ')}</p>
           )}
@@ -39,7 +57,13 @@ export function EntryForm() {
 
       <div className='grid gap-2'>
         <Label htmlFor='description'>Descricao</Label>
-        <Input id='description' name='description' required disabled={isPending} placeholder='Servicos prestados' />
+        <Input
+          id='description'
+          name='description'
+          required
+          disabled={isPending}
+          placeholder='Servicos prestados'
+        />
         {state.fieldErrors?.description && (
           <p className='text-sm text-destructive'>{state.fieldErrors.description.join(', ')}</p>
         )}

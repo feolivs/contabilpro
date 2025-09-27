@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+﻿import { cookies } from 'next/headers'
 
 import {
   type CookieOptions,
@@ -28,7 +28,7 @@ export async function createServerClient() {
     throw new Error('Missing Supabase server client configuration')
   }
 
-  const cookieStore = await cookies()
+  const cookieStore = cookies()
 
   return createSupabaseServerClient(url, anonKey, {
     cookies: {
@@ -49,7 +49,7 @@ export async function createServerClient() {
   })
 }
 
-// Cliente com service role para operações administrativas (somente servidor)
+// Cliente com service role para operacoes administrativas (somente servidor)
 export function createAdminClient() {
   if (typeof window !== 'undefined') {
     throw new Error('createAdminClient must only be called on the server')
@@ -74,3 +74,4 @@ export function createAdminClient() {
     },
   })
 }
+

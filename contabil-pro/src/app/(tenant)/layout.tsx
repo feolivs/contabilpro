@@ -1,4 +1,4 @@
-import { Inter } from 'next/font/google'
+﻿import { Inter } from 'next/font/google'
 import { headers } from 'next/headers'
 
 import { AppSidebar } from '@/components/app-sidebar'
@@ -10,18 +10,13 @@ import '../globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default async function TenantLayout({ children }: { children: React.ReactNode }) {
-  // Ler contexto dos headers (injetados pelo middleware)
-  const headersList = await headers()
-  const tenantSlug = headersList.get('x-tenant')
-  const tenantId = headersList.get('x-tenant-id')
-  const userId = headersList.get('x-user')
-  const userEmail = headersList.get('x-user-email')
-  const roles = headersList.get('x-roles')?.split(',') || []
+export default function TenantLayout({ children }: { children: React.ReactNode }) {
+  const headerList = headers()
+  const tenantSlug = headerList.get('x-tenant') ?? ''
+  const roles = headerList.get('x-roles') ?? ''
 
-  // Layout do tenant sem lógica pesada - apenas UI
   return (
-    <div className={inter.className}>
+    <div className={inter.className} data-tenant={tenantSlug} data-roles={roles}>
       <Providers>
         <SidebarProvider>
           <AppSidebar />

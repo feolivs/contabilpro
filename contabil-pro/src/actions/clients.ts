@@ -11,7 +11,7 @@ const baseClientSchema = clientSchema.omit({
   id: true,
   tenant_id: true,
   created_at: true,
-  updated_at: true
+  updated_at: true,
 })
 
 const updateClientSchema = baseClientSchema.partial()
@@ -25,7 +25,7 @@ export type ClientFormState = {
 export const initialClientFormState: ClientFormState = {
   status: 'idle',
   message: null,
-  fieldErrors: {}
+  fieldErrors: {},
 }
 
 export async function createClient(input: z.infer<typeof baseClientSchema>) {
@@ -43,7 +43,7 @@ export async function createClient(input: z.infer<typeof baseClientSchema>) {
       .from('clients')
       .insert({
         ...validatedData,
-        tenant_id: session.tenant_id
+        tenant_id: session.tenant_id,
       })
       .select()
       .single()
@@ -58,21 +58,21 @@ export async function createClient(input: z.infer<typeof baseClientSchema>) {
     console.error('Erro ao criar cliente:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
     }
   }
 }
 
 export async function createClientFromForm(
   _prevState: ClientFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ClientFormState> {
   const input = {
     name: (formData.get('name') ?? '').toString(),
     email: formData.get('email') ? formData.get('email')!.toString() : undefined,
     document: (formData.get('document') ?? '').toString(),
     phone: formData.get('phone') ? formData.get('phone')!.toString() : undefined,
-    address: formData.get('address') ? formData.get('address')!.toString() : undefined
+    address: formData.get('address') ? formData.get('address')!.toString() : undefined,
   }
 
   const parsed = baseClientSchema.safeParse(input)
@@ -81,7 +81,7 @@ export async function createClientFromForm(
     return {
       status: 'error',
       message: 'Nao foi possivel validar os dados do cliente.',
-      fieldErrors: parsed.error.flatten().fieldErrors
+      fieldErrors: parsed.error.flatten().fieldErrors,
     }
   }
 
@@ -90,13 +90,13 @@ export async function createClientFromForm(
   if (!result.success) {
     return {
       status: 'error',
-      message: result.error ?? 'Erro desconhecido ao criar cliente.'
+      message: result.error ?? 'Erro desconhecido ao criar cliente.',
     }
   }
 
   return {
     status: 'success',
-    message: 'Cliente criado com sucesso.'
+    message: 'Cliente criado com sucesso.',
   }
 }
 
@@ -123,15 +123,12 @@ export async function getClients() {
     console.error('Erro ao buscar clientes:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
     }
   }
 }
 
-export async function updateClient(
-  id: string,
-  input: z.infer<typeof updateClientSchema>
-) {
+export async function updateClient(id: string, input: z.infer<typeof updateClientSchema>) {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -159,7 +156,7 @@ export async function updateClient(
     console.error('Erro ao atualizar cliente:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
     }
   }
 }
@@ -173,10 +170,7 @@ export async function deleteClient(id: string) {
       throw new Error('Nao foi possivel preparar o contexto de seguranca.')
     }
 
-    const { error } = await supabase
-      .from('clients')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('clients').delete().eq('id', id)
 
     if (error) {
       throw new Error(`Erro ao excluir cliente: ${error.message}`)
@@ -188,7 +182,7 @@ export async function deleteClient(id: string) {
     console.error('Erro ao excluir cliente:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
     }
   }
 }

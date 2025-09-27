@@ -1,198 +1,76 @@
-import Link from 'next/link'
-
-import { ArrowRight, Calculator, CheckCircle, FileText, TrendingUp, Zap } from 'lucide-react'
-
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+﻿import Link from 'next/link'
 
 export default function LandingPage() {
+  const highlights = [
+    {
+      title: 'IA para classificacao',
+      body: 'Sugestoes automaticas de conta e centro de custo com explicacao auditavel.',
+    },
+    {
+      title: 'Automacao fiscal',
+      body: 'NFe, NFSe nacional e calculo de guias sem planilha manual.',
+    },
+    {
+      title: 'Open Finance',
+      body: 'Conciliacao bancaria assistida com rastreabilidade completa.',
+    },
+  ]
+
   return (
-    <div className='flex flex-col min-h-screen'>
-      {/* Header */}
-      <header className='px-4 lg:px-6 h-14 flex items-center border-b'>
-        <Link className='flex items-center justify-center' href='/'>
-          <Calculator className='h-6 w-6 mr-2' />
-          <span className='font-bold text-xl'>ContabilPRO</span>
+    <div className="flex min-h-screen flex-col">
+      <header className="flex h-14 items-center justify-between border-b px-6">
+        <Link className="font-semibold" href="/">
+          ContabilPRO
         </Link>
-        <nav className='ml-auto flex gap-4 sm:gap-6'>
-          <Link className='text-sm font-medium hover:underline underline-offset-4' href='#features'>
-            Recursos
-          </Link>
-          <Link className='text-sm font-medium hover:underline underline-offset-4' href='#pricing'>
-            Preços
-          </Link>
-          <Link className='text-sm font-medium hover:underline underline-offset-4' href='/login'>
-            Entrar
-          </Link>
+        <nav className="flex gap-4 text-sm">
+          <Link href="#features">Recursos</Link>
+          <Link href="/pricing">Precos</Link>
+          <Link href="/login">Entrar</Link>
         </nav>
       </header>
 
-      <main className='flex-1'>
-        {/* Hero Section */}
-        <section className='w-full py-12 md:py-24 lg:py-32 xl:py-48'>
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <Badge variant='secondary' className='mb-4'>
-                  🚀 Novo: Integração com Open Finance
-                </Badge>
-                <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none'>
-                  Contabilidade Inteligente
-                  <br />
-                  <span className='text-primary'>com IA e Automação</span>
-                </h1>
-                <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400'>
-                  Plataforma completa para escritórios contábeis com classificação automática,
-                  conciliação bancária, emissão de NFe e cálculo de impostos.
-                </p>
-              </div>
-              <div className='space-x-4'>
-                <Button size='lg' asChild>
-                  <Link href='/register'>
-                    Começar Gratuitamente
-                    <ArrowRight className='ml-2 h-4 w-4' />
-                  </Link>
-                </Button>
-                <Button variant='outline' size='lg' asChild>
-                  <Link href='/demo'>Ver Demo</Link>
-                </Button>
-              </div>
-            </div>
+      <main className="flex-1">
+        <section className="flex flex-col items-center gap-6 px-6 py-20 text-center">
+          <p className="text-sm font-medium text-primary">Multi-tenant com RLS pronto para uso</p>
+          <h1 className="text-4xl font-bold sm:text-5xl">
+            Contabilidade moderna com IA e automacao
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Uma so plataforma para importar XML, conciliar extratos do Open Finance, gerar guias fiscais e
+            colaborar com os clientes em tempo real.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              className="rounded bg-primary px-5 py-2 text-sm font-medium text-primary-foreground"
+              href="/register"
+            >
+              Comecar gratis
+            </Link>
+            <Link className="rounded border px-5 py-2 text-sm font-medium" href="/pricing">
+              Ver planos
+            </Link>
           </div>
         </section>
 
-        {/* Features Section */}
-        <section
-          id='features'
-          className='w-full py-12 md:py-24 lg:py-32 bg-gray-50 dark:bg-gray-900'
-        >
-          <div className='container px-4 md:px-6'>
-            <div className='text-center mb-12'>
-              <h2 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl'>
-                Recursos Poderosos
-              </h2>
-              <p className='mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 mt-4'>
-                Tudo que você precisa para modernizar sua contabilidade
-              </p>
-            </div>
-
-            <div className='grid gap-6 lg:grid-cols-3 lg:gap-12'>
-              <Card>
-                <CardHeader>
-                  <Zap className='h-10 w-10 text-primary mb-2' />
-                  <CardTitle>IA para Classificação</CardTitle>
-                  <CardDescription>
-                    Classificação automática de lançamentos com 95% de precisão
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className='space-y-2 text-sm'>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Reconhecimento de padrões
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Sugestões inteligentes
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Aprendizado contínuo
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <FileText className='h-10 w-10 text-primary mb-2' />
-                  <CardTitle>Automação Fiscal</CardTitle>
-                  <CardDescription>NFe, NFS-e e cálculo automático de impostos</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className='space-y-2 text-sm'>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Emissão de NFe
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Cálculo de DAS
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Obrigações fiscais
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <TrendingUp className='h-10 w-10 text-primary mb-2' />
-                  <CardTitle>Open Finance</CardTitle>
-                  <CardDescription>Conciliação bancária automática e segura</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className='space-y-2 text-sm'>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Conexão com bancos
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Conciliação automática
-                    </li>
-                    <li className='flex items-center'>
-                      <CheckCircle className='h-4 w-4 text-green-500 mr-2' />
-                      Segurança FAPI
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className='w-full py-12 md:py-24 lg:py-32'>
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl'>
-                  Pronto para Modernizar?
-                </h2>
-                <p className='mx-auto max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400'>
-                  Junte-se a centenas de escritórios que já automatizaram sua contabilidade
-                </p>
-              </div>
-              <div className='space-x-4'>
-                <Button size='lg' asChild>
-                  <Link href='/register'>
-                    Começar Agora
-                    <ArrowRight className='ml-2 h-4 w-4' />
-                  </Link>
-                </Button>
-              </div>
-            </div>
+        <section id="features" className="bg-muted/30 px-6 py-16">
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+            {highlights.map(feature => (
+              <article key={feature.title} className="rounded-lg border bg-background p-6 shadow-sm">
+                <h2 className="text-lg font-semibold">{feature.title}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{feature.body}</p>
+              </article>
+            ))}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className='flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t'>
-        <p className='text-xs text-gray-500 dark:text-gray-400'>
-          © 2024 ContabilPRO. Todos os direitos reservados.
-        </p>
-        <nav className='sm:ml-auto flex gap-4 sm:gap-6'>
-          <Link className='text-xs hover:underline underline-offset-4' href='/termos'>
-            Termos de Uso
-          </Link>
-          <Link className='text-xs hover:underline underline-offset-4' href='/privacidade'>
-            Privacidade
-          </Link>
-        </nav>
+      <footer className="flex flex-col items-center gap-2 border-t px-6 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+        <span>(c) {new Date().getFullYear()} ContabilPRO</span>
+        <div className="flex gap-4">
+          <Link href="/about">Sobre</Link>
+          <Link href="/privacidade">Privacidade</Link>
+          <Link href="/termos">Termos</Link>
+        </div>
       </footer>
     </div>
   )

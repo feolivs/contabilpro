@@ -6,7 +6,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table'
 import type { Entry } from '@/lib/validations'
 
@@ -20,7 +20,7 @@ type EntriesTableProps = {
 const currency = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
-  minimumFractionDigits: 2
+  minimumFractionDigits: 2,
 })
 
 function formatDate(value?: string | Date | null) {
