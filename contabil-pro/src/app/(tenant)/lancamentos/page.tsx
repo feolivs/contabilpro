@@ -1,14 +1,20 @@
-﻿import Link from 'next/link'
+﻿import { headers } from 'next/headers'
+import Link from 'next/link'
 
 import { getEntries } from '@/actions/entries'
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/rbac'
+import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 
 import { EntriesTable } from './entries-table'
 import { EntryForm } from './entry-form'
 
 export default async function LancamentosPage() {
   await requirePermission('lancamentos.read')
+
+  const headersList = await headers()
+  const importUrl = buildTenantUrlFromHeaders(headersList, '/lancamentos/importar')
+  const newEntryUrl = buildTenantUrlFromHeaders(headersList, '/lancamentos/novo')
 
   const result = await getEntries()
   const entries = result.success && Array.isArray(result.data) ? result.data : []
@@ -24,10 +30,10 @@ export default async function LancamentosPage() {
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Button asChild variant='outline' size='sm'>
-            <Link href='/lancamentos/importar'>Importar lancamentos</Link>
+            <Link href={importUrl}>Importar lancamentos</Link>
           </Button>
           <Button asChild size='sm'>
-            <Link href='/lancamentos/novo'>Novo lancamento</Link>
+            <Link href={newEntryUrl}>Novo lancamento</Link>
           </Button>
         </div>
       </div>

@@ -1,14 +1,20 @@
-﻿import Link from 'next/link'
+﻿import { headers } from 'next/headers'
+import Link from 'next/link'
 
 import { getBankAccounts } from '@/actions/bank-accounts'
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/rbac'
+import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 
 import { BankAccountForm } from './bank-account-form'
 import { BankAccountsTable } from './bank-accounts-table'
 
 export default async function BancosPage() {
   await requirePermission('bancos.read')
+
+  const headersList = await headers()
+  const importUrl = buildTenantUrlFromHeaders(headersList, '/bancos/importar')
+  const newAccountUrl = buildTenantUrlFromHeaders(headersList, '/bancos/novo')
 
   const result = await getBankAccounts()
   const accounts = result.success && Array.isArray(result.data) ? result.data : []
@@ -24,10 +30,10 @@ export default async function BancosPage() {
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Button asChild variant='outline' size='sm'>
-            <Link href='/bancos/importar'>Importar transacoes</Link>
+            <Link href={importUrl}>Importar transacoes</Link>
           </Button>
           <Button asChild size='sm'>
-            <Link href='/bancos/novo'>Nova conta</Link>
+            <Link href={newAccountUrl}>Nova conta</Link>
           </Button>
         </div>
       </div>

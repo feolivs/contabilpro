@@ -151,12 +151,40 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set('x-user-email', session.user.email)
   }
 
+  // Tentar resolver o papel (role) do usuário no tenant atual a partir do banco
+  // para evitar inconsistências com app_metadata. Se falhar, usamos o metadata.
+  let resolvedRoles: string[] = []
+
+  try {
+    if (tenantSlug) {
+      const { data: membership, error: membershipError } = await supabase
+        .from('user_tenants')
+        .select('role, tenants!inner(slug)')
+        .eq('user_id', session.user.id)
+        .eq('tenants.slug', tenantSlug)
+        .limit(1)
+        .maybeSingle()
+
+      if (!membershipError && membership?.role) {
+        resolvedRoles = [String(membership.role)]
+      }
+    }
+  } catch {
+    // Ignora qualquer erro e cai no fallback via metadata
+  }
+
   const rolesClaim = metadata.roles
-  const roleList =
-    Array.isArray(rolesClaim) && rolesClaim.length
-      ? rolesClaim.map(value => String(value))
-      : [typeof metadata.role === 'string' ? metadata.role : 'user']
-  requestHeaders.set('x-roles', roleList.join(','))
+  if (resolvedRoles.length === 0) {
+    const metaRoles =
+      Array.isArray(rolesClaim) && rolesClaim.length
+        ? rolesClaim.map(value => String(value))
+        : [typeof metadata.role === 'string' ? metadata.role : 'user']
+    resolvedRoles = metaRoles
+  }
+
+  // Normaliza roles (trim + lower) e aplica no header
+  const normalizedRoles = resolvedRoles.map(r => String(r).trim().toLowerCase()).filter(Boolean)
+  requestHeaders.set('x-roles', normalizedRoles.join(','))
 
   const isApiRoute = pathname.startsWith('/api')
   const tenantFromPath = extractTenantFromPath(pathname)

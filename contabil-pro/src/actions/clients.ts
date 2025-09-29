@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { revalidatePath } from 'next/cache'
 
@@ -6,6 +6,7 @@ import { type z } from 'zod'
 
 import { requireAuth, setRLSContext } from '@/lib/auth'
 import { clientSchema } from '@/lib/validations'
+import type { ClientFormState, ClientImportState } from '@/actions/clients-state'
 
 const baseClientSchema = clientSchema.omit({
   id: true,
@@ -16,32 +17,6 @@ const baseClientSchema = clientSchema.omit({
 
 const updateClientSchema = baseClientSchema.partial()
 
-export type ClientFormState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  fieldErrors?: Record<string, string[]>
-}
-
-export const initialClientFormState: ClientFormState = {
-  status: 'idle',
-  message: null,
-  fieldErrors: {},
-}
-
-export type ClientImportState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  summary?: {
-    processed: number
-    created: number
-    skipped: number
-  }
-}
-
-export const initialClientImportState: ClientImportState = {
-  status: 'idle',
-  message: null,
-}
 
 export async function createClient(input: z.infer<typeof baseClientSchema>) {
   try {

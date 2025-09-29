@@ -34,7 +34,123 @@ Fase 2 — Frontend esqueleto navegável (2–3 dias)
 
 Objetivo: mapa de páginas clicável para validar fluxo.
 
-/dashboard, /clientes, /lancamentos, /documentos, /fiscal, /bancos, /tarefas, /copiloto, /config.
+Dashboard
+
+Objetivo: visão rápida do mês.
+
+Faixa 1 (KPI Cards): Faturamento, Despesas, Caixa, Variação.
+
+Faixa 2 (Gráfico de tendência): linha/área M-1 → M.
+
+Faixa 3 (Atividade recente): lançamentos, uploads, tarefas.
+
+Empty state: “Cadastre seu primeiro cliente”, “Importe extrato”.
+
+Assistente de IA
+
+Objetivo: central de conversa + ações guiadas.
+
+Header local: título + Chips de Contexto (Cliente, Período, Conta).
+
+Chat (coluna central): histórico, respostas com “Por quê”/“Citações”.
+
+Composer (rodapé da coluna): input com /comandos (ex.: /resumo, /conciliar, /explicar) e anexos.
+
+Painel lateral (direita): Insights (anomalias, pendências) com botões “Aplicar ação”.
+
+Empty state: cartões de sugestão (“Resumo do mês”, “Conciliação pendente”).
+
+Clientes
+
+Objetivo: cadastro e gestão.
+
+Toolbar: busca, filtros (ativo/inativo), “Novo cliente”.
+
+Tabela (lista): Nome, CNPJ/CPF, Status, Saldo, Ações.
+
+Painel/Modal de cliente: Dados, Endereço, Anexos (tabs).
+
+Empty state: “Nenhum cliente — Cadastrar”.
+
+Bancos
+
+Objetivo: contas e extratos.
+
+Cards de contas: Nome, Banco, Saldo.
+
+Tabela de transações: Data, Descrição, Valor, Status (conciliado/não).
+
+Barra de filtros: período, tipo (débito/crédito), status.
+
+Área de importação: “Arraste OFX/CSV” + preview.
+
+Empty state: “Conecte/importe uma conta”.
+
+Lançamentos
+
+Objetivo: registrar rápido.
+
+Form compacto no topo: Descrição, Valor, Conta, Categoria, Cliente, Competência.
+
+Ações rápidas: “Duplicar”, “Conciliar”, “Marcar como fixo”.
+
+Tabela (edição inline): Data, Descrição, Categoria, Centro de custo, Valor, Status.
+
+Chips de filtro: mês, status, tipo.
+
+Empty state: “Crie seu primeiro lançamento”.
+
+Documentos
+
+Objetivo: central de arquivos.
+
+Toolbar: upload, busca, filtros (tipo, período, origem).
+
+Grid/Lista: thumb, nome, data, vínculo (cliente/lançamento).
+
+Painel lateral: metadados + “Vincular a…”.
+
+Empty state: “Arraste PDFs/Imagens/CSV”.
+
+Tarefas
+
+Objetivo: execução e prazos.
+
+Inbox (lista): Título, Prioridade, Vencimento, Responsável.
+
+Kanban simples: Colunas (A Fazer → Fazendo → Feito).
+
+Quick add: criar tarefa rápida no topo.
+
+Empty state: “Sem tarefas — Adicionar”.
+
+Relatórios
+
+Objetivo: análise e exportação.
+
+Layout 2 colunas: Filtros à esquerda (período, contas, clientes).
+
+Tabela principal: linhas/grupos por conta/categoria.
+
+Placeholder de gráficos: tendência e composição.
+
+Ações: Exportar (CSV/PDF), salvar filtros.
+
+Empty state: “Selecione um período”.
+
+Configurações
+
+Tabs:
+
+Perfil
+
+Empresa
+
+Preferências de UI (tema, densidade, idioma)
+
+Teclado & Atalhos (mapa de hotkeys)
+
+Integrações (cartões com status e parâmetros — UI)
 
 Server Actions para mutações próximas da UI (criar cliente, anexar documento). Form Actions e revalidação. 
 Next.js

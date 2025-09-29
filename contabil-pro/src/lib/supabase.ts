@@ -28,7 +28,7 @@ export async function createServerClient() {
     throw new Error('Missing Supabase server client configuration')
   }
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   return createSupabaseServerClient(url, anonKey, {
     cookies: {

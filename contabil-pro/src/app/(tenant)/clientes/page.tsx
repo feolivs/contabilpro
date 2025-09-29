@@ -1,14 +1,20 @@
-﻿import Link from 'next/link'
+﻿import { headers } from 'next/headers'
+import Link from 'next/link'
 
 import { getClients } from '@/actions/clients'
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/rbac'
+import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 
 import { ClientForm } from './client-form'
 import { ClientsTable } from './clients-table'
 
 export default async function ClientesPage() {
   await requirePermission('clientes.read')
+
+  const headersList = await headers()
+  const importUrl = buildTenantUrlFromHeaders(headersList, '/clientes/importar')
+  const newClientUrl = buildTenantUrlFromHeaders(headersList, '/clientes/novo')
 
   const result = await getClients()
   const clients = result.success && Array.isArray(result.data) ? result.data : []
@@ -22,10 +28,10 @@ export default async function ClientesPage() {
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Button asChild variant='outline' size='sm'>
-            <Link href='/clientes/importar'>Importar clientes</Link>
+            <Link href={importUrl}>Importar clientes</Link>
           </Button>
           <Button asChild size='sm'>
-            <Link href='/clientes/novo'>Novo cliente</Link>
+            <Link href={newClientUrl}>Novo cliente</Link>
           </Button>
         </div>
       </div>

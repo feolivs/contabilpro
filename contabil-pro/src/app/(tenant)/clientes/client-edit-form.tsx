@@ -1,8 +1,9 @@
-﻿'use client'
+'use client'
 
 import { useActionState } from 'react'
 
-import { initialClientFormState, updateClientFromForm } from '@/actions/clients'
+import { updateClientFromForm } from '@/actions/clients'
+import { initialClientFormState } from '@/actions/clients-state'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

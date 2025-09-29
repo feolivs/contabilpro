@@ -2,7 +2,8 @@
 
 import { useActionState } from 'react'
 
-import { createClientFromForm, initialClientFormState } from '@/actions/clients'
+import { createClientFromForm } from '@/actions/clients'
+import { initialClientFormState } from '@/actions/clients-state'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
