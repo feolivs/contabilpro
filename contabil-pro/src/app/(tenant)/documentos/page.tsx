@@ -2,8 +2,8 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function DocumentosPage() {
   await requirePermission('documentos.read')
@@ -16,9 +16,7 @@ export default async function DocumentosPage() {
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Documentos</h1>
-          <p className='text-muted-foreground'>
-            Central de arquivos, uploads e gestão documental.
-          </p>
+          <p className='text-muted-foreground'>Central de arquivos, uploads e gestão documental.</p>
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Button variant='outline' size='sm' disabled>
@@ -54,13 +52,11 @@ export default async function DocumentosPage() {
           </div>
           <h3 className='mt-4 text-lg font-semibold'>Nenhum documento encontrado</h3>
           <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-            Arraste PDFs, imagens ou CSVs para fazer upload, ou use o botão acima
-            para começar a organizar seus documentos.
+            Arraste PDFs, imagens ou CSVs para fazer upload, ou use o botão acima para começar a
+            organizar seus documentos.
           </p>
           <div className='flex items-center gap-2'>
-            <Button disabled>
-              Fazer upload
-            </Button>
+            <Button disabled>Fazer upload</Button>
             <Button variant='outline' disabled>
               Importar pasta
             </Button>
@@ -69,10 +65,7 @@ export default async function DocumentosPage() {
       </div>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

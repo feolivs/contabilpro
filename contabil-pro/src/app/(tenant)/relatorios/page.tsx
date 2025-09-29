@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function RelatoriosPage() {
   await requirePermission('relatorios.read')
@@ -42,21 +42,21 @@ export default async function RelatoriosPage() {
             </CardHeader>
             <CardContent className='space-y-4'>
               <div>
-                <label className='text-sm font-medium'>Período</label>
+                <p className='text-sm font-medium'>Período</p>
                 <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                   Selecione um período
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-medium'>Contas</label>
+                <p className='text-sm font-medium'>Contas</p>
                 <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                   Todas as contas
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-medium'>Clientes</label>
+                <p className='text-sm font-medium'>Clientes</p>
                 <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                   Todos os clientes
                 </div>
@@ -100,8 +100,8 @@ export default async function RelatoriosPage() {
                     </div>
                     <h3 className='mt-4 text-lg font-semibold'>Selecione um período</h3>
                     <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-                      Configure os filtros ao lado para gerar seu relatório
-                      com dados de receitas, despesas e análises.
+                      Configure os filtros ao lado para gerar seu relatório com dados de receitas,
+                      despesas e análises.
                     </p>
                   </div>
                 </div>
@@ -124,9 +124,7 @@ export default async function RelatoriosPage() {
                   <Button variant='outline' disabled>
                     Exportar PDF
                   </Button>
-                  <Button disabled>
-                    Salvar filtros
-                  </Button>
+                  <Button disabled>Salvar filtros</Button>
                 </div>
               </div>
             </CardContent>
@@ -135,10 +133,7 @@ export default async function RelatoriosPage() {
       </div>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

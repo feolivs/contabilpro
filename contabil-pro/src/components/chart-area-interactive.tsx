@@ -2,8 +2,6 @@
 
 import * as React from 'react'
 
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-
 import type { TrendPoint } from '@/actions/dashboard'
 import {
   Card,
@@ -24,6 +22,8 @@ import {
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useIsMobile } from '@/hooks/use-mobile'
+
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 
 export const description = 'Receita e despesa agregadas por dia'
 

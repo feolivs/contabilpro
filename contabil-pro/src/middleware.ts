@@ -1,9 +1,8 @@
 ﻿import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { createServerClient } from '@supabase/ssr'
-
 import { extractTenantFromPath, resolveTenantSlug } from './lib/tenants'
+import { createServerClient } from '@supabase/ssr'
 
 interface PendingCookie {
   name: string
@@ -128,10 +127,11 @@ export async function middleware(request: NextRequest) {
   )
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (error || !user) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(redirectUrl)
@@ -140,15 +140,15 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-tenant', tenantSlug)
 
-  const metadata = (session.user.app_metadata ?? {}) as Record<string, unknown>
+  const metadata = (user.app_metadata ?? {}) as Record<string, unknown>
   const tenantId = typeof metadata.tenant_id === 'string' ? metadata.tenant_id : null
   if (tenantId) {
     requestHeaders.set('x-tenant-id', tenantId)
   }
 
-  requestHeaders.set('x-user', session.user.id)
-  if (session.user.email) {
-    requestHeaders.set('x-user-email', session.user.email)
+  requestHeaders.set('x-user', user.id)
+  if (user.email) {
+    requestHeaders.set('x-user-email', user.email)
   }
 
   // Tentar resolver o papel (role) do usuário no tenant atual a partir do banco
@@ -160,7 +160,7 @@ export async function middleware(request: NextRequest) {
       const { data: membership, error: membershipError } = await supabase
         .from('user_tenants')
         .select('role, tenants!inner(slug)')
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .eq('tenants.slug', tenantSlug)
         .limit(1)
         .maybeSingle()

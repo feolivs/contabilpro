@@ -13,7 +13,7 @@ export function buildTenantUrl(tenantSlug: string | null | undefined, path: stri
 
   // Remove leading slash se existir
   const cleanPath = path.startsWith('/') ? path.slice(1) : path
-  
+
   // Constrói URL com tenant
   return `/t/${tenantSlug}/${cleanPath}`
 }

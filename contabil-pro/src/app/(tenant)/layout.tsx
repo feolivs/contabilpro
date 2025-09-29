@@ -19,11 +19,12 @@ export default async function TenantLayout({ children }: { children: React.React
   const tenantSlug = context?.tenantSlug ?? fallbackHeaders.get('x-tenant') ?? ''
   const roles =
     context?.roles ??
-    (fallbackHeaders
+    fallbackHeaders
       .get('x-roles')
       ?.split(',')
       .map(r => r.trim().toLowerCase())
-      .filter(Boolean) ?? [])
+      .filter(Boolean) ??
+    []
   const permissions = getPermissionsForRoles(roles)
   const navGroups = filterNavigationByPermissions(tenantNavigation, permissions)
 

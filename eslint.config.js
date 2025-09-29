@@ -178,10 +178,19 @@ export default [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
     plugins: sharedPlugins,
     rules: sharedRules,
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
   },
   {
     files: ['scripts/**/*.js'],
@@ -196,6 +205,25 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
+  {
+    files: [
+      '**/__tests__/**/*.{ts,tsx}',
+      '**/*.test.{ts,tsx}',
+      'src/test/**/*.{ts,tsx}',
+    ],
+    languageOptions: {
+      globals: {
+        vi: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
     },
   },
 ]

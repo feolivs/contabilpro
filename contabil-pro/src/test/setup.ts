@@ -1,7 +1,6 @@
-import { cleanup } from '@testing-library/react'
-import { afterEach, beforeAll } from 'vitest'
-
 import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterEach, beforeAll, vi } from 'vitest'
 
 // Configurar variáveis de ambiente para testes
 beforeAll(() => {

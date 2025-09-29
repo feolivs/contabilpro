@@ -2,8 +2,8 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function TarefasPage() {
   await requirePermission('tarefas.read')
@@ -83,20 +83,15 @@ export default async function TarefasPage() {
           </div>
           <h3 className='mt-4 text-lg font-semibold'>Sem tarefas pendentes</h3>
           <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-            Crie sua primeira tarefa para começar a organizar seu trabalho
-            e acompanhar prazos importantes.
+            Crie sua primeira tarefa para começar a organizar seu trabalho e acompanhar prazos
+            importantes.
           </p>
-          <Button disabled>
-            Adicionar tarefa
-          </Button>
+          <Button disabled>Adicionar tarefa</Button>
         </div>
       </div>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

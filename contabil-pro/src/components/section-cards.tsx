@@ -1,6 +1,4 @@
-﻿import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react'
-
-import type { DashboardSummary } from '@/actions/dashboard'
+﻿import type { DashboardSummary } from '@/actions/dashboard'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -10,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+
+import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react'
 
 interface SectionCardsProps {
   summary: DashboardSummary

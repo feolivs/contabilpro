@@ -19,13 +19,13 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 async function setupDatabase() {
   console.log('🚀 Configurando banco de dados...')
-  
+
   try {
     // 1. Criar tabela tenants
     console.log('📝 Criando tabela tenants...')
@@ -48,9 +48,9 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_tenants_slug ON tenants(slug);
         CREATE INDEX IF NOT EXISTS idx_tenants_document ON tenants(document);
         CREATE INDEX IF NOT EXISTS idx_tenants_status ON tenants(status);
-      `
+      `,
     })
-    
+
     if (tenantsError) {
       console.error('❌ Erro ao criar tabela tenants:', tenantsError)
     } else {
@@ -74,9 +74,9 @@ async function setupDatabase() {
         
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
-      `
+      `,
     })
-    
+
     if (usersError) {
       console.error('❌ Erro ao criar tabela users:', usersError)
     } else {
@@ -103,9 +103,9 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_user_tenants_tenant_id ON user_tenants(tenant_id);
         CREATE INDEX IF NOT EXISTS idx_user_tenants_role ON user_tenants(role);
         CREATE INDEX IF NOT EXISTS idx_user_tenants_status ON user_tenants(status);
-      `
+      `,
     })
-    
+
     if (userTenantsError) {
       console.error('❌ Erro ao criar tabela user_tenants:', userTenantsError)
     } else {
@@ -119,9 +119,9 @@ async function setupDatabase() {
         ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
         ALTER TABLE users ENABLE ROW LEVEL SECURITY;
         ALTER TABLE user_tenants ENABLE ROW LEVEL SECURITY;
-      `
+      `,
     })
-    
+
     if (rlsError) {
       console.error('❌ Erro ao habilitar RLS:', rlsError)
     } else {
@@ -164,9 +164,9 @@ async function setupDatabase() {
               WHERE user_id = auth.uid() AND status = 'active'
             )
           );
-      `
+      `,
     })
-    
+
     if (policiesError) {
       console.error('❌ Erro ao criar policies:', policiesError)
     } else {
@@ -175,7 +175,6 @@ async function setupDatabase() {
 
     console.log('\n🎉 Banco de dados configurado com sucesso!')
     console.log('📋 Próximo passo: executar create-test-user.js')
-    
   } catch (error) {
     console.error('❌ Erro ao configurar banco:', error)
     process.exit(1)

@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { getClients } from '@/actions/clients'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 import { ClientForm } from './client-form'
 import { ClientsTable } from './clients-table'

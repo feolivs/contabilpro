@@ -3,6 +3,18 @@
 import type { ComponentType } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar'
+import type { IconName, NavigationGroup, NavigationItem } from '@/config/navigation'
+import { buildTenantUrl, isPathActiveWithTenant } from '@/lib/navigation'
+
 import {
   BarChart3,
   Building2,
@@ -16,17 +28,6 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
-
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import type { IconName, NavigationGroup, NavigationItem } from '@/config/navigation'
-import { buildTenantUrl, isPathActiveWithTenant } from '@/lib/navigation'
 
 const ICONS: Record<IconName, ComponentType<{ className?: string }>> = {
   layoutDashboard: LayoutDashboard,
@@ -69,10 +70,10 @@ export function SidebarNavigation({ groups, tenantSlug }: SidebarNavigationProps
 function NavigationLink({
   item,
   pathname,
-  tenantSlug
+  tenantSlug,
 }: {
-  item: NavigationItem;
-  pathname: string;
+  item: NavigationItem
+  pathname: string
   tenantSlug?: string
 }) {
   const Icon = ICONS[item.icon] ?? LayoutDashboard
@@ -88,5 +89,3 @@ function NavigationLink({
     </SidebarMenuButton>
   )
 }
-
-

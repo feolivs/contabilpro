@@ -2,7 +2,7 @@
 
 /**
  * Script para criar usuário de teste no ContabilPRO
- * 
+ *
  * Cria:
  * 1. Usuário no Supabase Auth (teste@contabilpro.com / 123456)
  * 2. Tenant de teste (se não existir)
@@ -24,31 +24,36 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 async function createTestUser() {
   console.log('🚀 Criando usuário de teste...')
-  
+
   const testEmail = 'teste@contabilpro.com'
   const testPassword = '123456'
   const testName = 'Usuário Teste'
-  
+
   try {
     // 1. Criar usuário no Supabase Auth
     console.log('📧 Criando usuário no Supabase Auth...')
-    let { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+    const { data: createdUser, error: createUserError } = await supabase.auth.admin.createUser({
       email: testEmail,
       password: testPassword,
       email_confirm: true, // Confirmar email automaticamente
       user_metadata: {
-        name: testName
-      }
+        name: testName,
+      },
     })
 
-    if (authError) {
-      if (authError.code === 'email_exists' || authError.message.includes('already registered')) {
+    let authUser = createdUser
+
+    if (createUserError) {
+      if (
+        createUserError.code === 'email_exists' ||
+        createUserError.message.includes('already registered')
+      ) {
         console.log('⚠️  Usuário já existe no Supabase Auth, buscando...')
 
         // Buscar usuário existente
@@ -67,7 +72,7 @@ async function createTestUser() {
         authUser = { user: existingUser }
         console.log('✅ Usuário encontrado no Supabase Auth:', existingUser.id)
       } else {
-        throw authError
+        throw createUserError
       }
     } else {
       console.log('✅ Usuário criado no Supabase Auth:', authUser.user.id)
@@ -77,7 +82,7 @@ async function createTestUser() {
 
     // 2. Verificar/criar tenant de teste
     console.log('🏢 Verificando tenant de teste...')
-    
+
     const tenantData = {
       id: '550e8400-e29b-41d4-a716-446655440000',
       name: 'ContabilPRO Teste',
@@ -85,7 +90,7 @@ async function createTestUser() {
       document: '12345678000195',
       email: 'teste@contabilpro.com',
       phone: '(11) 99999-9999',
-      status: 'active'
+      status: 'active',
     }
 
     const { data: existingTenant, error: tenantSelectError } = await supabase
@@ -107,7 +112,7 @@ async function createTestUser() {
       if (tenantCreateError) {
         throw tenantCreateError
       }
-      
+
       tenant = newTenant
       console.log('✅ Tenant criado:', tenant.slug)
     } else if (tenantSelectError) {
@@ -119,8 +124,8 @@ async function createTestUser() {
 
     // 3. Verificar/criar usuário na tabela users
     console.log('👤 Verificando usuário na tabela users...')
-    
-    const { data: existingUser, error: userSelectError } = await supabase
+
+    const { data: _existingUser, error: userSelectError } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
@@ -129,29 +134,27 @@ async function createTestUser() {
     if (userSelectError && userSelectError.code === 'PGRST116') {
       // Usuário não existe na tabela, criar
       console.log('📝 Criando usuário na tabela users...')
-      const { error: userCreateError } = await supabase
-        .from('users')
-        .insert({
-          id: userId,
-          email: testEmail,
-          name: testName
-        })
+      const { error: userCreateError } = await supabase.from('users').insert({
+        id: userId,
+        email: testEmail,
+        name: testName,
+      })
 
       if (userCreateError) {
         throw userCreateError
       }
-      
+
       console.log('✅ Usuário criado na tabela users')
     } else if (userSelectError) {
       throw userSelectError
-    } else {
+    } else if (_existingUser) {
       console.log('✅ Usuário já existe na tabela users')
     }
 
     // 4. Verificar/criar associação user_tenants
     console.log('🔗 Verificando associação user_tenants...')
-    
-    const { data: existingAssociation, error: associationSelectError } = await supabase
+
+    const { data: _existingAssociation, error: associationSelectError } = await supabase
       .from('user_tenants')
       .select('*')
       .eq('user_id', userId)
@@ -161,24 +164,22 @@ async function createTestUser() {
     if (associationSelectError && associationSelectError.code === 'PGRST116') {
       // Associação não existe, criar
       console.log('📝 Criando associação user_tenants...')
-      const { error: associationCreateError } = await supabase
-        .from('user_tenants')
-        .insert({
-          user_id: userId,
-          tenant_id: tenant.id,
-          role: 'owner',
-          status: 'active',
-          joined_at: new Date().toISOString()
-        })
+      const { error: associationCreateError } = await supabase.from('user_tenants').insert({
+        user_id: userId,
+        tenant_id: tenant.id,
+        role: 'owner',
+        status: 'active',
+        joined_at: new Date().toISOString(),
+      })
 
       if (associationCreateError) {
         throw associationCreateError
       }
-      
+
       console.log('✅ Associação criada')
     } else if (associationSelectError) {
       throw associationSelectError
-    } else {
+    } else if (_existingAssociation) {
       console.log('✅ Associação já existe')
     }
 
@@ -190,16 +191,15 @@ async function createTestUser() {
     console.log(`   Nome: ${testName}`)
     console.log(`   User ID: ${userId}`)
     console.log(`   Tenant: ${tenant.name} (${tenant.slug})`)
-    console.log(`   URL de login: http://localhost:3002/login`)
+    console.log('   URL de login: http://localhost:3002/login')
     console.log(`   URL pós-login: http://localhost:3002/t/${tenant.slug}/dashboard`)
-    
+
     console.log('\n🧪 Para testar:')
     console.log('1. Acesse http://localhost:3002/login')
     console.log(`2. Digite: ${testEmail}`)
     console.log(`3. Digite: ${testPassword}`)
     console.log('4. Clique em "Entrar"')
     console.log(`5. Deve redirecionar para: /t/${tenant.slug}/dashboard`)
-
   } catch (error) {
     console.error('❌ Erro ao criar usuário de teste:', error)
     process.exit(1)

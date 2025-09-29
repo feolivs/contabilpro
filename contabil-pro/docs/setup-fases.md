@@ -1,10 +1,12 @@
 # 🚀 ContabilPRO - Guia de Setup Completo
 
-Este documento detalha as 3 fases de instalação e configuração do ContabilPRO, um SaaS contábil multi-tenant construído com Next.js e Supabase.
+Este documento detalha as 3 fases de instalação e configuração do ContabilPRO,
+um SaaS contábil multi-tenant construído com Next.js e Supabase.
 
 ## 📋 Visão Geral
 
 O setup foi dividido em 3 fases principais:
+
 - **Fase 1**: Base do projeto (Next.js + Supabase + Validação)
 - **Fase 2**: Interface (shadcn/ui + Componentes + Blocks)
 - **Fase 3**: Funcionalidades (TanStack + Server Actions + Utilitários)
@@ -14,9 +16,12 @@ O setup foi dividido em 3 fases principais:
 ## 🏗️ **Fase 1: Base do Projeto**
 
 ### Objetivo
-Criar a fundação tecnológica do ContabilPRO com Next.js, Supabase e validação de dados.
+
+Criar a fundação tecnológica do ContabilPRO com Next.js, Supabase e validação de
+dados.
 
 ### Comandos Executados
+
 ```bash
 # 1. Criar projeto Next.js
 npx create-next-app@latest contabil-pro --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --no-git
@@ -32,6 +37,7 @@ npm install zod react-hook-form @hookform/resolvers
 ```
 
 ### Tecnologias Instaladas
+
 - ✅ **Next.js 15.5.4** - Framework React com App Router
 - ✅ **TypeScript 5** - Tipagem estática
 - ✅ **Tailwind CSS 4** - Framework CSS utilitário
@@ -44,6 +50,7 @@ npm install zod react-hook-form @hookform/resolvers
 - ✅ **@hookform/resolvers 5.2.2** - Integração Zod + React Hook Form
 
 ### Estrutura Criada
+
 ```
 contabil-pro/
 ├── src/
@@ -60,6 +67,7 @@ contabil-pro/
 ```
 
 ### Resultado
+
 - ✅ Servidor funcionando em http://localhost:3000
 - ✅ Turbopack habilitado para desenvolvimento rápido
 - ✅ Zero erros de compilação
@@ -70,9 +78,12 @@ contabil-pro/
 ## 🎨 **Fase 2: Interface com shadcn/ui**
 
 ### Objetivo
-Implementar uma interface profissional e moderna usando shadcn/ui com componentes prontos e blocks complexos.
+
+Implementar uma interface profissional e moderna usando shadcn/ui com
+componentes prontos e blocks complexos.
 
 ### Comandos Executados
+
 ```bash
 # 1. Inicializar shadcn/ui
 npx shadcn@latest init
@@ -91,6 +102,7 @@ npx shadcn@latest add sidebar-01 login-01
 ### Componentes Instalados (26 total)
 
 #### Componentes Base
+
 - **Formulários**: Form, Input, Label, Select, Checkbox
 - **Navegação**: Sidebar, Breadcrumb, Tabs, Dropdown Menu
 - **Layout**: Card, Sheet, Dialog, Drawer, Separator
@@ -100,11 +112,13 @@ npx shadcn@latest add sidebar-01 login-01
 - **Visualização**: Chart, Calendar
 
 #### Blocks Complexos
+
 - **dashboard-01**: Dashboard completo com sidebar, tabelas e gráficos
 - **sidebar-01**: Navegação lateral com busca e versioning
 - **login-01**: Formulário de autenticação
 
 ### Dependências Adicionadas Automaticamente
+
 - **Radix UI**: 18 primitivos de componentes
 - **Ícones**: Lucide React + Tabler Icons
 - **Gráficos**: Recharts
@@ -113,6 +127,7 @@ npx shadcn@latest add sidebar-01 login-01
 - **Utilitários**: clsx, tailwind-merge, date-fns, class-variance-authority
 
 ### Estrutura Final
+
 ```
 contabil-pro/src/
 ├── app/
@@ -132,6 +147,7 @@ contabil-pro/src/
 ```
 
 ### Resultado
+
 - ✅ Interface profissional e moderna
 - ✅ 26 componentes UI prontos para uso
 - ✅ Dashboard completo funcional
@@ -144,9 +160,12 @@ contabil-pro/src/
 ## ⚡ **Fase 3: Funcionalidades Avançadas**
 
 ### Objetivo
-Implementar funcionalidades avançadas com TanStack Query, Server Actions e utilitários para um sistema contábil completo.
+
+Implementar funcionalidades avançadas com TanStack Query, Server Actions e
+utilitários para um sistema contábil completo.
 
 ### Comandos Executados
+
 ```bash
 # 1. Instalar TanStack Query
 npm install @tanstack/react-query @tanstack/react-query-devtools
@@ -155,42 +174,47 @@ npm install @tanstack/react-query @tanstack/react-query-devtools
 ### Arquivos Criados
 
 #### Configuração e Utilitários
+
 - **src/lib/supabase.ts** - Cliente Supabase configurado
 - **src/lib/validations.ts** - Schemas Zod para todas as entidades
 - **src/lib/query-client.ts** - Configuração do TanStack Query
 - **src/components/providers.tsx** - Provider centralizado
 
 #### Server Actions
+
 - **src/actions/clients.ts** - CRUD de clientes
 - **src/actions/entries.ts** - CRUD de lançamentos + classificação IA
 
 #### Configuração
+
 - **.env.local.example** - Template de variáveis de ambiente
 
 ### Schemas Zod Implementados
+
 ```typescript
 // Principais entidades do sistema contábil
-- clientSchema        // Validação de clientes
-- entrySchema         // Validação de lançamentos contábeis
-- accountSchema       // Validação de contas contábeis
-- documentSchema      // Validação de documentos
-- bankTransactionSchema // Validação de transações bancárias
+;-clientSchema - // Validação de clientes
+  entrySchema - // Validação de lançamentos contábeis
+  accountSchema - // Validação de contas contábeis
+  documentSchema - // Validação de documentos
+  bankTransactionSchema // Validação de transações bancárias
 ```
 
 ### Server Actions Implementadas
+
 ```typescript
 // CRUD Clientes
-- createClient()      // Criar cliente com validação Zod
-- getClients()        // Listar clientes
-- updateClient()      // Atualizar cliente
-
-// CRUD Lançamentos
-- createEntry()       // Criar lançamento contábil
-- getEntries()        // Listar lançamentos com joins
-- classifyEntry()     // Classificação IA (placeholder)
+;-createClient() - // Criar cliente com validação Zod
+  getClients() - // Listar clientes
+  updateClient() - // Atualizar cliente
+  // CRUD Lançamentos
+  createEntry() - // Criar lançamento contábil
+  getEntries() - // Listar lançamentos com joins
+  classifyEntry() // Classificação IA (placeholder)
 ```
 
 ### TanStack Query Features
+
 - ✅ **Query Client** configurado com retry logic
 - ✅ **Stale time** de 1 minuto para performance
 - ✅ **Cache time** de 5 minutos
@@ -199,6 +223,7 @@ npm install @tanstack/react-query @tanstack/react-query-devtools
 - ✅ **DevTools** habilitadas para desenvolvimento
 
 ### Provider System
+
 - ✅ **QueryClientProvider** - Estado do servidor
 - ✅ **ThemeProvider** - Temas dark/light
 - ✅ **Toaster** - Notificações globais
@@ -209,6 +234,7 @@ npm install @tanstack/react-query @tanstack/react-query-devtools
 ## 📊 **Resumo Final**
 
 ### Stack Tecnológica Completa
+
 - **Frontend**: Next.js 15.5.4 + React 19.1.0 + TypeScript 5
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Radix UI
 - **Backend**: Supabase (Auth + Postgres + Storage + RLS)
@@ -217,12 +243,14 @@ npm install @tanstack/react-query @tanstack/react-query-devtools
 - **UI/UX**: 26 componentes + 3 blocks + temas + ícones
 
 ### Dependências Totais
+
 - **Runtime**: 35 dependências principais
 - **Dev**: 8 dependências de desenvolvimento
 - **Total**: 528 pacotes auditados
 - **Vulnerabilidades**: 0 encontradas
 
 ### Status do Projeto
+
 - ✅ **Servidor**: http://localhost:3001 (funcionando)
 - ✅ **Turbopack**: Habilitado para desenvolvimento rápido
 - ✅ **Hot Reload**: Funcionando perfeitamente
@@ -245,7 +273,9 @@ Com o setup completo, o ContabilPRO está pronto para:
 7. **Testes** - Unit, integration e E2E
 8. **Deploy** - Vercel + Supabase
 
-O projeto tem uma base sólida e profissional, seguindo as melhores práticas de desenvolvimento moderno e está alinhado com a especificação técnica do ContabilPRO.
+O projeto tem uma base sólida e profissional, seguindo as melhores práticas de
+desenvolvimento moderno e está alinhado com a especificação técnica do
+ContabilPRO.
 
 ---
 
@@ -352,12 +382,14 @@ contabil-pro/
 ### Problemas Comuns
 
 #### 1. Porta 3000 ocupada
+
 ```bash
 # O Next.js automaticamente usa a próxima porta disponível
 # Geralmente 3001, 3002, etc.
 ```
 
 #### 2. Erro de importação de componentes
+
 ```bash
 # Verificar se o componente foi instalado
 npx shadcn@latest add [component-name]
@@ -367,18 +399,21 @@ import { Button } from "@/components/ui/button"
 ```
 
 #### 3. Erro de TypeScript
+
 ```bash
 # Verificar se os tipos estão instalados
 npm install -D @types/node @types/react @types/react-dom
 ```
 
 #### 4. Erro de Tailwind CSS
+
 ```bash
 # Verificar se o Tailwind está configurado
 # Arquivo: tailwind.config.ts deve existir
 ```
 
 ### Logs Úteis
+
 ```bash
 # Ver logs detalhados do Next.js
 npm run dev -- --debug
@@ -392,6 +427,7 @@ npm run build -- --debug
 ## 📚 **Recursos e Documentação**
 
 ### Documentação Oficial
+
 - [Next.js 15](https://nextjs.org/docs)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Supabase](https://supabase.com/docs)
@@ -400,6 +436,7 @@ npm run build -- --debug
 - [Tailwind CSS](https://tailwindcss.com/docs)
 
 ### Recursos Específicos do ContabilPRO
+
 - [Especificação Técnica](../sistema.md)
 - [Roadmap de Desenvolvimento](../sistema.md#roadmap)
 - [Arquitetura Multi-tenant](../sistema.md#rls)
@@ -429,6 +466,7 @@ Após executar as 3 fases, verifique:
 ## 🔧 **Fase 4: Qualidade de Código (CONCLUÍDA)**
 
 ### **ESLint Flat Config (v9)**
+
 - ✅ **Configuração moderna** com flat config format
 - ✅ **Regras TypeScript** rigorosas com type checking
 - ✅ **React Hooks** e JSX accessibility

@@ -2,6 +2,50 @@
 
 import * as React from 'react'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import type { ChartConfig } from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useIsMobile } from '@/hooks/use-mobile'
+
 import {
   closestCenter,
   DndContext,
@@ -55,50 +99,6 @@ import {
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 import { toast } from 'sonner'
 import { z } from 'zod'
-
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import type { ChartConfig } from '@/components/ui/chart'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useIsMobile } from '@/hooks/use-mobile'
 
 export const schema = z.object({
   id: z.number(),
@@ -202,7 +202,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={e => {
           e.preventDefault()
-          toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
+          toast.promise(new Promise(resolve => window.setTimeout(resolve, 1000)), {
             loading: `Saving ${row.original.header}`,
             success: 'Done',
             error: 'Error',
@@ -227,7 +227,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={e => {
           e.preventDefault()
-          toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
+          toast.promise(new Promise(resolve => window.setTimeout(resolve, 1000)), {
             loading: `Saving ${row.original.header}`,
             success: 'Done',
             error: 'Error',

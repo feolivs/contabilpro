@@ -2,9 +2,8 @@
 
 import { redirect } from 'next/navigation'
 
-import type { User } from '@supabase/supabase-js'
-
 import { createAdminClient, createServerClient } from './supabase'
+import type { User } from '@supabase/supabase-js'
 
 export interface AuthSession {
   user: User
@@ -19,15 +18,15 @@ export async function verifySession(): Promise<AuthSession | null> {
     const supabase = await createServerClient()
 
     const {
-      data: { session },
+      data: { user },
       error,
-    } = await supabase.auth.getSession()
+    } = await supabase.auth.getUser()
 
-    if (error || !session?.user) {
+    if (error || !user) {
       return null
     }
 
-    const claims = (session.user.app_metadata ?? {}) as Record<string, unknown>
+    const claims = (user.app_metadata ?? {}) as Record<string, unknown>
     let tenantId = typeof claims.tenant_id === 'string' ? claims.tenant_id : ''
     let role = typeof claims.role === 'string' ? claims.role : 'user'
     let tenantSlug = typeof claims.tenant_slug === 'string' ? claims.tenant_slug : ''
@@ -38,7 +37,7 @@ export async function verifySession(): Promise<AuthSession | null> {
         const { data, error: adminError } = await admin
           .from('user_tenants')
           .select('tenant_id, role, tenants!inner(slug)')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: true })
           .limit(1)
           .maybeSingle()
@@ -59,7 +58,7 @@ export async function verifySession(): Promise<AuthSession | null> {
     }
 
     return {
-      user: session.user,
+      user: user,
       tenant_id: tenantId,
       role,
       tenant_slug: tenantSlug,
@@ -98,21 +97,37 @@ export async function setRLSContext(session?: AuthSession) {
   const activeSession = session ?? (await verifySession())
 
   if (!activeSession) {
+    console.error('setRLSContext: No active session found')
     return null
   }
 
+  console.log('setRLSContext: Setting claims for tenant_id:', activeSession.tenant_id)
+
   const supabase = await createServerClient()
 
-  await Promise.all([
-    supabase.rpc('set_claim', {
-      claim: 'tenant_id',
-      value: activeSession.tenant_id,
-    }),
-    supabase.rpc('set_claim', {
-      claim: 'role',
-      value: activeSession.role,
-    }),
-  ])
+  try {
+    const [tenantResult, roleResult] = await Promise.all([
+      supabase.rpc('set_claim', {
+        claim: 'tenant_id',
+        value: activeSession.tenant_id,
+      }),
+      supabase.rpc('set_claim', {
+        claim: 'role',
+        value: activeSession.role,
+      }),
+    ])
+
+    if (tenantResult.error) {
+      console.error('setRLSContext: Error setting tenant_id claim:', tenantResult.error)
+    }
+    if (roleResult.error) {
+      console.error('setRLSContext: Error setting role claim:', roleResult.error)
+    }
+
+    console.log('setRLSContext: Claims set successfully')
+  } catch (error) {
+    console.error('setRLSContext: Error setting claims:', error)
+  }
 
   return supabase
 }

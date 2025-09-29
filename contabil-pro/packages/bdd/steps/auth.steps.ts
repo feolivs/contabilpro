@@ -9,7 +9,7 @@ Given(
   async function (this: CustomWorld, tenantName: string, slug: string) {
     // Implementar criação de tenant de teste
     await this.createTestTenant(tenantName, slug)
-  },
+  }
 )
 
 Given(
@@ -17,7 +17,7 @@ Given(
   async function (this: CustomWorld, email: string) {
     // Implementar criação de usuário de teste
     await this.createTestUser(email, 'test-tenant-id')
-  },
+  }
 )
 
 Given('que estou na página de login', async function (this: CustomWorld) {
@@ -41,7 +41,7 @@ Given(
   'que estou logado como {string} do tenant {string}',
   async function (this: CustomWorld, email: string, tenantName: string) {
     await this.login(email, 'senha123')
-  },
+  }
 )
 
 When('eu preencho o email {string}', async function (this: CustomWorld, email: string) {
@@ -86,7 +86,7 @@ Then(
     await this.waitForSelector('[data-testid="error-message"], .error, .alert-error')
     const errorText = await this.getText('[data-testid="error-message"], .error, .alert-error')
     expect(errorText).toContain(errorMessage)
-  },
+  }
 )
 
 Then('eu devo ser redirecionado para a página de login', async function (this: CustomWorld) {
@@ -114,7 +114,7 @@ Given(
   async function (this: CustomWorld, clientName: string, tenantName: string) {
     // Implementar criação de cliente específico do tenant
     await this.createTestClient(clientName, '12345678901', 'tenant-1-id')
-  },
+  }
 )
 
 When('eu acesso a página de clientes', async function (this: CustomWorld) {

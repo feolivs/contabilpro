@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { type z } from 'zod'
-
 import { requireAuth, setRLSContext } from '@/lib/auth'
 import { entrySchema } from '@/lib/validations'
+
+import { type z } from 'zod'
 
 const baseEntrySchema = entrySchema.omit({
   id: true,

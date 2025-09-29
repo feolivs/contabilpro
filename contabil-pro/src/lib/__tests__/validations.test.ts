@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   accountSchema,
   bankTransactionSchema,
@@ -7,6 +5,7 @@ import {
   documentSchema,
   entrySchema,
 } from '../validations'
+import { describe, expect, it } from 'vitest'
 
 describe('Validation Schemas', () => {
   describe('clientSchema', () => {
@@ -105,7 +104,7 @@ describe('Validation Schemas', () => {
         account_id: '550e8400-e29b-41d4-a716-446655440002',
         description: 'Test Entry',
         amount: 1000,
-        type: 'invalid' as any, // invalid type
+        type: 'invalid' as never, // invalid type
         date: new Date(),
       }
 
@@ -132,7 +131,7 @@ describe('Validation Schemas', () => {
         tenant_id: '550e8400-e29b-41d4-a716-446655440000',
         code: '1.1.01.001',
         name: 'Caixa',
-        type: 'invalid' as any,
+        type: 'invalid' as never,
       }
 
       const result = accountSchema.safeParse(invalidAccount)

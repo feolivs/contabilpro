@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { type z } from 'zod'
-
 import { requireAuth, setRLSContext } from '@/lib/auth'
 import { bankAccountSchema, bankTransactionSchema } from '@/lib/validations'
+
+import { type z } from 'zod'
 
 const baseBankAccountSchema = bankAccountSchema.omit({
   id: true,

@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function CopilotoPage() {
   await requirePermission('copiloto.read')
@@ -150,10 +150,7 @@ export default async function CopilotoPage() {
       </div>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

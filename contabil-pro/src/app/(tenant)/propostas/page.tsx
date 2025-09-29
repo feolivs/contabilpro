@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function PropostasPage() {
   await requirePermission('propostas.read')
@@ -112,13 +112,11 @@ export default async function PropostasPage() {
               </div>
               <h3 className='mt-4 text-lg font-semibold'>Nenhuma proposta criada</h3>
               <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-                Crie sua primeira proposta comercial para começar a acompanhar
-                negociações e fechar novos contratos.
+                Crie sua primeira proposta comercial para começar a acompanhar negociações e fechar
+                novos contratos.
               </p>
               <div className='flex items-center gap-2'>
-                <Button disabled>
-                  Criar proposta
-                </Button>
+                <Button disabled>Criar proposta</Button>
                 <Button variant='outline' disabled>
                   Importar template
                 </Button>
@@ -129,10 +127,7 @@ export default async function PropostasPage() {
       </Card>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

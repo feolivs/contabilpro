@@ -110,7 +110,7 @@ Before(async function (this: CustomWorld) {
     console.error('🚫 Requisição falhou:', request.url(), request.failure()?.errorText)
     this.attach(
       `Request Failed: ${request.url()}\nError: ${request.failure()?.errorText}`,
-      'text/plain',
+      'text/plain'
     )
   })
 

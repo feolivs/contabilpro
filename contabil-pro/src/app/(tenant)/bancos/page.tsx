@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { getBankAccounts } from '@/actions/bank-accounts'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 import { BankAccountForm } from './bank-account-form'
 import { BankAccountsTable } from './bank-accounts-table'

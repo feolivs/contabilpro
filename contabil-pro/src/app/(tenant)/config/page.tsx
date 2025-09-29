@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function ConfigPage() {
   await requirePermission('config.read')
@@ -42,13 +42,13 @@ export default async function ConfigPage() {
             <CardContent className='space-y-4'>
               <div className='grid gap-4 md:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium'>Nome completo</label>
+                  <p className='text-sm font-medium'>Nome completo</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     Usuário Teste
                   </div>
                 </div>
                 <div>
-                  <label className='text-sm font-medium'>Email</label>
+                  <p className='text-sm font-medium'>Email</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     teste@contabilpro.com
                   </div>
@@ -68,13 +68,13 @@ export default async function ConfigPage() {
             <CardContent className='space-y-4'>
               <div className='grid gap-4 md:grid-cols-2'>
                 <div>
-                  <label className='text-sm font-medium'>Razão social</label>
+                  <p className='text-sm font-medium'>Razão social</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     ContabilPRO Teste
                   </div>
                 </div>
                 <div>
-                  <label className='text-sm font-medium'>CNPJ</label>
+                  <p className='text-sm font-medium'>CNPJ</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     12.345.678/0001-95
                   </div>
@@ -94,19 +94,19 @@ export default async function ConfigPage() {
             <CardContent className='space-y-4'>
               <div className='space-y-3'>
                 <div>
-                  <label className='text-sm font-medium'>Tema</label>
+                  <p className='text-sm font-medium'>Tema</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     Sistema (automático)
                   </div>
                 </div>
                 <div>
-                  <label className='text-sm font-medium'>Densidade</label>
+                  <p className='text-sm font-medium'>Densidade</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     Confortável
                   </div>
                 </div>
                 <div>
-                  <label className='text-sm font-medium'>Idioma</label>
+                  <p className='text-sm font-medium'>Idioma</p>
                   <div className='mt-1 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground'>
                     Português (Brasil)
                   </div>
@@ -161,7 +161,9 @@ export default async function ConfigPage() {
               <CardContent>
                 <div className='flex items-center justify-between'>
                   <span className='text-sm text-muted-foreground'>Status: Não configurado</span>
-                  <Button size='sm' disabled>Configurar</Button>
+                  <Button size='sm' disabled>
+                    Configurar
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -179,7 +181,9 @@ export default async function ConfigPage() {
               <CardContent>
                 <div className='flex items-center justify-between'>
                   <span className='text-sm text-muted-foreground'>Status: Não configurado</span>
-                  <Button size='sm' disabled>Configurar</Button>
+                  <Button size='sm' disabled>
+                    Configurar
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -188,10 +192,7 @@ export default async function ConfigPage() {
       </Tabs>
 
       <div className='text-center'>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>

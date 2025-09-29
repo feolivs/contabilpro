@@ -12,7 +12,7 @@ export const initialLoginFormState: LoginFormState = {
 }
 
 // Helper para selecionar tenant padrão
-export function selectDefaultTenant(userTenants: any[]) {
+export function selectDefaultTenant<T>(userTenants: T[]): T | null {
   if (userTenants.length === 0) {
     return null
   }

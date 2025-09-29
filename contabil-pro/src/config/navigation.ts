@@ -78,7 +78,9 @@ export function filterNavigationByPermissions(
           )
 
           if (filteredChildren.length === 0) {
-            return matchesPermission(permissions, item.permissions) ? { ...item, children: [] } : null
+            return matchesPermission(permissions, item.permissions)
+              ? { ...item, children: [] }
+              : null
           }
 
           return { ...item, children: filteredChildren }

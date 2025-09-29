@@ -3,14 +3,16 @@
 import { useActionState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
+import { loginAction } from '@/actions/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
-import { loginAction } from '@/actions/auth'
 import { initialLoginFormState } from '@/lib/auth-helpers'
+import { cn } from '@/lib/utils'
+
+import { toast } from 'sonner'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const searchParams = useSearchParams()
@@ -26,7 +28,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   }, [state])
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props} data-testid="login-form">
+    <div className={cn('flex flex-col gap-6', className)} {...props} data-testid='login-form'>
       <Card>
         <CardHeader>
           <CardTitle>Entre na sua conta</CardTitle>
@@ -35,12 +37,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         <CardContent>
           <form action={formAction}>
             {/* Campo hidden para o parâmetro next */}
-            {next && <input type="hidden" name="next" value={next} />}
+            {next && <input type='hidden' name='next' value={next} />}
 
             <div className='flex flex-col gap-6'>
               {/* Mensagem de erro */}
               {state.status === 'error' && state.message && (
-                <Alert variant="destructive">
+                <Alert variant='destructive'>
                   <AlertDescription>{state.message}</AlertDescription>
                 </Alert>
               )}
@@ -54,11 +56,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   placeholder='seu@email.com'
                   required
                   disabled={isPending}
-                  data-testid="email-input"
+                  data-testid='email-input'
                   aria-invalid={state.fieldErrors?.email ? 'true' : 'false'}
                 />
                 {state.fieldErrors?.email && (
-                  <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
+                  <p className='text-sm text-destructive'>{state.fieldErrors.email[0]}</p>
                 )}
               </div>
 
@@ -78,11 +80,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   type='password'
                   required
                   disabled={isPending}
-                  data-testid="password-input"
+                  data-testid='password-input'
                   aria-invalid={state.fieldErrors?.password ? 'true' : 'false'}
                 />
                 {state.fieldErrors?.password && (
-                  <p className="text-sm text-destructive">{state.fieldErrors.password[0]}</p>
+                  <p className='text-sm text-destructive'>{state.fieldErrors.password[0]}</p>
                 )}
               </div>
 
@@ -91,7 +93,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   type='submit'
                   className='w-full'
                   disabled={isPending}
-                  data-testid="login-button"
+                  data-testid='login-button'
                 >
                   {isPending ? 'Entrando...' : 'Entrar'}
                 </Button>
@@ -100,10 +102,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   variant='outline'
                   className='w-full'
                   disabled={isPending}
-                  type="button"
+                  type='button'
                   onClick={() => {
                     // TODO: Implementar OAuth com Google
-                    alert('Login com Google será implementado em breve')
+                    toast.info('Login com Google em breve', {
+                      description: 'Estamos finalizando a integração.',
+                    })
                   }}
                 >
                   Entrar com Google

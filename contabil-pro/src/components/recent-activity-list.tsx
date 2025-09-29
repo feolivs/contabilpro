@@ -1,7 +1,6 @@
-﻿import { Calendar, FileText, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+﻿import type { RecentActivityItem } from '@/actions/dashboard'
 
-import type { RecentActivityItem } from '@/actions/dashboard'
-import { cn } from '@/lib/utils'
+import { Calendar, FileText, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 
 interface RecentActivityListProps {
   items: RecentActivityItem[]

@@ -1,5 +1,3 @@
-import { format } from 'date-fns'
-
 import {
   Table,
   TableBody,
@@ -9,6 +7,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Entry } from '@/lib/validations'
+
+import { format } from 'date-fns'
 
 type EntriesTableProps = {
   entries: (Entry & {

@@ -18,7 +18,7 @@ set search_path = public
 language plpgsql
 as 
 declare
-  tenant_id uuid := nullif(current_setting('request.jwt.claim.tenant_id', true), '')::uuid;
+  tenant_id uuid := nullif(current_setting('request.jwt.claims', true)::jsonb->>'tenant_id', '')::uuid;
   days integer := greatest(range_days, 1);
   start_current date := current_date - (days - 1);
   start_previous date := current_date - (days * 2 - 1);
@@ -112,7 +112,7 @@ set search_path = public
 language plpgsql
 as 
 declare
-  tenant_id uuid := nullif(current_setting('request.jwt.claim.tenant_id', true), '')::uuid;
+  tenant_id uuid := nullif(current_setting('request.jwt.claims', true)::jsonb->>'tenant_id', '')::uuid;
   days integer := greatest(range_days, 1);
 begin
   if tenant_id is null then
@@ -157,7 +157,7 @@ set search_path = public
 language plpgsql
 as 
 declare
-  tenant_id uuid := nullif(current_setting('request.jwt.claim.tenant_id', true), '')::uuid;
+  tenant_id uuid := nullif(current_setting('request.jwt.claims', true)::jsonb->>'tenant_id', '')::uuid;
   limit_value integer := greatest(limit_count, 1);
 begin
   if tenant_id is null then

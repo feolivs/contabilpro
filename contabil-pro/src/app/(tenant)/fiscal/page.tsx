@@ -1,8 +1,8 @@
 import { headers } from 'next/headers'
 import Link from 'next/link'
 
-import { requirePermission } from '@/lib/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { requirePermission } from '@/lib/rbac'
 
 export default async function FiscalPage() {
   await requirePermission('fiscal.read')
@@ -15,14 +15,9 @@ export default async function FiscalPage() {
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Fiscal</h1>
-          <p className='text-muted-foreground'>
-            Gestão de obrigações fiscais, DAS, NFe e NFS-e.
-          </p>
+          <p className='text-muted-foreground'>Gestão de obrigações fiscais, DAS, NFe e NFS-e.</p>
         </div>
-        <Link
-          href={dashboardUrl}
-          className='text-sm text-primary hover:underline'
-        >
+        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
           ← Voltar para o dashboard
         </Link>
       </div>
@@ -52,8 +47,8 @@ export default async function FiscalPage() {
           </div>
           <h3 className='mt-4 text-lg font-semibold'>Área fiscal em construção</h3>
           <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-            Em breve você verá aqui a gestão completa de obrigações fiscais,
-            cálculo de DAS, importação de NFe e emissão de NFS-e.
+            Em breve você verá aqui a gestão completa de obrigações fiscais, cálculo de DAS,
+            importação de NFe e emissão de NFS-e.
           </p>
         </div>
       </div>
