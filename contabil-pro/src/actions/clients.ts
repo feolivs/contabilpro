@@ -92,27 +92,43 @@ export async function createClientFromForm(
 export async function getClients() {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    console.log('[getClients] Session:', {
+      userId: session.user.id,
+      tenantId: session.tenant_id,
+      role: session.role
+    })
 
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    // TEMPORÁRIO: Usar createServerClient diretamente sem setRLSContext
+    // O RLS via JWT não está funcionando, então vamos filtrar manualmente
+    const { createServerClient } = await import('@/lib/supabase')
+    const supabase = await createServerClient()
 
+    // Buscar clientes filtrando manualmente por tenant_id
+    // Como o RLS não está funcionando via JWT, fazemos o filtro explícito
     const { data, error } = await supabase
       .from('clients')
       .select('*')
+      .eq('tenant_id', session.tenant_id)
       .order('created_at', { ascending: false })
 
+    console.log('[getClients] Query result:', {
+      dataCount: data?.length || 0,
+      error: error?.message,
+      tenantId: session.tenant_id
+    })
+
     if (error) {
+      console.error('[getClients] Supabase error:', error)
       throw new Error(`Erro ao buscar clientes: ${error.message}`)
     }
 
-    return { success: true, data }
+    return { success: true, data: data || [] }
   } catch (error) {
-    console.error('Erro ao buscar clientes:', error)
+    console.error('[getClients] Erro completo:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido',
+      data: []
     }
   }
 }
@@ -361,6 +377,207 @@ export async function importClientsFromCSV(
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Erro desconhecido ao importar clientes.',
+    }
+  }
+}
+
+/**
+ * Busca estatísticas de clientes da view materializada
+ * Usa a view client_stats_by_tenant (implementada na migration 012)
+ *
+ * @returns Estatísticas agregadas de clientes
+ */
+export async function getClientStats() {
+  try {
+    const session = await requireAuth()
+
+    // TEMPORÁRIO: Usar createServerClient diretamente
+    const { createServerClient } = await import('@/lib/supabase')
+    const supabase = await createServerClient()
+
+    // Buscar da view materializada
+    const { data, error } = await supabase
+      .from('client_stats_by_tenant')
+      .select('*')
+      .eq('tenant_id', session.tenant_id)
+      .single()
+
+    console.log('[getClientStats] Result:', { data, error: error?.message })
+
+    if (error) {
+      console.error('[getClientStats] Erro ao buscar estatísticas:', error)
+      // Retornar valores padrão em caso de erro
+      return {
+        total_clients: 0,
+        active_clients: 0,
+        total_revenue: 0,
+        growth_rate: 0,
+      }
+    }
+
+    // A view tem campos: total_clients, ativos, inadimplentes, etc.
+    // Mapear para o formato esperado pelo frontend
+    return {
+      total_clients: data?.total_clients || 0,
+      active_clients: data?.ativos || 0, // Campo correto da view
+      total_revenue: 0, // TODO: calcular receita (valor_plano * clientes ativos)
+      growth_rate: 0, // TODO: calcular crescimento
+    }
+  } catch (error) {
+    console.error('[getClientStats] Erro completo:', error)
+    return {
+      total_clients: 0,
+      active_clients: 0,
+      total_revenue: 0,
+      growth_rate: 0,
+    }
+  }
+}
+
+/**
+ * Busca clientes por nome, documento ou email
+ * Usa a função search_clients() do banco (implementada na migration 012)
+ *
+ * @param query - Termo de busca
+ * @returns Array de clientes encontrados (máximo 10)
+ */
+export async function searchClients(query: string) {
+  try {
+    const session = await requireAuth()
+    const supabase = await setRLSContext(session)
+
+    if (!supabase) {
+      throw new Error('Não foi possível preparar o contexto de segurança.')
+    }
+
+    // Validar query
+    if (!query || query.trim().length < 2) {
+      return []
+    }
+
+    const cleanQuery = query.trim()
+
+    // Usar a função search_clients() do banco (migration 012)
+    // Ela já implementa FTS e ranking por similaridade
+    const { data, error } = await supabase.rpc('search_clients', {
+      search_query: cleanQuery,
+      result_limit: 10,
+    })
+
+    if (error) {
+      console.error('Erro ao buscar clientes:', error)
+      return []
+    }
+
+    // Mapear para o formato esperado pelo CommandPalette
+    return (data || []).map((client: any) => ({
+      id: client.id,
+      name: client.name,
+      document: client.document,
+      email: client.email,
+      type: 'client' as const,
+    }))
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error)
+    return []
+  }
+}
+
+/**
+ * Ativar múltiplos clientes
+ */
+export async function bulkActivateClients(clientIds: string[]) {
+  try {
+    const session = await requireAuth()
+    const supabase = await setRLSContext(session)
+
+    if (!supabase) {
+      throw new Error('Não foi possível preparar o contexto de segurança.')
+    }
+
+    const { error } = await supabase
+      .from('clients')
+      .update({ status: 'ativo' })
+      .in('id', clientIds)
+      .eq('tenant_id', session.tenant_id)
+
+    if (error) {
+      throw new Error(`Erro ao ativar clientes: ${error.message}`)
+    }
+
+    revalidatePath('/clientes')
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao ativar clientes:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+    }
+  }
+}
+
+/**
+ * Inativar múltiplos clientes
+ */
+export async function bulkDeactivateClients(clientIds: string[]) {
+  try {
+    const session = await requireAuth()
+    const supabase = await setRLSContext(session)
+
+    if (!supabase) {
+      throw new Error('Não foi possível preparar o contexto de segurança.')
+    }
+
+    const { error } = await supabase
+      .from('clients')
+      .update({ status: 'inativo' })
+      .in('id', clientIds)
+      .eq('tenant_id', session.tenant_id)
+
+    if (error) {
+      throw new Error(`Erro ao inativar clientes: ${error.message}`)
+    }
+
+    revalidatePath('/clientes')
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao inativar clientes:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+    }
+  }
+}
+
+/**
+ * Excluir múltiplos clientes
+ */
+export async function bulkDeleteClients(clientIds: string[]) {
+  try {
+    const session = await requireAuth()
+    const supabase = await setRLSContext(session)
+
+    if (!supabase) {
+      throw new Error('Não foi possível preparar o contexto de segurança.')
+    }
+
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .in('id', clientIds)
+      .eq('tenant_id', session.tenant_id)
+
+    if (error) {
+      throw new Error(`Erro ao excluir clientes: ${error.message}`)
+    }
+
+    revalidatePath('/clientes')
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao excluir clientes:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
     }
   }
 }

@@ -11,9 +11,16 @@ export interface DashboardMetricDelta {
 export interface DashboardSummary {
   revenue: DashboardMetricDelta
   expense: DashboardMetricDelta
+  netIncome: DashboardMetricDelta
+  activeClients: DashboardMetricDelta
   newClients: DashboardMetricDelta
   bankTransactions: DashboardMetricDelta
   aiInsights: DashboardMetricDelta
+}
+
+export interface SparklineData {
+  value: number
+  date?: string
 }
 
 export interface TrendPoint {

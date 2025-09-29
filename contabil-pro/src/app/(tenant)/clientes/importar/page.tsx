@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/rbac'
-
-import { ClientImportForm } from '../client-import-form'
+import { ClientImportAdvanced } from '@/components/client-import-advanced'
+import { IconArrowLeft } from '@tabler/icons-react'
 
 export default async function ImportarClientesPage() {
   await requirePermission('clientes.write')
@@ -14,15 +14,18 @@ export default async function ImportarClientesPage() {
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>Importar clientes</h1>
           <p className='text-muted-foreground'>
-            Faca upload de um arquivo CSV para cadastrar clientes em lote.
+            Faça upload de um arquivo CSV para cadastrar clientes em lote com validação e preview.
           </p>
         </div>
         <Button asChild variant='outline'>
-          <Link href='/clientes'>Voltar para a lista</Link>
+          <Link href='/clientes'>
+            <IconArrowLeft className='mr-2 h-4 w-4' />
+            Voltar para a lista
+          </Link>
         </Button>
       </div>
 
-      <ClientImportForm />
+      <ClientImportAdvanced />
     </div>
   )
 }

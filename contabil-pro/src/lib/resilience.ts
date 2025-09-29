@@ -109,6 +109,8 @@ export const DASHBOARD_FALLBACK_DATA = {
   summary: {
     revenue: { current: 0, previous: 0 },
     expense: { current: 0, previous: 0 },
+    netIncome: { current: 0, previous: 0 },
+    activeClients: { current: 0, previous: 0 },
     newClients: { current: 0, previous: 0 },
     bankTransactions: { current: 0, previous: 0 },
     aiInsights: { current: 0, previous: 0 },

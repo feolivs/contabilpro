@@ -46,14 +46,27 @@ export async function getDashboardSummary(
 
     const payload = data.payload
 
+    const revenueCurrent = Number(payload?.revenue?.current ?? 0)
+    const revenuePrevious = Number(payload?.revenue?.previous ?? 0)
+    const expenseCurrent = Number(payload?.expense?.current ?? 0)
+    const expensePrevious = Number(payload?.expense?.previous ?? 0)
+
     return {
       revenue: {
-        current: Number(payload?.revenue?.current ?? 0),
-        previous: Number(payload?.revenue?.previous ?? 0),
+        current: revenueCurrent,
+        previous: revenuePrevious,
       },
       expense: {
-        current: Number(payload?.expense?.current ?? 0),
-        previous: Number(payload?.expense?.previous ?? 0),
+        current: expenseCurrent,
+        previous: expensePrevious,
+      },
+      netIncome: {
+        current: revenueCurrent - expenseCurrent,
+        previous: revenuePrevious - expensePrevious,
+      },
+      activeClients: {
+        current: Number(payload?.active_clients?.current ?? 0),
+        previous: Number(payload?.active_clients?.previous ?? 0),
       },
       newClients: {
         current: Number(payload?.new_clients?.current ?? 0),

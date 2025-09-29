@@ -2,6 +2,12 @@ import {
   accountSchema,
   bankTransactionSchema,
   clientSchema,
+  createClientSchema,
+  updateClientSchema,
+  clientStep1Schema,
+  clientStep2Schema,
+  clientStep3Schema,
+  clientMultiStepSchema,
   documentSchema,
   entrySchema,
 } from '../validations'
@@ -14,7 +20,7 @@ describe('Validation Schemas', () => {
         tenant_id: '550e8400-e29b-41d4-a716-446655440000',
         name: 'Test Client',
         email: 'test@client.com',
-        document: '12345678901',
+        document: '12345678909', // CPF válido
         phone: '(11) 99999-9999',
         address: 'Test Address',
       }
@@ -201,6 +207,152 @@ describe('Validation Schemas', () => {
 
       const result = bankTransactionSchema.parse(transaction)
       expect(result.status).toBe('pending')
+    })
+  })
+
+  describe('createClientSchema', () => {
+    it('should validate client creation without auto-generated fields', () => {
+      const newClient = {
+        name: 'Test Client',
+        document: '12345678909',
+        email: 'test@example.com',
+        tipo_pessoa: 'PF' as const,
+        regime_tributario: 'MEI' as const,
+        status: 'ativo' as const,
+      }
+
+      const result = createClientSchema.safeParse(newClient)
+      expect(result.success).toBe(true)
+    })
+
+    it('should accept extra fields (omit removes them)', () => {
+      const newClient = {
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000', // Será ignorado
+        name: 'Test Client',
+        document: '12345678909',
+      }
+
+      const result = createClientSchema.safeParse(newClient)
+      // Zod omit não rejeita campos extras, apenas os remove
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).not.toHaveProperty('tenant_id')
+      }
+    })
+  })
+
+  describe('updateClientSchema', () => {
+    it('should validate partial client update', () => {
+      const update = {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        name: 'Updated Name',
+      }
+
+      const result = updateClientSchema.safeParse(update)
+      expect(result.success).toBe(true)
+    })
+
+    it('should require id field', () => {
+      const update = {
+        name: 'Updated Name',
+      }
+
+      const result = updateClientSchema.safeParse(update)
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('clientStep1Schema', () => {
+    it('should validate fiscal data step', () => {
+      const step1 = {
+        tipo_pessoa: 'PJ' as const,
+        document: '12345678000195',
+        name: 'Empresa Teste LTDA',
+        regime_tributario: 'Simples' as const,
+        inscricao_estadual: '123456789',
+      }
+
+      const result = clientStep1Schema.safeParse(step1)
+      expect(result.success).toBe(true)
+    })
+
+    it('should require tipo_pessoa', () => {
+      const step1 = {
+        document: '12345678000195',
+        name: 'Empresa Teste LTDA',
+      }
+
+      const result = clientStep1Schema.safeParse(step1)
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('clientStep2Schema', () => {
+    it('should validate contact data step', () => {
+      const step2 = {
+        email: 'contato@empresa.com',
+        phone: '(11) 99999-9999',
+        cep: '12345-678',
+        address: 'Rua Teste, 123',
+        city: 'São Paulo',
+        state: 'SP',
+      }
+
+      const result = clientStep2Schema.safeParse(step2)
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate CEP format', () => {
+      const step2Valid = { cep: '12345-678' }
+      expect(clientStep2Schema.safeParse(step2Valid).success).toBe(true)
+
+      const step2Invalid = { cep: '12345' }
+      expect(clientStep2Schema.safeParse(step2Invalid).success).toBe(false)
+    })
+  })
+
+  describe('clientStep3Schema', () => {
+    it('should validate financial data step', () => {
+      const step3 = {
+        dia_vencimento: 10,
+        valor_plano: 299.90,
+        forma_cobranca: 'boleto' as const,
+        tags: ['mei', 'ecommerce'],
+      }
+
+      const result = clientStep3Schema.safeParse(step3)
+      expect(result.success).toBe(true)
+    })
+
+    it('should validate dia_vencimento range', () => {
+      const step3Valid = { dia_vencimento: 15 }
+      expect(clientStep3Schema.safeParse(step3Valid).success).toBe(true)
+
+      const step3Invalid1 = { dia_vencimento: 0 }
+      expect(clientStep3Schema.safeParse(step3Invalid1).success).toBe(false)
+
+      const step3Invalid2 = { dia_vencimento: 32 }
+      expect(clientStep3Schema.safeParse(step3Invalid2).success).toBe(false)
+    })
+  })
+
+  describe('clientMultiStepSchema', () => {
+    it('should validate complete multi-step form', () => {
+      const completeForm = {
+        tipo_pessoa: 'PJ' as const,
+        document: '12345678000195',
+        name: 'Empresa Teste LTDA',
+        regime_tributario: 'Simples' as const,
+        email: 'contato@empresa.com',
+        phone: '(11) 99999-9999',
+        cep: '12345-678',
+        dia_vencimento: 10,
+        valor_plano: 299.90,
+        forma_cobranca: 'boleto' as const,
+      }
+
+      const result = clientMultiStepSchema.safeParse(completeForm)
+      expect(result.success).toBe(true)
     })
   })
 })
