@@ -1,4 +1,4 @@
-﻿import type { DashboardSummary } from '@/actions/dashboard'
+﻿import type { DashboardSummary } from '@/types/dashboard'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -81,7 +81,7 @@ export function SectionCards({ summary }: SectionCardsProps) {
         const trendLabel = buildTrendLabel(isImprovement, metric.invert, safePercent)
 
         return (
-          <Card key={metric.key} className='@container/card'>
+          <Card key={metric.key as string} className='@container/card'>
             <CardHeader>
               <CardDescription>{metric.title}</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>

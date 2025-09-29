@@ -6,6 +6,20 @@ import { requireAuth, setRLSContext } from '@/lib/auth'
 import { bankAccountSchema, bankTransactionSchema } from '@/lib/validations'
 
 import { type z } from 'zod'
+import {
+  BankAccountFormState,
+  BankTransactionImportState,
+  initialBankAccountFormState,
+  initialBankTransactionImportState,
+  type BankAccount,
+  type BankTransaction,
+  type BankTransactionWithAccount,
+  type BankTransactionFilters,
+  type BankTransactionImportRow,
+  type BankTransactionImportResult,
+  type ReconciliationMatch,
+  type ReconciliationSuggestion
+} from '@/types/bank-accounts'
 
 const baseBankAccountSchema = bankAccountSchema.omit({
   id: true,
@@ -21,33 +35,6 @@ const baseBankTransactionSchema = bankTransactionSchema.omit({
   tenant_id: true,
   created_at: true,
 })
-
-export type BankAccountFormState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  fieldErrors?: Record<string, string[]>
-}
-
-export const initialBankAccountFormState: BankAccountFormState = {
-  status: 'idle',
-  message: null,
-  fieldErrors: {},
-}
-
-export type BankTransactionImportState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  summary?: {
-    processed: number
-    imported: number
-    skipped: number
-  }
-}
-
-export const initialBankTransactionImportState: BankTransactionImportState = {
-  status: 'idle',
-  message: null,
-}
 
 export async function getBankAccounts() {
   try {

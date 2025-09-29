@@ -2,7 +2,8 @@
 
 import { useActionState } from 'react'
 
-import { createBankAccountFromForm, initialBankAccountFormState } from '@/actions/bank-accounts'
+import { createBankAccountFromForm } from '@/actions/bank-accounts'
+import { initialBankAccountFormState } from '@/types/bank-accounts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

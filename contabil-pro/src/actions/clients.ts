@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 
-import type { ClientFormState, ClientImportState } from '@/actions/clients-state'
+import type { ClientFormState, ClientImportState } from '@/types/clients'
 import { requireAuth, setRLSContext } from '@/lib/auth'
 import { clientSchema } from '@/lib/validations'
 

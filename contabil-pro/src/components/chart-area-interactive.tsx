@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import type { TrendPoint } from '@/actions/dashboard'
+import type { TrendPoint } from '@/types/dashboard'
 import {
   Card,
   CardAction,

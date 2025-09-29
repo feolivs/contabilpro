@@ -1,4 +1,4 @@
-﻿import type { RecentActivityItem } from '@/actions/dashboard'
+﻿import type { RecentActivityItem } from '@/types/dashboard'
 
 import { Calendar, FileText, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 

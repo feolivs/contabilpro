@@ -3,14 +3,7 @@
 import { redirect } from 'next/navigation'
 
 import { createAdminClient, createServerClient } from './supabase'
-import type { User } from '@supabase/supabase-js'
-
-export interface AuthSession {
-  user: User
-  tenant_id: string
-  role: string
-  tenant_slug?: string
-}
+import type { AuthSession } from '@/types/auth'
 
 // Verificar sessao e obter tenant_id do JWT
 export async function verifySession(): Promise<AuthSession | null> {
@@ -97,16 +90,13 @@ export async function setRLSContext(session?: AuthSession) {
   const activeSession = session ?? (await verifySession())
 
   if (!activeSession) {
-    console.error('setRLSContext: No active session found')
     return null
   }
-
-  console.log('setRLSContext: Setting claims for tenant_id:', activeSession.tenant_id)
 
   const supabase = await createServerClient()
 
   try {
-    const [tenantResult, roleResult] = await Promise.all([
+    await Promise.all([
       supabase.rpc('set_claim', {
         claim: 'tenant_id',
         value: activeSession.tenant_id,
@@ -116,17 +106,9 @@ export async function setRLSContext(session?: AuthSession) {
         value: activeSession.role,
       }),
     ])
-
-    if (tenantResult.error) {
-      console.error('setRLSContext: Error setting tenant_id claim:', tenantResult.error)
-    }
-    if (roleResult.error) {
-      console.error('setRLSContext: Error setting role claim:', roleResult.error)
-    }
-
-    console.log('setRLSContext: Claims set successfully')
   } catch (error) {
-    console.error('setRLSContext: Error setting claims:', error)
+    console.error('Error setting RLS context:', error)
+    throw error
   }
 
   return supabase

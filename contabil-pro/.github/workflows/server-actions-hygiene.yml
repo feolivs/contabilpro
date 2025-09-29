@@ -1,0 +1,148 @@
+name: Server Actions Hygiene
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/actions/**'
+      - 'src/app/**'
+      - 'src/components/**'
+      - 'src/types/**'
+      - 'src/schemas/**'
+
+jobs:
+  server-actions-hygiene:
+    name: 🔍 Server Actions Hygiene Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 🔍 Check Server Actions Hygiene
+        run: |
+          echo "🔍 Verificando higiene dos Server Actions..."
+          node scripts/check-server-actions.js
+          
+      - name: 📋 Validate Folder Structure
+        run: |
+          echo "📋 Verificando estrutura de pastas..."
+          
+          # Verificar se actions/ existe
+          if [ ! -d "src/actions" ]; then
+            echo "❌ Pasta src/actions/ não encontrada"
+            exit 1
+          fi
+          
+          # Verificar se types/ existe
+          if [ ! -d "src/types" ]; then
+            echo "❌ Pasta src/types/ não encontrada"
+            exit 1
+          fi
+          
+          # Verificar convenções de nomes
+          echo "📁 Verificando convenções de nomes..."
+          
+          # Arquivos em actions/ devem ter extensão .ts
+          if find src/actions -name "*.js" | grep -q .; then
+            echo "❌ Arquivos .js encontrados em actions/ - use .ts"
+            find src/actions -name "*.js"
+            exit 1
+          fi
+          
+          # Verificar se há arquivos .action.ts (opcional, mas recomendado)
+          action_files=$(find src/actions -name "*.ts" | wc -l)
+          echo "📊 Encontrados $action_files arquivos de actions"
+          
+          # Verificar se há arquivos .types.ts
+          type_files=$(find src/types -name "*.ts" 2>/dev/null | wc -l)
+          echo "📊 Encontrados $type_files arquivos de types"
+          
+          echo "✅ Estrutura de pastas validada"
+          
+      - name: 🧪 TypeScript Check
+        run: |
+          echo "🧪 Verificando tipos TypeScript..."
+          npm ci
+          npx tsc --noEmit --skipLibCheck
+          
+      - name: 📊 Generate Report
+        if: failure()
+        run: |
+          echo "📊 Gerando relatório de falhas..."
+          echo "## ❌ Server Actions Hygiene Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Problemas Encontrados:" >> $GITHUB_STEP_SUMMARY
+          echo "- Verifique se arquivos 'use server' exportam apenas funções async" >> $GITHUB_STEP_SUMMARY
+          echo "- Verifique se tipos estão em src/types/ e não em src/actions/" >> $GITHUB_STEP_SUMMARY
+          echo "- Verifique se componentes importam tipos de src/types/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Como Corrigir:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Mova tipos/constantes de actions/ para types/" >> $GITHUB_STEP_SUMMARY
+          echo "2. Corrija imports nos componentes" >> $GITHUB_STEP_SUMMARY
+          echo "3. Execute: \`npm run check:server-actions\`" >> $GITHUB_STEP_SUMMARY
+          
+  lint-imports:
+    name: 🔗 Import Hygiene Check  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 🔗 Check Import Patterns
+        run: |
+          echo "🔗 Verificando padrões de import..."
+          
+          # Verificar imports de tipos de actions/
+          bad_imports=$(grep -r "from '@/actions/" src/app/ src/components/ | grep -E "(State|Type|Interface|Props|Config)" || true)
+          
+          if [ ! -z "$bad_imports" ]; then
+            echo "❌ Imports de tipos de actions/ encontrados:"
+            echo "$bad_imports"
+            echo ""
+            echo "💡 Mova esses tipos para src/types/ e atualize os imports"
+            exit 1
+          fi
+          
+          echo "✅ Padrões de import estão corretos"
+          
+  cache-validation:
+    name: 🗄️ Cache Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 🗄️ Validate Cache Strategy
+        run: |
+          echo "🗄️ Verificando estratégia de cache..."
+          
+          # Verificar se .next está no .gitignore
+          if ! grep -q "\.next" .gitignore; then
+            echo "❌ .next não está no .gitignore"
+            exit 1
+          fi
+          
+          # Verificar se node_modules está no .gitignore
+          if ! grep -q "node_modules" .gitignore; then
+            echo "❌ node_modules não está no .gitignore"
+            exit 1
+          fi
+          
+          echo "✅ Estratégia de cache validada"

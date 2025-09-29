@@ -2,7 +2,8 @@
 
 import { useActionState } from 'react'
 
-import { createEntryFromForm, initialEntryFormState } from '@/actions/entries'
+import { createEntryFromForm } from '@/actions/entries'
+import { initialEntryFormState } from '@/types/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

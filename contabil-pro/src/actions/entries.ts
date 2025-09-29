@@ -6,6 +6,17 @@ import { requireAuth, setRLSContext } from '@/lib/auth'
 import { entrySchema } from '@/lib/validations'
 
 import { type z } from 'zod'
+import {
+  EntryFormState,
+  EntryImportState,
+  initialEntryFormState,
+  initialEntryImportState,
+  type Entry,
+  type EntryWithRelations,
+  type EntryFilters,
+  type EntryImportRow,
+  type EntryImportResult
+} from '@/types/entries'
 
 const baseEntrySchema = entrySchema.omit({
   id: true,
@@ -14,33 +25,6 @@ const baseEntrySchema = entrySchema.omit({
 })
 
 const updateEntrySchema = baseEntrySchema.partial()
-
-export type EntryFormState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  fieldErrors?: Record<string, string[]>
-}
-
-export const initialEntryFormState: EntryFormState = {
-  status: 'idle',
-  message: null,
-  fieldErrors: {},
-}
-
-export type EntryImportState = {
-  status: 'idle' | 'success' | 'error'
-  message: string | null
-  summary?: {
-    processed: number
-    created: number
-    skipped: number
-  }
-}
-
-export const initialEntryImportState: EntryImportState = {
-  status: 'idle',
-  message: null,
-}
 
 export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
   try {

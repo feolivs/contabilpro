@@ -2,10 +2,8 @@
 
 import { useActionState } from 'react'
 
-import {
-  importBankTransactionsFromCSV,
-  initialBankTransactionImportState,
-} from '@/actions/bank-accounts'
+import { importBankTransactionsFromCSV } from '@/actions/bank-accounts'
+import { initialBankTransactionImportState } from '@/types/bank-accounts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

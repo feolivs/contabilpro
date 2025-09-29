@@ -1,44 +1,28 @@
 ﻿'use server'
 
 import { requireAuth, setRLSContext } from '@/lib/auth'
-
-export interface DashboardMetricDelta {
-  current: number
-  previous: number
-}
-
-export interface DashboardSummary {
-  revenue: DashboardMetricDelta
-  expense: DashboardMetricDelta
-  newClients: DashboardMetricDelta
-  bankTransactions: DashboardMetricDelta
-  aiInsights: DashboardMetricDelta
-}
-
-export interface TrendPoint {
-  bucket: string
-  revenue: number
-  expense: number
-}
-
-export interface RecentActivityItem {
-  source: string
-  title: string
-  description: string
-  created_at: string
-  reference: string | null
-}
-
-interface ActionResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
+import { ActionResponse } from '@/types/actions'
+import {
+  createCachedFunction,
+  CACHE_CONFIG,
+  createCachedResponse,
+  CachedResponse
+} from '@/lib/cache'
+import {
+  withResilience,
+  ResilientResponse,
+  DASHBOARD_FALLBACK_DATA
+} from '@/lib/resilience'
+import type {
+  DashboardSummary,
+  TrendPoint,
+  RecentActivityItem
+} from '@/types/dashboard'
 
 export async function getDashboardSummary(
   rangeDays = 30
-): Promise<ActionResponse<DashboardSummary>> {
-  try {
+): Promise<ResilientResponse<DashboardSummary>> {
+  const operation = async (): Promise<DashboardSummary> => {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
 
@@ -46,48 +30,55 @@ export async function getDashboardSummary(
       throw new Error('Nao foi possivel preparar o contexto de seguranca.')
     }
 
-    const { data, error } = await supabase.rpc('dashboard_summary', {
-      tenant_id: session.tenant_id,
-      range_days: rangeDays,
+    const { data, error } = await supabase.rpc('dashboard_summary_v1', {
+      p_tenant_id: session.tenant_id,
+      p_range_days: rangeDays,
     })
 
     if (error) {
       throw new Error(error.message)
     }
 
-    const record = Array.isArray(data) ? data[0] : data
+    // Verificar resposta canônica
+    if (!data || data.status !== 'success') {
+      throw new Error(data?.message || 'Erro desconhecido ao carregar métricas')
+    }
 
-    const summary: DashboardSummary = {
+    const payload = data.payload
+
+    return {
       revenue: {
-        current: Number(record?.revenue_current ?? 0),
-        previous: Number(record?.revenue_previous ?? 0),
+        current: Number(payload?.revenue?.current ?? 0),
+        previous: Number(payload?.revenue?.previous ?? 0),
       },
       expense: {
-        current: Number(record?.expense_current ?? 0),
-        previous: Number(record?.expense_previous ?? 0),
+        current: Number(payload?.expense?.current ?? 0),
+        previous: Number(payload?.expense?.previous ?? 0),
       },
       newClients: {
-        current: Number(record?.new_clients_current ?? 0),
-        previous: Number(record?.new_clients_previous ?? 0),
+        current: Number(payload?.new_clients?.current ?? 0),
+        previous: Number(payload?.new_clients?.previous ?? 0),
       },
       bankTransactions: {
-        current: Number(record?.bank_transactions_current ?? 0),
-        previous: Number(record?.bank_transactions_previous ?? 0),
+        current: Number(payload?.bank_transactions?.current ?? 0),
+        previous: Number(payload?.bank_transactions?.previous ?? 0),
       },
       aiInsights: {
-        current: Number(record?.ai_insights_current ?? 0),
-        previous: Number(record?.ai_insights_previous ?? 0),
+        current: Number(payload?.ai_insights?.current ?? 0),
+        previous: Number(payload?.ai_insights?.previous ?? 0),
       },
     }
-
-    return { success: true, data: summary }
-  } catch (error) {
-    console.error('Erro ao carregar resumo do dashboard:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido ao carregar resumo.',
-    }
   }
+
+  return await withResilience(
+    operation,
+    DASHBOARD_FALLBACK_DATA.summary,
+    {
+      maxRetries: 2,
+      fallbackToCache: true,
+      showErrorToUser: true,
+    }
+  )
 }
 
 export async function getDashboardTrend(rangeDays = 90): Promise<ActionResponse<TrendPoint[]>> {

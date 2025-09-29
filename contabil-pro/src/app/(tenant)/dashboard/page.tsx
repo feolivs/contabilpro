@@ -1,4 +1,4 @@
-import type { DashboardSummary } from '@/actions/dashboard'
+import type { DashboardSummary } from '@/types/dashboard'
 import { getDashboardSummary, getDashboardTrend, getRecentActivity } from '@/actions/dashboard'
 import { ChartAreaInteractive } from '@/components/chart-area-interactive'
 import { RecentActivityList } from '@/components/recent-activity-list'
