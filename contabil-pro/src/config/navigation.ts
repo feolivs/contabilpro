@@ -1,4 +1,4 @@
-﻿import type { Permission } from '@/lib/rbac'
+﻿import type { Permission } from '@/lib/auth/rbac'
 
 export type IconName =
   | 'layoutDashboard'

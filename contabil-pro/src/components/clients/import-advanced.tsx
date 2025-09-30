@@ -16,7 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { IconUpload, IconCheck, IconX, IconAlertTriangle, IconFileText } from '@tabler/icons-react'
-import { validateDocument } from '@/lib/document-utils'
+import { validateDocument } from '@/lib/validation'
 import { importClientsFromCSV } from '@/actions/clients'
 
 interface ParsedRow {

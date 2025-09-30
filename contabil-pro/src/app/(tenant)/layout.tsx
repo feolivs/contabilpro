@@ -6,7 +6,7 @@ import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { filterNavigationByPermissions, tenantNavigation } from '@/config/navigation'
-import { getPermissionsForRoles, getRBACContext } from '@/lib/rbac'
+import { getPermissionsForRoles, getRBACContext } from '@/lib/auth/rbac'
 
 import '../globals.css'
 

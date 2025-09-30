@@ -3,18 +3,18 @@ import { notFound } from 'next/navigation'
 
 import { getEntryById } from '@/actions/entries'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { EntryEditForm } from '../../entry-edit-form'
 
 interface EditarLancamentoProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 export default async function EditarLancamentoPage({ params }: EditarLancamentoProps) {
   await requirePermission('lancamentos.write')
 
-  const result = await getEntryById(params.id)
+  const result = await getEntryById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()

@@ -3,18 +3,18 @@ import { notFound } from 'next/navigation'
 
 import { getBankAccountById } from '@/actions/bank-accounts'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { BankAccountEditForm } from '../../bank-account-edit-form'
 
 interface EditarContaBancariaProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 export default async function EditarContaBancariaPage({ params }: EditarContaBancariaProps) {
   await requirePermission('bancos.write')
 
-  const result = await getBankAccountById(params.id)
+  const result = await getBankAccountById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()

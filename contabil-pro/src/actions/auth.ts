@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 
-import { type LoginFormState } from '@/lib/auth-helpers'
+import { type LoginFormState } from '@/lib/auth/helpers'
 import { createServerClient } from '@/lib/supabase'
 
 import type { PostgrestError } from '@supabase/supabase-js'

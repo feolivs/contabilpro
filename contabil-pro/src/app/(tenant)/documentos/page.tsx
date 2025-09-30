@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 export default async function DocumentosPage() {
   await requirePermission('documentos.read')

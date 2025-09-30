@@ -13,10 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 interface ContaBancariaDetalheProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 function formatCurrency(value: number | string | null | undefined) {
@@ -55,7 +55,7 @@ function formatDate(value: string | Date | null | undefined) {
 export default async function ContaBancariaDetalhePage({ params }: ContaBancariaDetalheProps) {
   await requirePermission('bancos.read')
 
-  const result = await getBankAccountById(params.id)
+  const result = await getBankAccountById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()

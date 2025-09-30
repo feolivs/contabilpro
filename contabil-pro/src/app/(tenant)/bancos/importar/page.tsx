@@ -2,12 +2,12 @@
 
 import { getBankAccounts } from '@/actions/bank-accounts'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { BankTransactionImportForm } from '../bank-transaction-import-form'
 
 interface ImportarTransacoesPageProps {
-  searchParams?: { account?: string }
+  searchParams?: Promise<{ account?: string }>
 }
 
 export default async function ImportarTransacoesPage({
@@ -15,13 +15,14 @@ export default async function ImportarTransacoesPage({
 }: ImportarTransacoesPageProps) {
   await requirePermission('bancos.write')
 
+  const resolvedSearchParams = searchParams ? await searchParams : {}
   const result = await getBankAccounts()
   const accountsList = result.success && Array.isArray(result.data) ? result.data : []
   const accounts = accountsList
     .filter(account => Boolean(account.id))
     .map(account => ({ id: account.id as string, name: account.name }))
 
-  const requestedAccount = searchParams?.account
+  const requestedAccount = resolvedSearchParams?.account
   const defaultAccountId = accounts.some(account => account.id === requestedAccount)
     ? requestedAccount
     : accounts[0]?.id

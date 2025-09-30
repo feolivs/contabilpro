@@ -1,7 +1,7 @@
 ﻿import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { EntryForm } from '../entry-form'
 

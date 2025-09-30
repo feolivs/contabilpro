@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 export default async function FiscalPage() {
   await requirePermission('fiscal.read')

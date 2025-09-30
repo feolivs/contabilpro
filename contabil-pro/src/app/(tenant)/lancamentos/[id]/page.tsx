@@ -5,10 +5,10 @@ import { getEntryById } from '@/actions/entries'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 interface LancamentoDetalheProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 function formatCurrency(value: number | string | null | undefined) {
@@ -47,7 +47,7 @@ function formatDate(value: string | Date | null | undefined) {
 export default async function LancamentoDetalhePage({ params }: LancamentoDetalheProps) {
   await requirePermission('lancamentos.read')
 
-  const result = await getEntryById(params.id)
+  const result = await getEntryById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()

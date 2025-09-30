@@ -5,10 +5,10 @@ import { getClientById } from '@/actions/clients'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 interface ClienteDetalheProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 function formatDate(value: string | Date | null | undefined) {
@@ -31,7 +31,7 @@ function formatDate(value: string | Date | null | undefined) {
 export default async function ClienteDetalhePage({ params }: ClienteDetalheProps) {
   await requirePermission('clientes.read')
 
-  const result = await getClientById(params.id)
+  const result = await getClientById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()

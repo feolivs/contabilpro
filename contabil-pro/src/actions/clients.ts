@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 
 import type { ClientFormState, ClientImportState } from '@/types/clients'
 import { requireAuth, setRLSContext } from '@/lib/auth'
-import { clientSchema } from '@/lib/validations'
+import { clientSchema } from '@/lib/validation'
 
 import { type z } from 'zod'
 

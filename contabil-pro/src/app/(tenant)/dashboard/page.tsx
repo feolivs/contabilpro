@@ -7,7 +7,7 @@ import { PriorityTasksPanel } from '@/components/dashboard/priority-tasks-panel'
 import { SmartAlertsPanel } from '@/components/dashboard/smart-alerts-panel'
 import { AccountingInbox } from '@/components/dashboard/accounting-inbox'
 import { CashFlowProjection } from '@/components/dashboard/cash-flow-projection'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 const EMPTY_SUMMARY: DashboardSummary = {
   revenue: { current: 0, previous: 0 },

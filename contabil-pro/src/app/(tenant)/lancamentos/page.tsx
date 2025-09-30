@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { getEntries } from '@/actions/entries'
 import { Button } from '@/components/ui/button'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { EntriesTable } from './entries-table'
 import { EntryForm } from './entry-form'

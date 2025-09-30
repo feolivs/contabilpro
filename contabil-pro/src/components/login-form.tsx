@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { initialLoginFormState } from '@/lib/auth-helpers'
+import { initialLoginFormState } from '@/lib/auth/helpers'
 import { cn } from '@/lib/utils'
 
 import { toast } from 'sonner'

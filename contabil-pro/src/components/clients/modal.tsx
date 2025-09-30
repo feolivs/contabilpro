@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Stepper, type Step } from '@/components/ui/stepper'
-import { applyDocumentMask, validateDocument, getTipoPessoa } from '@/lib/document-utils'
+import { applyDocumentMask, validateDocument, getTipoPessoa } from '@/lib/validation'
 import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react'
 
 const STEPS: Step[] = [

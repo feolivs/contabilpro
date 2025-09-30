@@ -3,18 +3,18 @@ import { notFound } from 'next/navigation'
 
 import { getClientById } from '@/actions/clients'
 import { Button } from '@/components/ui/button'
-import { requirePermission } from '@/lib/rbac'
+import { requirePermission } from '@/lib/auth/rbac'
 
 import { ClientEditForm } from '../../client-edit-form'
 
 interface EditarClienteProps {
-  params: { id: string }
+  params: Promise<{ id: string  }>
 }
 
 export default async function EditarClientePage({ params }: EditarClienteProps) {
   await requirePermission('clientes.write')
 
-  const result = await getClientById(params.id)
+  const result = await getClientById((await params).id)
 
   if (!result.success || !result.data) {
     notFound()
