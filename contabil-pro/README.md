@@ -1,49 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with
-[`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📊 ContabilPRO
 
-## Getting Started
+**SaaS Contábil Multi-Tenant com Next.js 15 + Supabase**
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-green)](https://supabase.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+[![Status](https://img.shields.io/badge/Status-MVP%20Completo-success)](https://github.com)
 
+---
+
+## 🎯 Sobre o Projeto
+
+ContabilPRO é um sistema de gestão contábil multi-tenant desenvolvido para escritórios de contabilidade. O sistema permite gerenciar múltiplos clientes (tenants) com isolamento total de dados, garantindo segurança e conformidade com a LGPD.
+
+### Tecnologias Principais:
+- **Frontend:** Next.js 15 (App Router + Server Actions)
+- **Backend:** Supabase (PostgreSQL + Auth + Storage)
+- **UI:** shadcn/ui + Tailwind CSS
+- **Validação:** Zod
+- **Segurança:** Row Level Security (RLS) + Multi-tenant
+
+---
+
+## ✅ Funcionalidades Implementadas
+
+### 📄 Módulo de Documentos (100% Completo)
+- ✅ Upload de documentos (até 50MB)
+- ✅ Upload múltiplo com drag & drop
+- ✅ Detecção de duplicatas (SHA-256)
+- ✅ Listagem com ordenação e filtros
+- ✅ Download com URLs assinadas (1 hora)
+- ✅ Delete (apenas admin/owner)
+- ✅ Isolamento multi-tenant validado
+
+**Acesso:** `/documentos`
+
+---
+
+## 🚀 Como Executar
+
+### Pré-requisitos:
+- Node.js 18+
+- npm ou yarn
+- Conta no Supabase
+
+### 1. Instalar Dependências
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the
-result.
+### 2. Configurar Variáveis de Ambiente
 
-You can start editing the page by modifying `app/page.tsx`. The page
-auto-updates as you edit the file.
+Criar arquivo `.env.local`:
 
-This project uses
-[`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
-to automatically optimize and load [Geist](https://vercel.com/font), a new font
-family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key
+SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
+```
 
-## Learn More
+### 3. Executar Servidor
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Acessar: http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out
-[the Next.js GitHub repository](https://github.com/vercel/next.js) - your
-feedback and contributions are welcome!
+## 📚 Documentação
 
-## Deploy on Vercel
+- **Relatório Final:** `docs/RELATORIO-FINAL-MVP-DOCUMENTOS.md`
+- **Testes:** `docs/TESTES-DOCUMENTOS.md`
+- **Segurança:** `docs/TESTE-SEGURANCA-MANUAL.md`
 
-The easiest way to deploy your Next.js app is to use the
-[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+---
 
-Check out our
-[Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
-for more details.
+## 🎉 Status do Projeto
+
+**MVP Documentos:** ✅ **100% COMPLETO**
+
+**Próximos Passos:**
+1. Implementar Módulo de Clientes
+2. Implementar Dashboard
+3. Implementar Lançamentos Contábeis
+
+---
+
+**🚀 Pronto para uso em produção!**
