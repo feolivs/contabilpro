@@ -55,7 +55,7 @@ export function createCachedFunction<T extends any[], R>(
     [keyPrefix],
     {
       revalidate: config.duration,
-      tags: config.tags,
+      tags: config.tags ? [...config.tags] : undefined,
     }
   )
 }

@@ -64,6 +64,11 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
   })
 
   const onSubmit = async (data: any) => {
+    if (!client.id) {
+      toast.error('ID do cliente não encontrado')
+      return
+    }
+
     setIsSubmitting(true)
     try {
       const result = await updateClient(client.id, data)

@@ -137,9 +137,10 @@ export function EmptyState({
               onClick={secondaryAction.onClick}
               variant="outline"
             >
-              {type !== 'custom' && presets[type].secondaryAction?.icon &&
+              {type !== 'custom' && type in presets && 'secondaryAction' in presets[type] &&
+               (presets[type] as any).secondaryAction?.icon &&
                 (() => {
-                  const SecondaryIcon = presets[type].secondaryAction!.icon!
+                  const SecondaryIcon = (presets[type] as any).secondaryAction!.icon!
                   return <SecondaryIcon className="mr-2 h-4 w-4" />
                 })()
               }

@@ -505,6 +505,7 @@ export async function importEntriesFromCSV(
         processed,
         created,
         skipped,
+        errors: 0,
       },
     }
   } catch (error) {

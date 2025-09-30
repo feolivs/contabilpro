@@ -122,12 +122,14 @@ export async function createClientImproved(
     revalidatePath('/clientes')
 
     // Notificar para refresh de stats (assíncrono)
-    await supabase.rpc('pg_notify', {
-      channel: 'refresh_client_stats',
-      payload: session.tenant_id,
-    }).catch(() => {
+    try {
+      await supabase.rpc('pg_notify', {
+        channel: 'refresh_client_stats',
+        payload: session.tenant_id,
+      })
+    } catch {
       // Ignorar erro de notificação
-    })
+    }
 
     return { success: true, data }
   } catch (error) {

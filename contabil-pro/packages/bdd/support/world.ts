@@ -152,6 +152,17 @@ export class CustomWorld extends World {
     // Implementar limpeza de dados de teste
     // Importante para manter testes isolados
   }
+
+  // Método para configurar dados de teste base
+  async setupTestData() {
+    // Implementar configuração de dados de teste base
+    // Este método é chamado antes de cada cenário
+    // Pode ser usado para criar dados necessários para os testes
+
+    // Exemplo: criar tenant padrão, usuário de teste, etc.
+    // await this.createTestTenant('Test Tenant', 'test-tenant')
+    // await this.createTestUser('test@example.com', 'test-tenant-id', 'owner')
+  }
 }
 
 setWorldConstructor(CustomWorld)

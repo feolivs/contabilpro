@@ -30,10 +30,10 @@ export const clientSchema = z.object({
 
   // Campos fiscais
   tipo_pessoa: z.enum(['PF', 'PJ'], {
-    errorMap: () => ({ message: 'Tipo de pessoa deve ser PF ou PJ' })
+    message: 'Tipo de pessoa deve ser PF ou PJ'
   }).optional(),
   regime_tributario: z.enum(['MEI', 'Simples', 'Presumido', 'Real'], {
-    errorMap: () => ({ message: 'Regime tributário inválido' })
+    message: 'Regime tributário inválido'
   }).optional(),
   inscricao_estadual: z.string().max(20, 'Inscrição estadual muito longa').optional(),
   inscricao_municipal: z.string().max(20, 'Inscrição municipal muito longa').optional(),
@@ -56,13 +56,13 @@ export const clientSchema = z.object({
     .positive('Valor do plano deve ser positivo')
     .optional(),
   forma_cobranca: z.enum(['boleto', 'pix', 'cartao', 'transferencia'], {
-    errorMap: () => ({ message: 'Forma de cobrança inválida' })
+    message: 'Forma de cobrança inválida'
   }).optional(),
 
   // Campos de gestão
   tags: z.array(z.string().max(50, 'Tag muito longa')).default([]),
   status: z.enum(['ativo', 'inadimplente', 'onboarding', 'inativo'], {
-    errorMap: () => ({ message: 'Status inválido' })
+    message: 'Status inválido'
   }).default('ativo'),
   ultima_atividade: z.date().optional(),
   score_risco: z.number()

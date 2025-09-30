@@ -14,7 +14,8 @@ interface EditarContaBancariaProps {
 export default async function EditarContaBancariaPage({ params }: EditarContaBancariaProps) {
   await requirePermission('bancos.write')
 
-  const result = await getBankAccountById((await params).id)
+  const { id } = await params
+  const result = await getBankAccountById(id)
 
   if (!result.success || !result.data) {
     notFound()
@@ -30,7 +31,7 @@ export default async function EditarContaBancariaPage({ params }: EditarContaBan
           </p>
         </div>
         <Button asChild variant='outline'>
-          <Link href={`/bancos/${params.id}`}>Voltar para detalhes</Link>
+          <Link href={`/bancos/${id}`}>Voltar para detalhes</Link>
         </Button>
       </div>
 

@@ -2,6 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table'
 import { IconDots, IconPencil, IconTrash, IconEye, IconArrowUp, IconArrowDown, IconArrowsSort } from '@tabler/icons-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,12 +14,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatDocument } from '@/lib/document-utils'
 import { type Client } from '@/lib/validations'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { deleteClient } from '@/actions/clients'
 
 /**
  * Componente de header ordenável
@@ -243,36 +257,92 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: 'Ações',
     cell: ({ row }) => {
       const client = row.original
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const router = useRouter()
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const pathname = usePathname()
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [isDeleting, setIsDeleting] = useState(false)
+
+      // Extrair o prefixo do tenant da URL atual
+      // pathname = /t/contabil-pro-teste/clientes
+      const tenantPrefix = pathname.split('/clientes')[0] // /t/contabil-pro-teste
+
+      const handleDelete = async () => {
+        setIsDeleting(true)
+        try {
+          const result = await deleteClient(client.id)
+
+          if (result.success) {
+            toast.success('Cliente excluído com sucesso!')
+            setShowDeleteDialog(false)
+            router.refresh()
+          } else {
+            toast.error(result.error || 'Erro ao excluir cliente')
+          }
+        } catch (error) {
+          toast.error('Erro ao excluir cliente')
+          console.error(error)
+        } finally {
+          setIsDeleting(false)
+        }
+      }
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <IconDots className="h-4 w-4" />
-              <span className="sr-only">Abrir menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => console.log('Ver', client.id)}>
-              <IconEye className="mr-2 h-4 w-4" />
-              Ver detalhes
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Editar', client.id)}>
-              <IconPencil className="mr-2 h-4 w-4" />
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => console.log('Excluir', client.id)}
-              className="text-destructive focus:text-destructive"
-            >
-              <IconTrash className="mr-2 h-4 w-4" />
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <IconDots className="h-4 w-4" />
+                <span className="sr-only">Abrir menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Ações</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}`)}>
+                <IconEye className="mr-2 h-4 w-4" />
+                Ver detalhes
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}/editar`)}>
+                <IconPencil className="mr-2 h-4 w-4" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <IconTrash className="mr-2 h-4 w-4" />
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir o cliente <strong>{client.name}</strong>?
+                  Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? 'Excluindo...' : 'Excluir'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )
     },
     enableSorting: false,

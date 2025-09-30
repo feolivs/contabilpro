@@ -12,9 +12,11 @@ interface EditarLancamentoProps {
 }
 
 export default async function EditarLancamentoPage({ params }: EditarLancamentoProps) {
+  const { id } = await params
+
   await requirePermission('lancamentos.write')
 
-  const result = await getEntryById((await params).id)
+  const result = await getEntryById(id)
 
   if (!result.success || !result.data) {
     notFound()
@@ -30,7 +32,7 @@ export default async function EditarLancamentoPage({ params }: EditarLancamentoP
           </p>
         </div>
         <Button asChild variant='outline'>
-          <Link href={`/lancamentos/${params.id}`}>Voltar para detalhes</Link>
+          <Link href={`/lancamentos/${id}`}>Voltar para detalhes</Link>
         </Button>
       </div>
 

@@ -157,7 +157,7 @@ export function ClientImportAdvanced() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const result = await importClientsFromCSV(null, formData)
+      const result = await importClientsFromCSV({ status: 'idle', message: null }, formData)
       setImportResult(result)
     } catch (error) {
       console.error('Erro ao importar:', error)

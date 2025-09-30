@@ -26,6 +26,12 @@ export type EntryImportState = {
     error: string
     data?: any
   }>
+  summary?: {
+    processed: number
+    created: number
+    skipped: number
+    errors: number
+  }
 }
 
 export const initialEntryImportState: EntryImportState = {

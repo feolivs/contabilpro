@@ -45,9 +45,11 @@ function formatDate(value: string | Date | null | undefined) {
 }
 
 export default async function LancamentoDetalhePage({ params }: LancamentoDetalheProps) {
+  const { id } = await params
+
   await requirePermission('lancamentos.read')
 
-  const result = await getEntryById((await params).id)
+  const result = await getEntryById(id)
 
   if (!result.success || !result.data) {
     notFound()
@@ -71,7 +73,7 @@ export default async function LancamentoDetalhePage({ params }: LancamentoDetalh
             {entry.type === 'credit' ? 'Credito' : 'Debito'}
           </Badge>
           <Button asChild variant='outline' size='sm'>
-            <Link href={`/lancamentos/${params.id}/editar`}>Editar lancamento</Link>
+            <Link href={`/lancamentos/${id}/editar`}>Editar lancamento</Link>
           </Button>
           <Button asChild size='sm'>
             <Link href='/lancamentos/importar'>Importar lancamentos</Link>

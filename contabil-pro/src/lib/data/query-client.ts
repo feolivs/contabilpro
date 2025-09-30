@@ -12,7 +12,7 @@ export function makeQueryClient() {
           // Não tentar novamente em erros 4xx
           if (error instanceof Error && 'status' in error) {
             const status = (error as { status?: number }).status
-            if (status >= 400 && status < 500) {
+            if (status !== undefined && status >= 400 && status < 500) {
               return false
             }
           }

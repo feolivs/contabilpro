@@ -9,6 +9,6 @@ export { ClientDetailsCard } from './details-card'
 export { ClientStats, ClientStatsCompact } from './stats'
 export { ClientImportAdvanced } from './import-advanced'
 
-// Re-export da tabela
-export { DataTable, clientColumns } from './table'
+// Nota: A tabela de clientes está em @/components/clients-table
+// Use: import { DataTable, clientColumns } from '@/components/clients-table'
 

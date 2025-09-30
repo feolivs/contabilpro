@@ -38,7 +38,7 @@ export async function verifySession(): Promise<AuthSession | null> {
         if (!adminError && data) {
           tenantId = typeof data.tenant_id === 'string' ? data.tenant_id : tenantId
           role = typeof data.role === 'string' ? data.role : role
-          tenantSlug = typeof data.tenants?.slug === 'string' ? data.tenants.slug : tenantSlug
+          tenantSlug = typeof (data.tenants as any)?.slug === 'string' ? (data.tenants as any).slug : tenantSlug
         }
       } catch (lookupError) {
         console.error('Nao foi possivel resolver tenant do usuario.', lookupError)

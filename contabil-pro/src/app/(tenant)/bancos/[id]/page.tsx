@@ -53,9 +53,11 @@ function formatDate(value: string | Date | null | undefined) {
 }
 
 export default async function ContaBancariaDetalhePage({ params }: ContaBancariaDetalheProps) {
+  const { id } = await params
+
   await requirePermission('bancos.read')
 
-  const result = await getBankAccountById((await params).id)
+  const result = await getBankAccountById(id)
 
   if (!result.success || !result.data) {
     notFound()
@@ -77,10 +79,10 @@ export default async function ContaBancariaDetalhePage({ params }: ContaBancaria
             {account.is_active === false ? 'Inativa' : 'Ativa'}
           </Badge>
           <Button asChild variant='outline' size='sm'>
-            <Link href={`/bancos/${params.id}/editar`}>Editar conta</Link>
+            <Link href={`/bancos/${id}/editar`}>Editar conta</Link>
           </Button>
           <Button asChild size='sm'>
-            <Link href={`/bancos/importar?account=${params.id}`}>Importar transacoes</Link>
+            <Link href={`/bancos/importar?account=${id}`}>Importar transacoes</Link>
           </Button>
         </div>
       </div>
