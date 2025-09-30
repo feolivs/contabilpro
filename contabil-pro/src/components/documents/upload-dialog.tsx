@@ -29,6 +29,7 @@ import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from '@/schemas/document.schema';
 interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadComplete?: () => void;
 }
 
 interface UploadResult {
@@ -47,7 +48,7 @@ const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
   { value: 'other', label: 'Outro' },
 ];
 
-export function UploadDialog({ open, onOpenChange }: UploadDialogProps) {
+export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDialogProps) {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [type, setType] = useState<DocumentType>('other');
@@ -154,7 +155,7 @@ export function UploadDialog({ open, onOpenChange }: UploadDialogProps) {
         onOpenChange(false);
         setFiles([]);
         setResults([]);
-        router.refresh();
+        onUploadComplete?.(); // Chamar callback para recarregar lista
       }, 2000);
     }
   };

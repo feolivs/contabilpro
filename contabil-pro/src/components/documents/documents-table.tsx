@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   SortingState,
+  PaginationState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
@@ -18,6 +19,7 @@ import {
   Loader2,
   ArrowUpDown,
 } from 'lucide-react';
+import { useDeleteDocument, useDocumentDownloadUrl } from '@/hooks/use-documents';
 import {
   Table,
   TableBody,
@@ -37,6 +39,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -46,12 +55,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { deleteDocument, getDocumentDownloadUrl } from '@/actions/documents';
 import type { DocumentWithRelations } from '@/types/document.types';
-import { toast } from 'sonner';
 
 interface DocumentsTableProps {
   documents: DocumentWithRelations[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
@@ -63,15 +75,24 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   other: 'Outro',
 };
 
-export function DocumentsTable({ documents }: DocumentsTableProps) {
-  const router = useRouter();
+export function DocumentsTable({
+  documents,
+  totalCount,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: DocumentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<{
     id: string;
     name: string;
   } | null>(null);
+
+  // React Query mutations
+  const deleteMutation = useDeleteDocument();
+  const downloadMutation = useDocumentDownloadUrl();
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -89,19 +110,8 @@ export function DocumentsTable({ documents }: DocumentsTableProps) {
     });
   };
 
-  const handleDownload = async (id: string, name: string) => {
-    try {
-      const result = await getDocumentDownloadUrl(id);
-      if (result.success && result.url) {
-        // Abrir em nova aba
-        window.open(result.url, '_blank');
-        toast.success(`Download iniciado: ${name}`);
-      } else {
-        toast.error(result.error || 'Erro ao gerar URL de download');
-      }
-    } catch (error) {
-      toast.error('Erro ao baixar documento');
-    }
+  const handleDownload = (id: string) => {
+    downloadMutation.mutate(id);
   };
 
   const handleDeleteClick = (id: string, name: string) => {
@@ -109,25 +119,15 @@ export function DocumentsTable({ documents }: DocumentsTableProps) {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!documentToDelete) return;
 
-    setDeleting(documentToDelete.id);
-    try {
-      const result = await deleteDocument(documentToDelete.id);
-      if (result.success) {
-        toast.success('Documento deletado com sucesso');
-        router.refresh();
-      } else {
-        toast.error(result.error || 'Erro ao deletar documento');
-      }
-    } catch (error) {
-      toast.error('Erro ao deletar documento');
-    } finally {
-      setDeleting(null);
-      setDeleteDialogOpen(false);
-      setDocumentToDelete(null);
-    }
+    deleteMutation.mutate(documentToDelete.id, {
+      onSuccess: () => {
+        setDeleteDialogOpen(false);
+        setDocumentToDelete(null);
+      },
+    });
   };
 
   const columns: ColumnDef<DocumentWithRelations>[] = [
@@ -221,10 +221,10 @@ export function DocumentsTable({ documents }: DocumentsTableProps) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleDeleteClick(doc.id, doc.name)}
-                disabled={deleting === doc.id}
+                disabled={deleteMutation.isPending}
                 className="text-destructive"
               >
-                {deleting === doc.id ? (
+                {deleteMutation.isPending && documentToDelete?.id === doc.id ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -238,14 +238,22 @@ export function DocumentsTable({ documents }: DocumentsTableProps) {
     },
   ];
 
+  const pageCount = Math.ceil(totalCount / pageSize);
+
   const table = useReactTable({
     data: documents,
     columns,
+    pageCount,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     state: {
       sorting,
+      pagination: {
+        pageIndex: currentPage - 1,
+        pageSize,
+      },
     },
   });
 
@@ -290,6 +298,81 @@ export function DocumentsTable({ documents }: DocumentsTableProps) {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2 py-4">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Mostrando {documents.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} a{' '}
+            {Math.min(currentPage * pageSize, totalCount)} de {totalCount} documentos
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6">
+          {/* Page Size Selector */}
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Linhas por página:</p>
+            <Select
+              value={pageSize.toString()}
+              onValueChange={(value) => {
+                onPageSizeChange(Number(value));
+                onPageChange(1); // Reset to first page
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Page Navigation */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+            >
+              Primeira
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-medium">
+                Página {currentPage} de {pageCount}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= pageCount}
+            >
+              Próxima
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(pageCount)}
+              disabled={currentPage >= pageCount}
+            >
+              Última
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}

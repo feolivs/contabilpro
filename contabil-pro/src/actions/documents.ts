@@ -169,15 +169,12 @@ export async function getDocuments(
 ): Promise<DocumentListResult> {
   try {
     const session = await requireAuth();
-
-    // Usar Admin Client para bypass RLS (temporário)
-    const { createAdminClient } = await import('@/lib/supabase');
-    const supabase = createAdminClient();
+    const supabase = await setRLSContext(session);
 
     // Validar e aplicar defaults
     const validated = documentFiltersSchema.parse(filters || {});
 
-    // Construir query (filtro manual por tenant_id)
+    // Construir query (RLS vai filtrar automaticamente por tenant_id)
     let query = supabase
       .from('documents')
       .select(
@@ -188,8 +185,7 @@ export async function getDocuments(
         uploader:users!uploaded_by(id, name)
       `,
         { count: 'exact' }
-      )
-      .eq('tenant_id', session.tenant_id);
+      );
 
     // Aplicar filtros
     if (validated.type) {
@@ -252,17 +248,13 @@ export async function getDocumentDownloadUrl(
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     const session = await requireAuth();
+    const supabase = await setRLSContext(session);
 
-    // Usar Admin Client para bypass RLS (temporário)
-    const { createAdminClient } = await import('@/lib/supabase');
-    const supabase = createAdminClient();
-
-    // 1. Buscar documento (filtro manual por tenant_id)
+    // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
     const { data: document, error: fetchError } = await supabase
       .from('documents')
       .select('id, path, name')
       .eq('id', documentId)
-      .eq('tenant_id', session.tenant_id)
       .maybeSingle();
 
     if (fetchError || !document) {
@@ -308,50 +300,27 @@ export async function deleteDocument(
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
     const session = await requireAuth();
+    const supabase = await setRLSContext(session);
 
-    // Usar Admin Client para bypass RLS (temporário)
-    const { createAdminClient } = await import('@/lib/supabase');
-    const supabase = createAdminClient();
-
-    // 1. Verificar permissão (admin/owner) - filtro manual
-    const { data: userTenant, error: roleError } = await supabase
-      .from('user_tenants')
-      .select('role')
-      .eq('user_id', session.user.id)
-      .eq('tenant_id', session.tenant_id)
-      .maybeSingle();
-
-    if (roleError || !userTenant) {
-      return { success: false, error: 'Erro ao verificar permissões' };
-    }
-
-    if (!['owner', 'admin'].includes(userTenant.role)) {
-      return {
-        success: false,
-        error: 'Apenas administradores podem deletar documentos',
-      };
-    }
-
-    // 2. Buscar documento (filtro manual por tenant_id)
+    // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
     const { data: document, error: fetchError } = await supabase
       .from('documents')
       .select('id, path, name')
       .eq('id', documentId)
-      .eq('tenant_id', session.tenant_id)
       .maybeSingle();
 
     if (fetchError || !document) {
       return { success: false, error: 'Documento não encontrado' };
     }
 
-    // 3. Registrar evento ANTES de deletar
+    // 2. Registrar evento ANTES de deletar
     await supabase.rpc('log_document_event', {
       p_document_id: documentId,
       p_event_type: 'delete',
       p_metadata: { file_name: document.name },
     });
 
-    // 4. Deletar do Storage
+    // 3. Deletar do Storage
     const { error: storageError } = await supabase.storage
       .from('documentos')
       .remove([document.path]);
@@ -361,7 +330,7 @@ export async function deleteDocument(
       // Continuar mesmo assim (pode já ter sido deletado)
     }
 
-    // 5. Deletar do banco (RLS vai validar permissão novamente)
+    // 4. Deletar do banco (RLS vai validar permissão - apenas admin/owner)
     const { error: deleteError } = await supabase
       .from('documents')
       .delete()
@@ -374,7 +343,7 @@ export async function deleteDocument(
       };
     }
 
-    // 6. Revalidar página
+    // 5. Revalidar página
     revalidatePath('/documentos');
 
     return {
@@ -496,17 +465,12 @@ export async function registerUploadedDocument(data: {
 }): Promise<DocumentUploadResult> {
   try {
     const session = await requireAuth();
+    const supabase = await setRLSContext(session);
 
-    // NOTA: Usando Admin Client para bypass RLS temporariamente
-    // TODO: Corrigir current_tenant_id() para funcionar com Server Actions
-    const { createAdminClient } = await import('@/lib/supabase');
-    const supabase = createAdminClient();
-
-    // 1. Verificar duplicata (filtro manual por tenant_id para segurança)
+    // 1. Verificar duplicata (RLS vai filtrar automaticamente por tenant_id)
     const { data: existing } = await supabase
       .from('documents')
       .select('id, name, path')
-      .eq('tenant_id', session.tenant_id)
       .eq('hash', data.hash)
       .maybeSingle();
 
@@ -518,11 +482,11 @@ export async function registerUploadedDocument(data: {
       };
     }
 
-    // 2. Inserir metadados (tenant_id validado via requireAuth)
+    // 2. Inserir metadados (RLS vai validar tenant_id automaticamente)
     const { data: document, error: insertError } = await supabase
       .from('documents')
       .insert({
-        tenant_id: session.tenant_id, // Validado manualmente via session
+        tenant_id: session.tenant_id,
         name: data.name,
         original_name: data.name,
         path: data.path,
