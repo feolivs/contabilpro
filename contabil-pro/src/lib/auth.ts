@@ -96,16 +96,10 @@ export async function setRLSContext(session?: AuthSession) {
   const supabase = await createServerClient()
 
   try {
-    await Promise.all([
-      supabase.rpc('set_claim', {
-        claim: 'tenant_id',
-        value: activeSession.tenant_id,
-      }),
-      supabase.rpc('set_claim', {
-        claim: 'role',
-        value: activeSession.role,
-      }),
-    ])
+    // Usar set_tenant_claim que persiste na sessão via app.current_tenant_id
+    await supabase.rpc('set_tenant_claim', {
+      p_tenant_id: activeSession.tenant_id,
+    })
   } catch (error) {
     console.error('Error setting RLS context:', error)
     throw error

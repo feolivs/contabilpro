@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X, FileText, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { generateUploadPath, registerUploadedDocument } from '@/actions/documents';
+import { getClientsForDropdown } from '@/actions/clients-simple';
 import { calculateFileHash, uploadToStorage } from '@/lib/upload-helper';
 import type { DocumentType } from '@/types/document.types';
 import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from '@/schemas/document.schema';
@@ -52,9 +53,33 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDia
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [type, setType] = useState<DocumentType>('other');
+  const [clientId, setClientId] = useState<string>('');
+  const [clients, setClients] = useState<Array<{
+    id: string;
+    name: string;
+    document: string;
+    document_type: string;
+  }>>([]);
+  const [loadingClients, setLoadingClients] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState<UploadResult[]>([]);
   const [progress, setProgress] = useState(0);
+
+  // Carregar clientes quando o dialog abrir
+  useEffect(() => {
+    if (open && clients.length === 0) {
+      loadClients();
+    }
+  }, [open]);
+
+  const loadClients = async () => {
+    setLoadingClients(true);
+    const result = await getClientsForDropdown();
+    if (result.success) {
+      setClients(result.clients);
+    }
+    setLoadingClients(false);
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles((prev) => [...prev, ...acceptedFiles]);
@@ -127,6 +152,7 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDia
           size: file.size,
           mime_type: file.type,
           type,
+          client_id: clientId || undefined, // ✨ Vincular cliente se selecionado
         });
 
         uploadResults.push({
@@ -192,6 +218,45 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDia
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Cliente (Opcional) */}
+          <div className="space-y-2">
+            <Label htmlFor="client">
+              Cliente (Opcional)
+              {loadingClients && (
+                <Loader2 className="inline-block ml-2 h-3 w-3 animate-spin" />
+              )}
+            </Label>
+            <Select
+              value={clientId || 'none'}
+              onValueChange={(value) => setClientId(value === 'none' ? '' : value)}
+              disabled={loadingClients}
+            >
+              <SelectTrigger id="client">
+                <SelectValue placeholder="Selecione um cliente..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">
+                  <span className="text-muted-foreground">Nenhum (vincular depois)</span>
+                </SelectItem>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{client.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {client.document_type === 'cpf' ? 'CPF' : 'CNPJ'}: {client.document}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {clientId && (
+              <p className="text-xs text-muted-foreground">
+                ✓ Documento será vinculado ao cliente selecionado
+              </p>
+            )}
           </div>
 
           {/* Dropzone */}

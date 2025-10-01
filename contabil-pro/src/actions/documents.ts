@@ -482,26 +482,25 @@ export async function registerUploadedDocument(data: {
       };
     }
 
-    // 2. Inserir metadados (RLS vai validar tenant_id automaticamente)
+    // 2. Inserir metadados usando função RPC que garante contexto RLS
     const { data: document, error: insertError } = await supabase
-      .from('documents')
-      .insert({
-        tenant_id: session.tenant_id,
-        name: data.name,
-        original_name: data.name,
-        path: data.path,
-        hash: data.hash,
-        size: data.size,
-        mime_type: data.mime_type,
-        type: data.type || null,
-        client_id: data.client_id || null,
-        entry_id: data.entry_id || null,
-        metadata: {},
-        uploaded_by: session.user.id,
-        processed: false,
-      })
-      .select()
-      .single();
+      .rpc('insert_document_with_context', {
+        p_tenant_id: session.tenant_id,
+        p_data: {
+          name: data.name,
+          original_name: data.name,
+          path: data.path,
+          hash: data.hash,
+          size: data.size,
+          mime_type: data.mime_type,
+          type: data.type || null,
+          client_id: data.client_id || null,
+          entry_id: data.entry_id || null,
+          metadata: {},
+          uploaded_by: session.user.id,
+          processed: false,
+        },
+      });
 
     if (insertError) {
       throw new Error(`Erro ao salvar metadados: ${insertError.message}`);

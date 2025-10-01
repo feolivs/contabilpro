@@ -18,8 +18,10 @@ import {
   FileText,
   Loader2,
   ArrowUpDown,
+  Link,
 } from 'lucide-react';
 import { useDeleteDocument, useDocumentDownloadUrl } from '@/hooks/use-documents';
+import { LinkClientDialog } from './link-client-dialog';
 import {
   Table,
   TableBody,
@@ -88,6 +90,12 @@ export function DocumentsTable({
   const [documentToDelete, setDocumentToDelete] = useState<{
     id: string;
     name: string;
+  } | null>(null);
+  const [linkClientDialogOpen, setLinkClientDialogOpen] = useState(false);
+  const [documentToLink, setDocumentToLink] = useState<{
+    id: string;
+    name: string;
+    currentClientId: string | null;
   } | null>(null);
 
   // React Query mutations
@@ -172,11 +180,31 @@ export function DocumentsTable({
     },
     {
       accessorKey: 'client',
-      header: 'Cliente',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Cliente
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => {
         const client = row.original.client;
-        if (!client) return <span className="text-muted-foreground">-</span>;
-        return <span className="text-sm">{client.name}</span>;
+        if (!client) {
+          return (
+            <span className="text-muted-foreground italic text-sm">
+              Sem cliente
+            </span>
+          );
+        }
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">{client.name}</span>
+          </div>
+        );
       },
     },
     {
@@ -215,10 +243,24 @@ export function DocumentsTable({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleDownload(doc.id, doc.name)}>
+              <DropdownMenuItem onClick={() => handleDownload(doc.id)}>
                 <Download className="mr-2 h-4 w-4" />
                 Baixar
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setDocumentToLink({
+                    id: doc.id,
+                    name: doc.name,
+                    currentClientId: doc.client_id,
+                  });
+                  setLinkClientDialogOpen(true);
+                }}
+              >
+                <Link className="mr-2 h-4 w-4" />
+                {doc.client_id ? 'Alterar Cliente' : 'Vincular Cliente'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDeleteClick(doc.id, doc.name)}
                 disabled={deleteMutation.isPending}
@@ -398,6 +440,17 @@ export function DocumentsTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Link Client Dialog */}
+      {documentToLink && (
+        <LinkClientDialog
+          open={linkClientDialogOpen}
+          onOpenChange={setLinkClientDialogOpen}
+          documentId={documentToLink.id}
+          documentName={documentToLink.name}
+          currentClientId={documentToLink.currentClientId}
+        />
+      )}
     </>
   );
 }
