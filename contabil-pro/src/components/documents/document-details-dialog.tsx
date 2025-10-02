@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileText, X, Download, Loader2, Eye, Sparkles, Brain, Lightbulb } from 'lucide-react';
+import { FileText, X, Download, Loader2, Eye, Sparkles, Brain, Lightbulb, Building2, User, Calendar, DollarSign, FileType } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +17,7 @@ import type { DocumentWithRelations } from '@/types/document.types';
 import { useDocumentDownloadUrl } from '@/hooks/use-documents';
 import { formatBytes, formatDate } from '@/lib/utils';
 import { translateToAccountingLanguage } from '@/actions/documents';
+import { PDFPreviewDialog } from './pdf-preview-dialog';
 
 interface DocumentDetailsDialogProps {
   document: DocumentWithRelations | null;
@@ -30,6 +31,7 @@ export function DocumentDetailsDialog({
   onOpenChange,
 }: DocumentDetailsDialogProps) {
   const [downloading, setDownloading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [accountingTranslation, setAccountingTranslation] = useState<{
     explanation: string;
     suggestions: string[];
@@ -68,6 +70,14 @@ export function DocumentDetailsDialog({
     } finally {
       setDownloading(false);
     }
+  };
+
+  const handlePreview = async () => {
+    // Carregar URL se ainda não foi carregada
+    if (!downloadMutation.data?.url) {
+      await downloadMutation.mutateAsync(document.id);
+    }
+    setPreviewOpen(true);
   };
 
   const getTypeLabel = (type: string | null) => {
@@ -226,54 +236,34 @@ export function DocumentDetailsDialog({
               </>
             )}
 
-            {/* Dados Extraídos (Metadata) */}
-            {document.metadata && Object.keys(document.metadata).length > 0 && (
+            {/* Resumo do Documento */}
+            {document.metadata && (
               <>
                 <Separator />
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-medium">Dados Extraídos</p>
+                    <p className="text-sm font-medium">Resumo</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 p-4 bg-muted/50 rounded-lg">
-                    {Object.entries(document.metadata)
-                      .filter(([key]) => !key.startsWith('_')) // Ocultar campos internos
-                      .map(([key, value]) => (
-                        <div key={key} className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground capitalize">
-                            {key.replace(/_/g, ' ')}
-                          </p>
-                          <p className="text-sm">
-                            {formatMetadataValue(key, value)}
-                          </p>
-                        </div>
-                      ))}
+                  <div className="p-4 bg-muted/30 rounded-lg border">
+                    <p className="text-sm leading-relaxed">
+                      {/* Gerar resumo em 1-2 linhas */}
+                      {getTypeLabel(document.type)}
+                      {document.metadata.pagador && ` de ${document.metadata.pagador}`}
+                      {document.metadata.beneficiario && ` para ${document.metadata.beneficiario}`}
+                      {document.metadata.valor && ` no valor de ${formatMetadataValue('valor', document.metadata.valor)}`}
+                      {document.metadata.data && ` em ${formatMetadataValue('data', document.metadata.data)}`}
+                      {document.metadata.descricao && ` - ${document.metadata.descricao}`}
+                      .
+                    </p>
                   </div>
                 </div>
               </>
             )}
 
-            {/* Texto Extraído (OCR) */}
-            {document.ocr_text && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-medium">Texto Extraído</p>
-                  </div>
-                  <ScrollArea className="h-[300px] w-full rounded-lg border bg-muted/30">
-                    <div className="p-4">
-                      <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">
-                        {document.ocr_text}
-                      </pre>
-                    </div>
-                  </ScrollArea>
-                </div>
-              </>
-            )}
 
-            {/* Tradução Contábil */}
+
+            {/* Interpretação Contábil */}
             {accountingTranslation && (
               <>
                 <Separator />
@@ -282,24 +272,20 @@ export function DocumentDetailsDialog({
                     <Brain className="h-4 w-4 text-primary" />
                     <p className="text-sm font-medium">Interpretação Contábil</p>
                   </div>
-                  <div className="space-y-4 p-4 bg-blue-50/50 rounded-lg border border-blue-200/50">
-                    <div className="space-y-2">
-                      <p className="text-sm text-blue-900">
-                        {accountingTranslation.explanation}
-                      </p>
-                    </div>
+                  <div className="p-4 bg-muted/30 rounded-lg border">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {accountingTranslation.explanation}
+                    </p>
 
                     {accountingTranslation.suggestions.length > 0 && (
-                      <div className="space-y-2">
+                      <div className="mt-3 pt-3 border-t space-y-2">
                         <div className="flex items-center gap-2">
-                          <Lightbulb className="h-3 w-3 text-amber-600" />
-                          <p className="text-xs font-medium text-amber-800">
-                            Sugestões para o Contador:
-                          </p>
+                          <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                          <p className="text-xs font-medium">Sugestões:</p>
                         </div>
-                        <ul className="space-y-1 ml-5">
-                          {accountingTranslation.suggestions.map((suggestion, index) => (
-                            <li key={index} className="text-xs text-amber-700 list-disc">
+                        <ul className="space-y-1.5 ml-5">
+                          {accountingTranslation.suggestions.slice(0, 3).map((suggestion, index) => (
+                            <li key={index} className="text-xs text-muted-foreground list-disc">
                               {suggestion}
                             </li>
                           ))}
@@ -350,6 +336,16 @@ export function DocumentDetailsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>
+          {document?.mime_type === 'application/pdf' && (
+            <Button
+              variant="outline"
+              onClick={handlePreview}
+              disabled={downloadMutation.isPending}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              Visualizar
+            </Button>
+          )}
           <Button onClick={handleDownload} disabled={downloading}>
             {downloading ? (
               <>
@@ -365,6 +361,16 @@ export function DocumentDetailsDialog({
           </Button>
         </div>
       </DialogContent>
+
+      {/* PDF Preview Dialog */}
+      {document?.mime_type === 'application/pdf' && document?.storage_path && (
+        <PDFPreviewDialog
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          pdfUrl={downloadMutation.data?.url || ''}
+          fileName={document.name}
+        />
+      )}
     </Dialog>
   );
 }

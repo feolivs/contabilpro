@@ -8,6 +8,7 @@ import { filterNavigationByPermissions, tenantNavigation } from '@/config/naviga
 import { getPermissionsForRoles, getRBACContext } from '@/lib/auth/rbac'
 
 import '../globals.css'
+import '../react-pdf.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
