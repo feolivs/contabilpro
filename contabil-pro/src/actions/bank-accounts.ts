@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { requireAuth, setRLSContext } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
+import { setRLSContext } from '@/lib/auth/rls'
 import { bankAccountSchema, bankTransactionSchema } from '@/lib/validations'
 
 import { type z } from 'zod'

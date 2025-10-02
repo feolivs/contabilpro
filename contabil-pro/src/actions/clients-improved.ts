@@ -12,7 +12,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { requireAuth, setRLSContext } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
+import { setRLSContext } from '@/lib/auth/rls'
 import { clientSchema } from '@/lib/validations'
 import { normalizeDocument, getTipoPessoa } from '@/lib/document-utils'
 import { fetchAddressByCEPCached } from '@/lib/cep-utils'

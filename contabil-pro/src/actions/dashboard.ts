@@ -1,6 +1,7 @@
 ﻿'use server'
 
-import { requireAuth, setRLSContext } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
+import { setRLSContext } from '@/lib/auth/rls'
 import { ActionResponse } from '@/types/actions'
 import {
   createCachedFunction,
@@ -31,7 +32,6 @@ export async function getDashboardSummary(
     }
 
     const { data, error } = await supabase.rpc('dashboard_summary_v1', {
-      p_tenant_id: session.tenant_id,
       p_range_days: rangeDays,
     })
 
@@ -104,7 +104,6 @@ export async function getDashboardTrend(rangeDays = 90): Promise<ActionResponse<
     }
 
     const { data, error } = await supabase.rpc('dashboard_trend', {
-      tenant_id: session.tenant_id,
       range_days: rangeDays,
     })
 
@@ -140,7 +139,6 @@ export async function getRecentActivity(limit = 10): Promise<ActionResponse<Rece
     }
 
     const { data, error } = await supabase.rpc('dashboard_recent_activity', {
-      tenant_id: session.tenant_id,
       limit_count: limit,
     })
 
