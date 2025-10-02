@@ -98,10 +98,42 @@ export function DocumentDetailsDialog({
     return <Badge variant="destructive">Requer Revisão</Badge>;
   };
 
+  // Função para formatar valores do metadata
+  const formatMetadataValue = (key: string, value: any): string => {
+    if (value === null || value === undefined) {
+      return 'null';
+    }
+
+    // Detectar e formatar datas ISO
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+      try {
+        const date = new Date(value);
+        return formatDate(date, 'dd/MM/yyyy');
+      } catch {
+        return String(value);
+      }
+    }
+
+    // Formatar valores monetários
+    if (key.toLowerCase().includes('valor') && typeof value === 'number') {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(value);
+    }
+
+    // Outros valores
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+
+    return String(value);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <DialogTitle className="flex items-center gap-2">
@@ -122,7 +154,7 @@ export function DocumentDetailsDialog({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-120px)]">
+        <ScrollArea className="flex-1 -mx-6 px-6">
           <div className="space-y-6 pr-4">
             {/* Status e Informações Básicas */}
             <div className="space-y-4">
@@ -204,18 +236,18 @@ export function DocumentDetailsDialog({
                     <p className="text-sm font-medium">Dados Extraídos</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3 p-4 bg-muted/50 rounded-lg">
-                    {Object.entries(document.metadata).map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </p>
-                        <p className="text-sm font-mono">
-                          {typeof value === 'object'
-                            ? JSON.stringify(value)
-                            : String(value)}
-                        </p>
-                      </div>
-                    ))}
+                    {Object.entries(document.metadata)
+                      .filter(([key]) => !key.startsWith('_')) // Ocultar campos internos
+                      .map(([key, value]) => (
+                        <div key={key} className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground capitalize">
+                            {key.replace(/_/g, ' ')}
+                          </p>
+                          <p className="text-sm">
+                            {formatMetadataValue(key, value)}
+                          </p>
+                        </div>
+                      ))}
                   </div>
                 </div>
               </>

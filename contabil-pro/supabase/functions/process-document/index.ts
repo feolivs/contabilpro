@@ -100,7 +100,7 @@ serve(async (req) => {
 
     // 7. Criar AI Insight
     console.log('🤖 Criando AI Insight...');
-    
+
     // Determinar status baseado na confiança
     let status: 'pending' | 'awaiting_confirmation' | 'needs_review';
     if (result.confidence >= 0.85) {

@@ -69,7 +69,7 @@ export async function processPDF(
   const finalConfidence = (confidence + classification.confidence) / 2;
 
   return {
-    text,
+    text: sanitizeText(text), // Sanitizar texto final
     confidence: finalConfidence,
     type: classification.type,
     extracted_data: {
@@ -80,22 +80,39 @@ export async function processPDF(
 }
 
 // ============================================
+// Sanitizar texto para remover caracteres problemáticos
+// ============================================
+function sanitizeText(text: string): string {
+  return text
+    // Remover caracteres de controle (exceto \n, \r, \t)
+    .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, '')
+    // Remover sequências de escape Unicode inválidas
+    .replace(/\\u[0-9a-fA-F]{0,3}(?![0-9a-fA-F])/g, '')
+    // Remover sequências de escape octais inválidas
+    .replace(/\\[0-7]{1,2}(?![0-7])/g, '')
+    // Normalizar espaços em branco
+    .replace(/\s+/g, ' ')
+    // Remover espaços no início e fim
+    .trim();
+}
+
+// ============================================
 // Extrair texto nativo de PDF
 // ============================================
 async function extractTextFromPDF(fileData: Uint8Array): Promise<string> {
   // Importar pdf-parse dinamicamente
   // Nota: Esta é uma implementação simplificada
   // Em produção, seria necessário usar uma biblioteca como pdf-parse
-  
+
   try {
     // Converter Uint8Array para string e procurar por texto
     const decoder = new TextDecoder('utf-8', { fatal: false });
     const pdfString = decoder.decode(fileData);
-    
+
     // Extrair texto entre objetos de stream
     // Esta é uma abordagem muito simplificada e pode não funcionar para todos os PDFs
     const textMatches = pdfString.match(/\(([^)]+)\)/g);
-    
+
     if (textMatches && textMatches.length > 0) {
       const extractedText = textMatches
         .map(match => match.slice(1, -1)) // Remover parênteses
@@ -103,12 +120,13 @@ async function extractTextFromPDF(fileData: Uint8Array): Promise<string> {
         .replace(/\\n/g, '\n')
         .replace(/\\r/g, '')
         .trim();
-      
+
       if (extractedText.length > 50) {
-        return extractedText;
+        // Sanitizar texto antes de retornar
+        return sanitizeText(extractedText);
       }
     }
-    
+
     throw new Error('Texto insuficiente extraído');
   } catch (error) {
     throw new Error(`Erro ao extrair texto do PDF: ${error.message}`);
