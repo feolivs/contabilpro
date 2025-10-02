@@ -5,6 +5,7 @@ import {
   deleteDocument,
   updateDocument,
   getDocumentDownloadUrl,
+  getDocumentViewUrl,
 } from '@/actions/documents';
 import type { DocumentFiltersInput } from '@/schemas/document.schema';
 import type { UpdateDocumentInput } from '@/schemas/document.schema';
@@ -98,6 +99,18 @@ export function useDocumentDownloadUrl() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao baixar documento');
+    },
+  });
+}
+
+// ============================================
+// HOOK: useDocumentViewUrl (para preview)
+// ============================================
+export function useDocumentViewUrl() {
+  return useMutation({
+    mutationFn: (documentId: string) => getDocumentViewUrl(documentId),
+    onError: (error: Error) => {
+      toast.error(error.message || 'Erro ao carregar visualização');
     },
   });
 }

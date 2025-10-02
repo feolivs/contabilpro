@@ -306,6 +306,56 @@ export async function getDocumentDownloadUrl(
 }
 
 // ============================================
+// ACTION 3.5: Gerar URL de Visualização (sem download)
+// ============================================
+export async function getDocumentViewUrl(
+  documentId: string
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  try {
+    const session = await requireAuth();
+    const supabase = await createServerClient();
+
+    // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
+    const { data: document, error: fetchError } = await supabase
+      .from('documents')
+      .select('id, path, name')
+      .eq('id', documentId)
+      .maybeSingle();
+
+    if (fetchError || !document) {
+      return { success: false, error: 'Documento não encontrado' };
+    }
+
+    // 2. Gerar URL assinada (válida por 1 hora) SEM forçar download
+    const { data: urlData, error: urlError } = await supabase.storage
+      .from('documentos')
+      .createSignedUrl(document.path, 3600); // Sem opção 'download'
+
+    if (urlError || !urlData) {
+      return { success: false, error: 'Erro ao gerar URL de visualização' };
+    }
+
+    // 3. Registrar evento de visualização
+    await supabase.rpc('log_document_event', {
+      p_document_id: documentId,
+      p_event_type: 'view',
+      p_metadata: { file_name: document.name },
+    });
+
+    return {
+      success: true,
+      url: urlData.signedUrl,
+    };
+  } catch (error: any) {
+    console.error('Erro ao gerar URL de visualização:', error);
+    return {
+      success: false,
+      error: error.message || 'Erro desconhecido',
+    };
+  }
+}
+
+// ============================================
 // ACTION 4: Deletar Documento
 // ============================================
 export async function deleteDocument(

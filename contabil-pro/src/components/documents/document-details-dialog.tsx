@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { DocumentWithRelations } from '@/types/document.types';
-import { useDocumentDownloadUrl } from '@/hooks/use-documents';
+import { useDocumentDownloadUrl, useDocumentViewUrl } from '@/hooks/use-documents';
 import { formatBytes, formatDate } from '@/lib/utils';
 import { translateToAccountingLanguage } from '@/actions/documents';
 import { PDFPreviewDialog } from './pdf-preview-dialog';
@@ -38,6 +38,7 @@ export function DocumentDetailsDialog({
   } | null>(null);
   const [loadingTranslation, setLoadingTranslation] = useState(false);
   const downloadMutation = useDocumentDownloadUrl();
+  const viewMutation = useDocumentViewUrl();
 
   // Carregar tradução contábil quando o documento tiver dados extraídos
   useEffect(() => {
@@ -73,9 +74,9 @@ export function DocumentDetailsDialog({
   };
 
   const handlePreview = async () => {
-    // Carregar URL se ainda não foi carregada
-    if (!downloadMutation.data?.url) {
-      await downloadMutation.mutateAsync(document.id);
+    // Carregar URL de visualização (sem forçar download)
+    if (!viewMutation.data?.url) {
+      await viewMutation.mutateAsync(document.id);
     }
     setPreviewOpen(true);
   };
@@ -340,10 +341,19 @@ export function DocumentDetailsDialog({
             <Button
               variant="outline"
               onClick={handlePreview}
-              disabled={downloadMutation.isPending}
+              disabled={viewMutation.isPending}
             >
-              <Eye className="mr-2 h-4 w-4" />
-              Visualizar
+              {viewMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Carregando...
+                </>
+              ) : (
+                <>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Visualizar
+                </>
+              )}
             </Button>
           )}
           <Button onClick={handleDownload} disabled={downloading}>
@@ -363,11 +373,11 @@ export function DocumentDetailsDialog({
       </DialogContent>
 
       {/* PDF Preview Dialog */}
-      {document?.mime_type === 'application/pdf' && document?.storage_path && (
+      {document?.mime_type === 'application/pdf' && document?.storage_path && viewMutation.data?.url && (
         <PDFPreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}
-          pdfUrl={downloadMutation.data?.url || ''}
+          pdfUrl={viewMutation.data.url}
           fileName={document.name}
         />
       )}
