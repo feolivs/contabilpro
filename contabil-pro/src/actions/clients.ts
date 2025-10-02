@@ -3,8 +3,9 @@
 import { revalidatePath } from 'next/cache'
 
 import type { ClientFormState, ClientImportState } from '@/types/clients'
-import { requireAuth, setRLSContext } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { clientSchema } from '@/lib/validation'
+import { createServerClient } from '@/lib/supabase'
 
 import { type z } from 'zod'
 
@@ -19,21 +20,14 @@ const updateClientSchema = baseClientSchema.partial()
 
 export async function createClient(input: z.infer<typeof baseClientSchema>) {
   try {
-    const session = await requireAuth()
-    const supabase = await setRLSContext(session)
-
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    await requireAuth()
+    const supabase = await createServerClient()
 
     const validatedData = baseClientSchema.parse(input)
 
     const { data, error } = await supabase
       .from('clients')
-      .insert({
-        ...validatedData,
-        tenant_id: session.tenant_id,
-      })
+      .insert(validatedData)
       .select()
       .single()
 
@@ -94,27 +88,20 @@ export async function getClients() {
     const session = await requireAuth()
     console.log('[getClients] Session:', {
       userId: session.user.id,
-      tenantId: session.tenant_id,
       role: session.role
     })
 
-    // TEMPORÁRIO: Usar createServerClient diretamente sem setRLSContext
-    // O RLS via JWT não está funcionando, então vamos filtrar manualmente
-    const { createServerClient } = await import('@/lib/supabase')
     const supabase = await createServerClient()
 
-    // Buscar clientes filtrando manualmente por tenant_id
-    // Como o RLS não está funcionando via JWT, fazemos o filtro explícito
+    // Buscar clientes (RLS simplificado filtra automaticamente)
     const { data, error } = await supabase
       .from('clients')
       .select('*')
-      .eq('tenant_id', session.tenant_id)
       .order('created_at', { ascending: false })
 
     console.log('[getClients] Query result:', {
       dataCount: data?.length || 0,
-      error: error?.message,
-      tenantId: session.tenant_id
+      error: error?.message
     })
 
     if (error) {
@@ -136,11 +123,9 @@ export async function getClients() {
 export async function getClientById(id: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    
 
     const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
 
@@ -161,11 +146,9 @@ export async function getClientById(id: string) {
 export async function updateClient(id: string, input: z.infer<typeof updateClientSchema>) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    
 
     const validatedData = updateClientSchema.parse(input)
 
@@ -252,11 +235,9 @@ export async function updateClientFromForm(
 export async function deleteClient(id: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    
 
     const { error } = await supabase.from('clients').delete().eq('id', id)
 
@@ -308,11 +289,9 @@ export async function importClientsFromCSV(
     const headers = lines[0].split(',').map(header => header.trim().toLowerCase())
 
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Nao foi possivel preparar o contexto de seguranca.')
-    }
+    
 
     let processed = 0
     let created = 0
@@ -395,12 +374,12 @@ export async function getClientStats() {
     const { createServerClient } = await import('@/lib/supabase')
     const supabase = await createServerClient()
 
-    // Buscar da view materializada
+    // Buscar da view materializada (RLS simplificado filtra automaticamente)
     const { data, error } = await supabase
       .from('client_stats_by_tenant')
       .select('*')
-      .eq('tenant_id', session.tenant_id)
-      .single()
+      .limit(1)
+      .maybeSingle()
 
     console.log('[getClientStats] Result:', { data, error: error?.message })
 
@@ -444,11 +423,9 @@ export async function getClientStats() {
 export async function searchClients(query: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Não foi possível preparar o contexto de segurança.')
-    }
+    
 
     // Validar query
     if (!query || query.trim().length < 2) {
@@ -489,17 +466,14 @@ export async function searchClients(query: string) {
 export async function bulkActivateClients(clientIds: string[]) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Não foi possível preparar o contexto de segurança.')
-    }
+    
 
     const { error } = await supabase
       .from('clients')
       .update({ status: 'ativo' })
       .in('id', clientIds)
-      .eq('tenant_id', session.tenant_id)
 
     if (error) {
       throw new Error(`Erro ao ativar clientes: ${error.message}`)
@@ -522,17 +496,14 @@ export async function bulkActivateClients(clientIds: string[]) {
 export async function bulkDeactivateClients(clientIds: string[]) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Não foi possível preparar o contexto de segurança.')
-    }
+    
 
     const { error } = await supabase
       .from('clients')
       .update({ status: 'inativo' })
       .in('id', clientIds)
-      .eq('tenant_id', session.tenant_id)
 
     if (error) {
       throw new Error(`Erro ao inativar clientes: ${error.message}`)
@@ -555,17 +526,14 @@ export async function bulkDeactivateClients(clientIds: string[]) {
 export async function bulkDeleteClients(clientIds: string[]) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Não foi possível preparar o contexto de segurança.')
-    }
+    
 
     const { error } = await supabase
       .from('clients')
       .delete()
       .in('id', clientIds)
-      .eq('tenant_id', session.tenant_id)
 
     if (error) {
       throw new Error(`Erro ao excluir clientes: ${error.message}`)
@@ -581,3 +549,4 @@ export async function bulkDeleteClients(clientIds: string[]) {
     }
   }
 }
+

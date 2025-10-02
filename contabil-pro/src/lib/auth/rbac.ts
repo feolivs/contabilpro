@@ -8,8 +8,6 @@ export type Permission = string
 export interface RBACContext {
   userId: string
   userEmail: string
-  tenantId: string
-  tenantSlug: string
   roles: string[]
 }
 
@@ -67,64 +65,34 @@ export async function getRBACContext(): Promise<RBACContext | null> {
 
   let userId = headersList.get('x-user') ?? ''
   let userEmail = headersList.get('x-user-email') ?? ''
-  let tenantId = headersList.get('x-tenant-id') ?? ''
-  let tenantSlug = headersList.get('x-tenant') ?? ''
-  let roles =
-    headersList
-      .get('x-roles')
-      ?.split(',')
-      .map(r => r.trim().toLowerCase())
-      .filter(Boolean) ?? []
+  let roles: string[] = []
 
-  if (!userId || !tenantId || !tenantSlug || roles.length === 0) {
+  // Se não temos dados nos headers, buscar da sessão
+  if (!userId) {
     const session = await verifySession()
 
     if (!session) {
       return null
     }
 
-    const metadata = (session.user.app_metadata ?? {}) as Record<string, unknown>
+    userId = session.user.id
+    userEmail = session.user.email ?? ''
 
-    if (!userId) {
-      userId = session.user.id
-    }
-
-    if (!userEmail) {
-      userEmail = session.user.email ?? ''
-    }
-
-    if (!tenantId) {
-      tenantId = session.tenant_id
-    }
-
-    if (!tenantSlug && typeof metadata.tenant_slug === 'string') {
-      tenantSlug = metadata.tenant_slug
-    }
-
-    if (roles.length === 0) {
-      if (Array.isArray(metadata.roles) && metadata.roles.length > 0) {
-        roles = metadata.roles.map(value => String(value)).map(r => r.trim().toLowerCase())
-      } else if (typeof metadata.role === 'string') {
-        roles = [metadata.role.trim().toLowerCase()]
-      } else {
-        roles = [(session.role ?? 'user').trim().toLowerCase()]
-      }
-    }
+    // Para sistema single-user, sempre dar role 'owner'
+    roles = ['owner']
   }
 
-  if (!userId || !tenantId || !tenantSlug) {
+  if (!userId) {
     return null
   }
 
   if (roles.length === 0) {
-    roles = ['user']
+    roles = ['owner'] // Default para single-user
   }
 
   return {
     userId,
     userEmail,
-    tenantId,
-    tenantSlug,
     roles,
   }
 }

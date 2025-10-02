@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { revalidatePath } from 'next/cache'
 
@@ -29,11 +29,9 @@ const updateEntrySchema = baseEntrySchema.partial()
 export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const validatedData = baseEntrySchema.parse(input)
 
@@ -109,11 +107,9 @@ export async function createEntryFromForm(
 export async function getEntries() {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const { data, error } = await supabase
       .from('entries')
@@ -143,11 +139,9 @@ export async function getEntries() {
 export async function getEntryById(id: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const { data, error } = await supabase
       .from('entries')
@@ -178,11 +172,9 @@ export async function getEntryById(id: string) {
 export async function updateEntry(id: string, input: z.infer<typeof updateEntrySchema>) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const validatedData = updateEntrySchema.parse(input)
     const cleanData = Object.fromEntries(
@@ -316,11 +308,9 @@ export async function updateEntryFromForm(
 export async function deleteEntry(id: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const { error } = await supabase.from('entries').delete().eq('id', id)
 
@@ -343,11 +333,9 @@ export async function deleteEntry(id: string) {
 export async function classifyEntry(entryId: string) {
   try {
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     const { data: entry, error: entryError } = await supabase
       .from('entries')
@@ -431,11 +419,9 @@ export async function importEntriesFromCSV(
     const headers = lines[0].split(',').map(header => header.trim().toLowerCase())
 
     const session = await requireAuth()
-    const supabase = await setRLSContext(session)
+    const supabase = await createServerClient()
 
-    if (!supabase) {
-      throw new Error('Falha ao preparar contexto de seguranca')
-    }
+    
 
     let processed = 0
     let created = 0
@@ -517,3 +503,4 @@ export async function importEntriesFromCSV(
     }
   }
 }
+

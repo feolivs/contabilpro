@@ -6,8 +6,9 @@
 
 import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
-import { requireAuth, setRLSContext } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase';
 import {
   uploadDocumentSchema,
   documentFiltersSchema,
@@ -30,7 +31,7 @@ export async function uploadDocument(
   try {
     // 1. Autenticação e contexto
     const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    const supabase = await createServerClient();
 
     // 2. Extrair e validar dados
     const file = formData.get('file') as File;
@@ -64,7 +65,6 @@ export async function uploadDocument(
     const { data: existing } = await supabase
       .from('documents')
       .select('id, name, path')
-      .eq('tenant_id', session.tenant_id)
       .eq('hash', hash)
       .single();
 
@@ -76,22 +76,10 @@ export async function uploadDocument(
       };
     }
 
-    // 5. Gerar path usando função do banco
-    const { data: pathData, error: pathError } = await supabase.rpc(
-      'generate_document_path',
-      {
-        p_tenant_id: session.tenant_id,
-        p_type: input.type || 'other',
-        p_filename: file.name,
-        p_hash: hash,
-      }
-    );
-
-    if (pathError || !pathData) {
-      throw new Error('Erro ao gerar path do documento');
-    }
-
-    const storagePath = pathData as string;
+    // 5. Gerar path único (simplificado - sem tenant)
+    const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const docType = input.type || 'other';
+    const storagePath = `${docType}/${timestamp}/${hash.substring(0, 8)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
     // 6. Upload para Storage
     const { error: uploadError } = await supabase.storage
@@ -110,7 +98,6 @@ export async function uploadDocument(
     const { data: document, error: insertError } = await supabase
       .from('documents')
       .insert({
-        tenant_id: session.tenant_id,
         name: file.name,
         original_name: file.name,
         path: storagePath,
@@ -144,7 +131,27 @@ export async function uploadDocument(
       },
     });
 
-    // 9. Revalidar página
+    // 9. Invocar Edge Function para processamento automático
+    console.log('🚀 Invocando Edge Function para processar documento...');
+    const { error: invokeError } = await supabase.functions.invoke(
+      'process-document',
+      {
+        body: {
+          document_id: document.id,
+          storage_path: storagePath,
+          mime_type: file.type,
+        },
+      }
+    );
+
+    if (invokeError) {
+      console.error('⚠️ Erro ao invocar processamento:', invokeError);
+      // Não falhar o upload por causa disso - processamento é assíncrono
+    } else {
+      console.log('✅ Edge Function invocada com sucesso');
+    }
+
+    // 10. Revalidar página
     revalidatePath('/documentos');
 
     return {
@@ -168,13 +175,13 @@ export async function getDocuments(
   filters?: Partial<DocumentFiltersInput>
 ): Promise<DocumentListResult> {
   try {
-    const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    await requireAuth(); // Apenas verificar autenticação
+    const supabase = await createServerClient();
 
     // Validar e aplicar defaults
     const validated = documentFiltersSchema.parse(filters || {});
 
-    // Construir query (RLS vai filtrar automaticamente por tenant_id)
+    // Construir query (RLS simplificado filtra automaticamente)
     let query = supabase
       .from('documents')
       .select(
@@ -225,8 +232,14 @@ export async function getDocuments(
     const { data, error, count } = await query;
 
     if (error) {
+      console.error('[getDocuments] Erro na query:', error);
       throw new Error(`Erro ao buscar documentos: ${error.message}`);
     }
+
+    console.log('[getDocuments] Documentos encontrados:', {
+      count,
+      dataLength: data?.length || 0,
+    });
 
     return {
       documents: (data || []) as DocumentWithRelations[],
@@ -248,7 +261,7 @@ export async function getDocumentDownloadUrl(
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    const supabase = await createServerClient();
 
     // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
     const { data: document, error: fetchError } = await supabase
@@ -300,7 +313,7 @@ export async function deleteDocument(
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
     const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    const supabase = await createServerClient();
 
     // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
     const { data: document, error: fetchError } = await supabase
@@ -367,7 +380,7 @@ export async function updateDocument(
 ): Promise<{ success: boolean; document?: Document; error?: string }> {
   try {
     const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    const supabase = await createServerClient();
 
     // Validar input
     const validated = updateDocumentSchema.parse(input);
@@ -383,7 +396,6 @@ export async function updateDocument(
         updated_at: new Date().toISOString(),
       })
       .eq('id', validated.id)
-      .eq('tenant_id', session.tenant_id)
       .select()
       .single();
 
@@ -426,24 +438,14 @@ export async function generateUploadPath(
   type?: string
 ): Promise<{ success: boolean; path?: string; error?: string }> {
   try {
-    const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    await requireAuth();
 
-    const { data: pathData, error: pathError } = await supabase.rpc(
-      'generate_document_path',
-      {
-        p_tenant_id: session.tenant_id,
-        p_type: type || 'other',
-        p_filename: filename,
-        p_hash: hash,
-      }
-    );
+    // Gerar path simplificado (sem RPC)
+    const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const docType = type || 'other';
+    const path = `${docType}/${timestamp}/${hash.substring(0, 8)}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-    if (pathError || !pathData) {
-      return { success: false, error: 'Erro ao gerar path' };
-    }
-
-    return { success: true, path: pathData as string };
+    return { success: true, path };
   } catch (error: any) {
     console.error('Erro ao gerar path:', error);
     return { success: false, error: 'Erro ao gerar path' };
@@ -465,7 +467,7 @@ export async function registerUploadedDocument(data: {
 }): Promise<DocumentUploadResult> {
   try {
     const session = await requireAuth();
-    const supabase = await setRLSContext(session);
+    const supabase = await createServerClient();
 
     // 1. Verificar duplicata (RLS vai filtrar automaticamente por tenant_id)
     const { data: existing } = await supabase
@@ -482,25 +484,25 @@ export async function registerUploadedDocument(data: {
       };
     }
 
-    // 2. Inserir metadados usando função RPC que garante contexto RLS
+    // 2. Inserir metadados diretamente (RLS simplificado)
     const { data: document, error: insertError } = await supabase
-      .rpc('insert_document_with_context', {
-        p_tenant_id: session.tenant_id,
-        p_data: {
-          name: data.name,
-          original_name: data.name,
-          path: data.path,
-          hash: data.hash,
-          size: data.size,
-          mime_type: data.mime_type,
-          type: data.type || null,
-          client_id: data.client_id || null,
-          entry_id: data.entry_id || null,
-          metadata: {},
-          uploaded_by: session.user.id,
-          processed: false,
-        },
-      });
+      .from('documents')
+      .insert({
+        name: data.name,
+        original_name: data.name,
+        path: data.path,
+        hash: data.hash,
+        size: data.size,
+        mime_type: data.mime_type,
+        type: data.type || null,
+        client_id: data.client_id || null,
+        entry_id: data.entry_id || null,
+        metadata: {},
+        uploaded_by: session.user.id,
+        processed: false,
+      })
+      .select()
+      .single();
 
     if (insertError) {
       throw new Error(`Erro ao salvar metadados: ${insertError.message}`);
@@ -517,6 +519,31 @@ export async function registerUploadedDocument(data: {
       },
     });
 
+    // 4. Invocar Edge Function para processamento automático
+    console.log('🚀 [registerUploadedDocument] Invocando Edge Function...', {
+      document_id: document.id,
+      storage_path: data.path,
+      mime_type: data.mime_type,
+    });
+
+    const { data: invokeData, error: invokeError } = await supabase.functions.invoke(
+      'process-document',
+      {
+        body: {
+          document_id: document.id,
+          storage_path: data.path,
+          mime_type: data.mime_type,
+        },
+      }
+    );
+
+    if (invokeError) {
+      console.error('⚠️ [registerUploadedDocument] Erro ao invocar Edge Function:', invokeError);
+      // Não falhar o upload por causa disso - processamento é assíncrono
+    } else {
+      console.log('✅ [registerUploadedDocument] Edge Function invocada com sucesso:', invokeData);
+    }
+
     revalidatePath('/documentos');
 
     return {
@@ -532,3 +559,170 @@ export async function registerUploadedDocument(data: {
     };
   }
 }
+
+// ============================================
+// BUSCAR AI INSIGHTS DE DOCUMENTO
+// ============================================
+export async function getDocumentAIInsights(
+  documentId: string
+): Promise<ActionResponse<any[]>> {
+  try {
+    const session = await requireAuth();
+    const supabase = await createServerClient();
+
+    // Buscar AI insights relacionados ao documento
+    const { data, error } = await supabase
+      .from('ai_insights')
+      .select('*')
+      .contains('data', { document_id: documentId })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar AI insights:', error);
+      return { success: false, error: 'Erro ao buscar insights do documento' };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (error: any) {
+    console.error('Erro ao buscar AI insights:', error);
+    return {
+      success: false,
+      error: error.message || 'Erro desconhecido',
+    };
+  }
+}
+
+// ============================================
+// TRADUZIR DADOS PARA LINGUAGEM CONTÁBIL
+// ============================================
+export async function translateToAccountingLanguage(
+  documentType: string,
+  extractedData: Record<string, any>
+): Promise<ActionResponse<{ explanation: string; suggestions: string[] }>> {
+  try {
+    const session = await requireAuth();
+    const supabase = await createServerClient();
+
+    // Criar explicação contábil baseada no tipo de documento
+    let explanation = '';
+    let suggestions: string[] = [];
+
+    switch (documentType) {
+      case 'nfe':
+        explanation = `Esta Nota Fiscal Eletrônica (NFe) representa uma operação de compra/venda que deve ser registrada na contabilidade. `;
+        if (extractedData.valor_total) {
+          explanation += `O valor total de R$ ${Number(extractedData.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+        }
+        if (extractedData.cfop) {
+          explanation += `com CFOP ${extractedData.cfop} indica a natureza da operação. `;
+        }
+        if (extractedData.valor_icms) {
+          explanation += `O ICMS de R$ ${Number(extractedData.valor_icms).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} deve ser considerado para apuração dos tributos.`;
+        }
+
+        suggestions = [
+          'Registrar como entrada de mercadorias/produtos no estoque',
+          'Lançar o ICMS a recuperar (se aplicável)',
+          'Verificar se há necessidade de provisão para impostos',
+          'Conferir se o fornecedor está cadastrado corretamente'
+        ];
+        break;
+
+      case 'nfse':
+        explanation = `Esta Nota Fiscal de Serviço Eletrônica (NFSe) representa uma prestação de serviços. `;
+        if (extractedData.valor_servicos) {
+          explanation += `O valor dos serviços de R$ ${Number(extractedData.valor_servicos).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+        }
+        if (extractedData.valor_iss) {
+          explanation += `com ISS de R$ ${Number(extractedData.valor_iss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+          explanation += extractedData.iss_retido ? '(retido na fonte)' : '(a recolher)';
+        }
+
+        suggestions = [
+          'Registrar a receita de serviços prestados',
+          'Lançar o ISS a recolher ou retido na fonte',
+          'Verificar outros tributos incidentes (PIS, COFINS, etc.)',
+          'Conferir se o tomador está cadastrado corretamente'
+        ];
+        break;
+
+      case 'receipt':
+        explanation = `Este recibo representa um comprovante de pagamento que deve ser registrado na contabilidade. `;
+        if (extractedData.valor) {
+          explanation += `O valor de R$ ${Number(extractedData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+        }
+        if (extractedData.descricao) {
+          explanation += `referente a "${extractedData.descricao}" `;
+        }
+        explanation += 'deve ser classificado na conta contábil apropriada.';
+
+        suggestions = [
+          'Identificar a natureza do gasto (despesa operacional, investimento, etc.)',
+          'Classificar na conta contábil correta',
+          'Verificar se há retenções de impostos',
+          'Conferir se o documento é válido fiscalmente'
+        ];
+        break;
+
+      case 'das':
+        explanation = `Este DAS (Documento de Arrecadação do Simples Nacional) representa o pagamento unificado dos tributos do Simples Nacional. `;
+        if (extractedData.valor_total) {
+          explanation += `O valor total de R$ ${Number(extractedData.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+        }
+        if (extractedData.periodo_apuracao) {
+          explanation += `referente ao período ${extractedData.periodo_apuracao} `;
+        }
+        explanation += 'engloba diversos tributos federais, estaduais e municipais.';
+
+        suggestions = [
+          'Registrar como tributos a pagar ou pagos',
+          'Ratear entre os diferentes tributos (IRPJ, CSLL, PIS, COFINS, etc.)',
+          'Verificar se o valor está de acordo com o faturamento',
+          'Conferir se o pagamento foi efetuado no prazo'
+        ];
+        break;
+
+      case 'extrato':
+        explanation = `Este extrato bancário mostra a movimentação financeira da conta. `;
+        if (extractedData.saldo_inicial && extractedData.saldo_final) {
+          explanation += `O saldo inicial de R$ ${Number(extractedData.saldo_inicial).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} `;
+          explanation += `evoluiu para R$ ${Number(extractedData.saldo_final).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. `;
+        }
+        explanation += 'Todas as movimentações devem ser conciliadas com os lançamentos contábeis.';
+
+        suggestions = [
+          'Realizar conciliação bancária',
+          'Identificar lançamentos não registrados na contabilidade',
+          'Verificar tarifas e encargos bancários',
+          'Conferir se todos os depósitos e saques estão corretos'
+        ];
+        break;
+
+      default:
+        explanation = 'Este documento contém informações que podem ser relevantes para a contabilidade. ';
+        explanation += 'Recomenda-se análise detalhada para determinar o tratamento contábil adequado.';
+
+        suggestions = [
+          'Analisar a natureza do documento',
+          'Determinar o impacto contábil',
+          'Verificar se há obrigações fiscais',
+          'Consultar a legislação aplicável'
+        ];
+    }
+
+    return {
+      success: true,
+      data: {
+        explanation,
+        suggestions
+      }
+    };
+  } catch (error: any) {
+    console.error('Erro ao traduzir para linguagem contábil:', error);
+    return {
+      success: false,
+      error: error.message || 'Erro desconhecido',
+    };
+  }
+}
+

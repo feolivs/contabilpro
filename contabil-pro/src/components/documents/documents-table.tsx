@@ -19,9 +19,11 @@ import {
   Loader2,
   ArrowUpDown,
   Link,
+  Eye,
 } from 'lucide-react';
 import { useDeleteDocument, useDocumentDownloadUrl } from '@/hooks/use-documents';
 import { LinkClientDialog } from './link-client-dialog';
+import { DocumentDetailsDialog } from './document-details-dialog';
 import {
   Table,
   TableBody,
@@ -97,6 +99,8 @@ export function DocumentsTable({
     name: string;
     currentClientId: string | null;
   } | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [documentToView, setDocumentToView] = useState<DocumentWithRelations | null>(null);
 
   // React Query mutations
   const deleteMutation = useDeleteDocument();
@@ -243,6 +247,15 @@ export function DocumentsTable({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setDocumentToView(doc);
+                  setDetailsDialogOpen(true);
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Visualizar Detalhes
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleDownload(doc.id)}>
                 <Download className="mr-2 h-4 w-4" />
                 Baixar
@@ -451,6 +464,13 @@ export function DocumentsTable({
           currentClientId={documentToLink.currentClientId}
         />
       )}
+
+      {/* Document Details Dialog */}
+      <DocumentDetailsDialog
+        document={documentToView}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+      />
     </>
   );
 }

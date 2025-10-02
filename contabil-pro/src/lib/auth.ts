@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { createAdminClient, createServerClient } from './supabase'
 import type { AuthSession } from '@/types/auth'
 
-// Verificar sessao e obter tenant_id do JWT
+// Verificar sessao (simplificado - sem multi-tenant)
 export async function verifySession(): Promise<AuthSession | null> {
   try {
     const supabase = await createServerClient()
@@ -19,42 +19,12 @@ export async function verifySession(): Promise<AuthSession | null> {
       return null
     }
 
-    const claims = (user.app_metadata ?? {}) as Record<string, unknown>
-    let tenantId = typeof claims.tenant_id === 'string' ? claims.tenant_id : ''
-    let role = typeof claims.role === 'string' ? claims.role : 'user'
-    let tenantSlug = typeof claims.tenant_slug === 'string' ? claims.tenant_slug : ''
-
-    if (!tenantId) {
-      try {
-        const admin = createAdminClient()
-        const { data, error: adminError } = await admin
-          .from('user_tenants')
-          .select('tenant_id, role, tenants!inner(slug)')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: true })
-          .limit(1)
-          .maybeSingle()
-
-        if (!adminError && data) {
-          tenantId = typeof data.tenant_id === 'string' ? data.tenant_id : tenantId
-          role = typeof data.role === 'string' ? data.role : role
-          tenantSlug = typeof (data.tenants as any)?.slug === 'string' ? (data.tenants as any).slug : tenantSlug
-        }
-      } catch (lookupError) {
-        console.error('Nao foi possivel resolver tenant do usuario.', lookupError)
-      }
-    }
-
-    if (!tenantId) {
-      console.error('Usuario sem tenant_id no contexto de autenticacao.')
-      return null
-    }
-
+    // Retornar apenas dados básicos do usuário
     return {
       user: user,
-      tenant_id: tenantId,
-      role,
-      tenant_slug: tenantSlug,
+      tenant_id: '', // Mantido para compatibilidade, mas não usado
+      role: 'user',
+      tenant_slug: '',
     }
   } catch (error) {
     console.error('Erro ao verificar sessao:', error)
@@ -62,17 +32,9 @@ export async function verifySession(): Promise<AuthSession | null> {
   }
 }
 
-// Helper para obter tenant_id atual
-export async function getCurrentTenantId(): Promise<string | null> {
-  const session = await verifySession()
-  return session?.tenant_id || null
-}
-
-// Helper para verificar se usuario tem acesso ao tenant
-export async function verifyTenantAccess(tenant_id: string): Promise<boolean> {
-  const session = await verifySession()
-  return session?.tenant_id === tenant_id
-}
+// Funções removidas - não mais necessárias sem multi-tenant
+// getCurrentTenantId() - REMOVIDO
+// verifyTenantAccess() - REMOVIDO
 
 // Middleware de autenticacao para Server Actions
 export async function requireAuth(): Promise<AuthSession> {
@@ -85,36 +47,9 @@ export async function requireAuth(): Promise<AuthSession> {
   return session
 }
 
-// Helper para configurar RLS context no Supabase
-export async function setRLSContext(session?: AuthSession) {
-  const activeSession = session ?? (await verifySession())
-
-  if (!activeSession) {
-    return null
-  }
-
-  const supabase = await createServerClient()
-
-  try {
-    // Usar set_tenant_claim que persiste na sessão via app.current_tenant_id
-    await supabase.rpc('set_tenant_claim', {
-      p_tenant_id: activeSession.tenant_id,
-    })
-  } catch (error) {
-    console.error('Error setting RLS context:', error)
-    throw error
-  }
-
-  return supabase
-}
-
-// Funcao para criar tenant_id claim no JWT (para uso em auth hooks)
-export async function createTenantClaim(tenant_id: string) {
-  return {
-    tenant_id,
-    role: 'user',
-  }
-}
+// Funções RLS removidas - não mais necessárias sem multi-tenant
+// setRLSContext() - REMOVIDO
+// createTenantClaim() - REMOVIDO
 
 // Helper para logout
 export async function signOut() {

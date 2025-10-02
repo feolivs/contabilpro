@@ -13,7 +13,6 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import type { IconName, NavigationGroup, NavigationItem } from '@/config/navigation'
-import { buildTenantUrl, isPathActiveWithTenant } from '@/lib/navigation'
 
 import {
   BarChart3,
@@ -45,10 +44,9 @@ const ICONS: Record<IconName, ComponentType<{ className?: string }>> = {
 
 interface SidebarNavigationProps {
   groups: NavigationGroup[]
-  tenantSlug?: string
 }
 
-export function SidebarNavigation({ groups, tenantSlug }: SidebarNavigationProps) {
+export function SidebarNavigation({ groups }: SidebarNavigationProps) {
   const pathname = usePathname()
 
   return groups.map(group => (
@@ -58,7 +56,7 @@ export function SidebarNavigation({ groups, tenantSlug }: SidebarNavigationProps
         <SidebarMenu>
           {group.items.map(item => (
             <SidebarMenuItem key={item.href}>
-              <NavigationLink item={item} pathname={pathname} tenantSlug={tenantSlug} />
+              <NavigationLink item={item} pathname={pathname} />
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -70,19 +68,16 @@ export function SidebarNavigation({ groups, tenantSlug }: SidebarNavigationProps
 function NavigationLink({
   item,
   pathname,
-  tenantSlug,
 }: {
   item: NavigationItem
   pathname: string
-  tenantSlug?: string
 }) {
   const Icon = ICONS[item.icon] ?? LayoutDashboard
-  const tenantUrl = buildTenantUrl(tenantSlug, item.href)
-  const isActive = isPathActiveWithTenant(pathname, tenantUrl)
+  const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
 
   return (
     <SidebarMenuButton asChild isActive={isActive}>
-      <Link href={tenantUrl} className='flex items-center gap-2'>
+      <Link href={item.href} className='flex items-center gap-2'>
         <Icon className='size-4' />
         <span className='truncate'>{item.title}</span>
       </Link>

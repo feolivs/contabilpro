@@ -1,5 +1,4 @@
 ﻿import { Inter } from 'next/font/google'
-import { headers } from 'next/headers'
 
 import { AppSidebar } from '@/components/app-sidebar'
 import { Providers } from '@/components/providers'
@@ -12,27 +11,18 @@ import '../globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default async function TenantLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const context = await getRBACContext()
-  const fallbackHeaders = await headers()
 
-  const tenantSlug = context?.tenantSlug ?? fallbackHeaders.get('x-tenant') ?? ''
-  const roles =
-    context?.roles ??
-    fallbackHeaders
-      .get('x-roles')
-      ?.split(',')
-      .map(r => r.trim().toLowerCase())
-      .filter(Boolean) ??
-    []
+  const roles = context?.roles ?? ['owner']
   const permissions = getPermissionsForRoles(roles)
   const navGroups = filterNavigationByPermissions(tenantNavigation, permissions)
 
   return (
-    <div className={inter.className} data-tenant={tenantSlug} data-roles={roles.join(',')}>
+    <div className={inter.className} data-roles={roles.join(',')}>
       <Providers>
         <SidebarProvider>
-          <AppSidebar navGroups={navGroups} tenantSlug={tenantSlug} />
+          <AppSidebar navGroups={navGroups} />
           <SidebarInset>
             <SiteHeader navGroups={navGroups} />
             <main className='flex-1 overflow-auto p-6'>{children}</main>

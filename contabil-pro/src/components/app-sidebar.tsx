@@ -14,27 +14,24 @@ import { SidebarNavigation } from './app-sidebar-nav'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   navGroups: NavigationGroup[]
-  tenantSlug?: string
 }
 
-export function AppSidebar({ navGroups, tenantSlug, ...props }: AppSidebarProps) {
+export function AppSidebar({ navGroups, ...props }: AppSidebarProps) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <TenantSummary tenantSlug={tenantSlug} />
+        <AppSummary />
         <SearchForm />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarNavigation groups={navGroups} tenantSlug={tenantSlug} />
+        <SidebarNavigation groups={navGroups} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
   )
 }
 
-function TenantSummary({ tenantSlug }: { tenantSlug?: string }) {
-  const initials = tenantSlug ? tenantSlug.slice(0, 2).toUpperCase() : '??'
-
+function AppSummary() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -43,12 +40,12 @@ function TenantSummary({ tenantSlug }: { tenantSlug?: string }) {
           className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
         >
           <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg font-semibold'>
-            {initials}
+            CP
           </div>
           <div className='flex flex-col gap-0.5 leading-none'>
-            <span className='font-medium'>Escritorio ativo</span>
+            <span className='font-medium'>ContabilPRO</span>
             <span className='truncate text-sm text-muted-foreground'>
-              {tenantSlug ?? 'Selecione um tenant'}
+              Sistema Contábil
             </span>
           </div>
         </SidebarMenuButton>
