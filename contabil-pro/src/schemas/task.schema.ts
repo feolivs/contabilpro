@@ -8,27 +8,18 @@ import { z } from 'zod';
 // Schemas de Enums
 // ============================================================================
 
-export const taskStatusSchema = z.enum(['pending', 'in_progress', 'completed', 'cancelled'], {
-  errorMap: () => ({ message: 'Status inválido' }),
-});
+export const taskStatusSchema = z.enum(['pending', 'in_progress', 'completed', 'cancelled']);
 
-export const taskPrioritySchema = z.enum(['low', 'medium', 'high', 'urgent'], {
-  errorMap: () => ({ message: 'Prioridade inválida' }),
-});
+export const taskPrioritySchema = z.enum(['low', 'medium', 'high', 'urgent']);
 
-export const taskTypeSchema = z.enum(
-  [
-    'reminder',
-    'tax_obligation',
-    'document_review',
-    'client_meeting',
-    'report_generation',
-    'other',
-  ],
-  {
-    errorMap: () => ({ message: 'Tipo de tarefa inválido' }),
-  }
-);
+export const taskTypeSchema = z.enum([
+  'reminder',
+  'tax_obligation',
+  'document_review',
+  'client_meeting',
+  'report_generation',
+  'other',
+]);
 
 // ============================================================================
 // Schema Base de Tarefa
@@ -36,7 +27,7 @@ export const taskTypeSchema = z.enum(
 
 export const baseTaskSchema = z.object({
   title: z
-    .string({ required_error: 'Título é obrigatório' })
+    .string()
     .min(3, 'Título deve ter no mínimo 3 caracteres')
     .max(255, 'Título deve ter no máximo 255 caracteres')
     .trim(),
