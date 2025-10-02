@@ -132,7 +132,7 @@ export function DocumentDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+      <DialogContent className="max-w-[95vw] w-[1400px] h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -262,12 +262,13 @@ export function DocumentDetailsDialog({
                     <Eye className="h-4 w-4 text-primary" />
                     <p className="text-sm font-medium">Texto Extraído</p>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <pre className="text-xs whitespace-pre-wrap font-mono">
-                      {document.ocr_text.substring(0, 1000)}
-                      {document.ocr_text.length > 1000 && '...'}
-                    </pre>
-                  </div>
+                  <ScrollArea className="h-[300px] w-full rounded-lg border bg-muted/30">
+                    <div className="p-4">
+                      <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">
+                        {document.ocr_text}
+                      </pre>
+                    </div>
+                  </ScrollArea>
                 </div>
               </>
             )}
@@ -345,7 +346,7 @@ export function DocumentDetailsDialog({
         </ScrollArea>
 
         {/* Ações */}
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex justify-end gap-2 pt-4 border-t flex-shrink-0 mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>

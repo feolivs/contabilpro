@@ -15,6 +15,7 @@ import {
 } from './utils/supabase.ts';
 import { processImage } from './processors/image-processor.ts';
 import { processPDF } from './processors/pdf-processor.ts';
+import { processPDFWithUnPDF } from './processors/pdf-processor-unpdf.ts';
 import { processXML } from './processors/xml-processor.ts';
 
 // ============================================
@@ -63,20 +64,22 @@ serve(async (req) => {
 
     // 5. Processar arquivo de acordo com o tipo
     let result;
-    
+
     switch (fileType) {
       case 'image':
         result = await processImage(fileData, payload.mime_type);
         break;
-      
+
       case 'pdf':
-        result = await processPDF(fileData, payload.mime_type);
+        // Usar UnPDF para melhor extração de texto
+        console.log('🚀 Usando UnPDF para processamento...');
+        result = await processPDFWithUnPDF(fileData, payload.mime_type);
         break;
-      
+
       case 'xml':
         result = await processXML(fileData);
         break;
-      
+
       default:
         throw new Error(`Tipo de arquivo não suportado: ${payload.mime_type}`);
     }
