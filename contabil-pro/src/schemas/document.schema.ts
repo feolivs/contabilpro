@@ -50,7 +50,7 @@ export const updateDocumentSchema = z.object({
 export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>;
 
 // Validação de arquivo
-export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -73,9 +73,9 @@ export const ALLOWED_EXTENSIONS = [
 
 export function validateFile(file: File): { valid: boolean; error?: string } {
   if (file.size > MAX_FILE_SIZE) {
-    return { 
-      valid: false, 
-      error: 'Arquivo muito grande. Máximo: 50MB' 
+    return {
+      valid: false,
+      error: 'Arquivo muito grande. Máximo: 100MB'
     };
   }
 

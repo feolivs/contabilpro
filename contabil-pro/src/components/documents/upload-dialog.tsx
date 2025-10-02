@@ -278,7 +278,7 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDia
                   : 'Arraste arquivos ou clique para selecionar'}
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                Formatos: {ALLOWED_EXTENSIONS.join(', ').toUpperCase()}
+                Formatos: {ALLOWED_EXTENSIONS.join(', ').toUpperCase()} • Máximo: 100MB
               </p>
             </div>
           )}
