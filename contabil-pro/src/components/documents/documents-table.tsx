@@ -68,6 +68,8 @@ interface DocumentsTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  hideClientColumn?: boolean;
+  showUnlinkAction?: boolean;
 }
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
@@ -86,6 +88,8 @@ export function DocumentsTable({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  hideClientColumn = false,
+  showUnlinkAction = false,
 }: DocumentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -101,6 +105,12 @@ export function DocumentsTable({
   } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [documentToView, setDocumentToView] = useState<DocumentWithRelations | null>(null);
+  const [unlinkDialogOpen, setUnlinkDialogOpen] = useState(false);
+  const [documentToUnlink, setDocumentToUnlink] = useState<{
+    id: string;
+    name: string;
+    clientName: string;
+  } | null>(null);
 
   // React Query mutations
   const deleteMutation = useDeleteDocument();
@@ -140,6 +150,25 @@ export function DocumentsTable({
         setDocumentToDelete(null);
       },
     });
+  };
+
+  const handleUnlinkClick = (id: string, name: string, clientName: string) => {
+    setDocumentToUnlink({ id, name, clientName });
+    setUnlinkDialogOpen(true);
+  };
+
+  const handleUnlinkConfirm = () => {
+    if (!documentToUnlink) return;
+
+    // Usar LinkClientDialog com client_id null para desvincular
+    setDocumentToLink({
+      id: documentToUnlink.id,
+      name: documentToUnlink.name,
+      currentClientId: null,
+    });
+    setUnlinkDialogOpen(false);
+    setDocumentToUnlink(null);
+    setLinkClientDialogOpen(true);
   };
 
   const columns: ColumnDef<DocumentWithRelations>[] = [
@@ -182,9 +211,10 @@ export function DocumentsTable({
         );
       },
     },
-    {
+    // Coluna de cliente (condicional)
+    ...(!hideClientColumn ? [{
       accessorKey: 'client',
-      header: ({ column }) => {
+      header: ({ column }: any) => {
         return (
           <Button
             variant="ghost"
@@ -195,7 +225,7 @@ export function DocumentsTable({
           </Button>
         );
       },
-      cell: ({ row }) => {
+      cell: ({ row }: any) => {
         const client = row.original.client;
         if (!client) {
           return (
@@ -210,7 +240,7 @@ export function DocumentsTable({
           </div>
         );
       },
-    },
+    }] : []),
     {
       accessorKey: 'created_at',
       header: ({ column }) => {
@@ -260,19 +290,29 @@ export function DocumentsTable({
                 <Download className="mr-2 h-4 w-4" />
                 Baixar
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setDocumentToLink({
-                    id: doc.id,
-                    name: doc.name,
-                    currentClientId: doc.client_id,
-                  });
-                  setLinkClientDialogOpen(true);
-                }}
-              >
-                <Link className="mr-2 h-4 w-4" />
-                {doc.client_id ? 'Alterar Cliente' : 'Vincular Cliente'}
-              </DropdownMenuItem>
+              {!showUnlinkAction && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDocumentToLink({
+                      id: doc.id,
+                      name: doc.name,
+                      currentClientId: doc.client_id,
+                    });
+                    setLinkClientDialogOpen(true);
+                  }}
+                >
+                  <Link className="mr-2 h-4 w-4" />
+                  {doc.client_id ? 'Alterar Cliente' : 'Vincular Cliente'}
+                </DropdownMenuItem>
+              )}
+              {showUnlinkAction && doc.client_id && doc.client && (
+                <DropdownMenuItem
+                  onClick={() => handleUnlinkClick(doc.id, doc.name, doc.client.name)}
+                >
+                  <Link className="mr-2 h-4 w-4" />
+                  Desvincular Cliente
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDeleteClick(doc.id, doc.name)}
@@ -449,6 +489,28 @@ export function DocumentsTable({
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Unlink Confirmation Dialog */}
+      <AlertDialog open={unlinkDialogOpen} onOpenChange={setUnlinkDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar desvinculação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja desvincular o documento{' '}
+              <strong>{documentToUnlink?.name}</strong> do cliente{' '}
+              <strong>{documentToUnlink?.clientName}</strong>?
+              <br />
+              O documento não será deletado, apenas desvinculado.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnlinkConfirm}>
+              Desvincular
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

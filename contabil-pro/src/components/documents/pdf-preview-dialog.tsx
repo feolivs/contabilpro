@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { useState, useEffect } from 'react';
+import { Document, Page } from 'react-pdf';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,9 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-// Configurar worker do PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+import { configurePdfWorker } from '@/lib/pdf-config';
 
 interface PDFPreviewDialogProps {
   open: boolean;
@@ -32,15 +30,30 @@ export function PDFPreviewDialog({
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Garantir que só renderiza no cliente e configurar worker
+  useEffect(() => {
+    configurePdfWorker();
+    setMounted(true);
+  }, []);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
     setLoading(false);
+    setError(null);
   }
 
   function onDocumentLoadError(error: Error): void {
     console.error('Erro ao carregar PDF:', error);
     setLoading(false);
+    setError(error.message || 'Erro ao carregar PDF');
+  }
+
+  // Não renderizar no servidor
+  if (!mounted) {
+    return null;
   }
 
   function goToPrevPage() {
@@ -143,13 +156,20 @@ export function PDFPreviewDialog({
               }
               error={
                 <div className="flex items-center justify-center h-[600px]">
-                  <div className="text-center">
+                  <div className="text-center max-w-md">
                     <p className="text-sm text-destructive mb-2">
                       Erro ao carregar PDF
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Verifique se o arquivo está disponível
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {error || 'Verifique se o arquivo está disponível'}
                     </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.reload()}
+                    >
+                      Tentar novamente
+                    </Button>
                   </div>
                 </div>
               }

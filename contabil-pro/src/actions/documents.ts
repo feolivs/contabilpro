@@ -7,7 +7,6 @@
 import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { requireAuth } from '@/lib/auth';
-import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@/lib/supabase';
 import {
   uploadDocumentSchema,
@@ -318,28 +317,48 @@ export async function getDocumentViewUrl(
     // 1. Buscar documento (RLS vai filtrar automaticamente por tenant_id)
     const { data: document, error: fetchError } = await supabase
       .from('documents')
-      .select('id, path, name')
+      .select('id, path, name, mime_type')
       .eq('id', documentId)
       .maybeSingle();
 
     if (fetchError || !document) {
+      console.error('Erro ao buscar documento:', fetchError);
       return { success: false, error: 'Documento não encontrado' };
+    }
+
+    if (!document.path) {
+      return { success: false, error: 'Caminho do documento não encontrado' };
     }
 
     // 2. Gerar URL assinada (válida por 1 hora) SEM forçar download
     const { data: urlData, error: urlError } = await supabase.storage
       .from('documentos')
-      .createSignedUrl(document.path, 3600); // Sem opção 'download'
+      .createSignedUrl(document.path, 3600);
 
     if (urlError || !urlData) {
-      return { success: false, error: 'Erro ao gerar URL de visualização' };
+      console.error('Erro ao gerar URL assinada:', urlError);
+      return {
+        success: false,
+        error: `Erro ao gerar URL de visualização: ${urlError?.message || 'URL não gerada'}`
+      };
     }
 
-    // 3. Registrar evento de visualização
-    await supabase.rpc('log_document_event', {
-      p_document_id: documentId,
-      p_event_type: 'view',
-      p_metadata: { file_name: document.name },
+    // 3. Registrar evento de visualização (não bloquear se falhar)
+    try {
+      await supabase.rpc('log_document_event', {
+        p_document_id: documentId,
+        p_event_type: 'view',
+        p_metadata: { file_name: document.name },
+      });
+    } catch (logError) {
+      console.warn('Erro ao registrar evento de visualização:', logError);
+      // Não falhar a operação por causa do log
+    }
+
+    console.log('URL de visualização gerada com sucesso:', {
+      documentId,
+      path: document.path,
+      hasUrl: !!urlData.signedUrl,
     });
 
     return {

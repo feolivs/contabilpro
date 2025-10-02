@@ -31,6 +31,10 @@ interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUploadComplete?: () => void;
+  defaultValues?: {
+    client_id?: string;
+    type?: DocumentType;
+  };
 }
 
 interface UploadResult {
@@ -49,11 +53,11 @@ const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
   { value: 'other', label: 'Outro' },
 ];
 
-export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDialogProps) {
+export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValues }: UploadDialogProps) {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
-  const [type, setType] = useState<DocumentType>('other');
-  const [clientId, setClientId] = useState<string>('');
+  const [type, setType] = useState<DocumentType>(defaultValues?.type || 'other');
+  const [clientId, setClientId] = useState<string>(defaultValues?.client_id || '');
   const [clients, setClients] = useState<Array<{
     id: string;
     name: string;
@@ -65,12 +69,20 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete }: UploadDia
   const [results, setResults] = useState<UploadResult[]>([]);
   const [progress, setProgress] = useState(0);
 
-  // Carregar clientes quando o dialog abrir
+  // Aplicar defaultValues quando o dialog abrir
   useEffect(() => {
-    if (open && clients.length === 0) {
-      loadClients();
+    if (open) {
+      if (defaultValues?.type) {
+        setType(defaultValues.type);
+      }
+      if (defaultValues?.client_id) {
+        setClientId(defaultValues.client_id);
+      }
+      if (clients.length === 0) {
+        loadClients();
+      }
     }
-  }, [open]);
+  }, [open, defaultValues]);
 
   const loadClients = async () => {
     setLoadingClients(true);

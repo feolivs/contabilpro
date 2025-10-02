@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { FileText, X, Download, Loader2, Eye, Sparkles, Brain, Lightbulb, Building2, User, Calendar, DollarSign, FileType } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +18,12 @@ import type { DocumentWithRelations } from '@/types/document.types';
 import { useDocumentDownloadUrl, useDocumentViewUrl } from '@/hooks/use-documents';
 import { formatBytes, formatDate } from '@/lib/utils';
 import { translateToAccountingLanguage } from '@/actions/documents';
-import { PDFPreviewDialog } from './pdf-preview-dialog';
+
+// Importação dinâmica para evitar SSR do react-pdf
+const PDFPreviewDialog = dynamic(
+  () => import('./pdf-preview-dialog').then((mod) => ({ default: mod.PDFPreviewDialog })),
+  { ssr: false }
+);
 
 interface DocumentDetailsDialogProps {
   document: DocumentWithRelations | null;
@@ -373,7 +379,7 @@ export function DocumentDetailsDialog({
       </DialogContent>
 
       {/* PDF Preview Dialog */}
-      {document?.mime_type === 'application/pdf' && document?.storage_path && viewMutation.data?.url && (
+      {document?.mime_type === 'application/pdf' && viewMutation.data?.url && (
         <PDFPreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 
 import { requireAuth } from '@/lib/auth'
 import { setRLSContext } from '@/lib/auth/rls'
+import { createServerClient } from '@/lib/supabase'
 import { entrySchema } from '@/lib/validations'
 
 import { type z } from 'zod'

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { requirePermission } from '@/lib/auth/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 import { ClientDetailsCard } from '@/components/clients/details-card'
+import { ClientDocumentsSection } from '@/components/clients/client-documents-section'
 import {
   IconUser,
   IconFileText,
@@ -228,9 +229,15 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
               </span>
             </p>
           )}
-          <p className='pt-2 italic'>Em breve você verá documentos, tarefas e timeline vinculadas aqui.</p>
+          <p className='pt-2 italic'>Em breve você verá tarefas e timeline vinculadas aqui.</p>
         </CardContent>
       </Card>
+
+      {/* Documentos do Cliente */}
+      <ClientDocumentsSection
+        clientId={client.id}
+        clientName={client.name}
+      />
     </div>
   )
 }
