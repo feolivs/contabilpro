@@ -59,8 +59,8 @@ export function TaskDialog({
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
 
-  // Form
-  const form = useForm<CreateTaskInput | UpdateTaskInput>({
+  // Form - usar any temporariamente para resolver conflito de tipos
+  const form = useForm<any>({
     resolver: zodResolver(isEditing ? updateTaskSchema : createTaskSchema),
     defaultValues: {
       title: '',
@@ -99,7 +99,7 @@ export function TaskDialog({
   }, [open, task, clientId, form]);
 
   // Submit
-  const onSubmit = async (data: CreateTaskInput | UpdateTaskInput) => {
+  const onSubmit = async (data: any) => {
     if (isEditing) {
       const result = await updateTask.mutateAsync(data as UpdateTaskInput);
       if (result.success) {

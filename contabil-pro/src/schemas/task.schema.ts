@@ -46,7 +46,6 @@ export const baseTaskSchema = z.object({
 
   due_date: z
     .string()
-    .datetime({ message: 'Data de vencimento inválida' })
     .optional()
     .nullable()
     .transform((val) => val || undefined),
