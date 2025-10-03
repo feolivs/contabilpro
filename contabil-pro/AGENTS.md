@@ -1,108 +1,115 @@
-ContabilPRO — Agent Dev Spec
-1) Missão
+# ContabilPRO — Agent Dev Spec (versão para **contadores autônomos**)
 
-Construir um SaaS contábil multi-tenant com Next.js (App Router + Server Actions) e Supabase (Auth, Postgres, Storage, RLS). As mutações rodam como Server Actions; tarefas longas (OCR, importadores, conciliação) vão para funções/cron. 
+## 1) Missão
 
+Construir um **SaaS contábil focado em contadores autônomos** com Next.js (App Router + Server Actions) e Supabase (Auth, Postgres, Storage). As mutações rodam como Server Actions; tarefas longas (OCR, importadores, conciliação) vão para funções/cron.
 
-2) Regras e restrições (não-negociáveis)
+---
 
-Multi-tenant por RLS: cada tabela exposta tem RLS ativo; acesso filtrado por tenant_id vindo do JWT/claim. Políticas escritas em SQL. 
+## 2) Regras e restrições (não‑negociáveis)
 
+**Conta única (single‑user / single office):** o sistema é operado por um único contador(a). Nada de multi‑tenant, sem `tenant_id`.
 
-Storage com policies: buckets por tenant; criar políticas de SELECT/INSERT/UPDATE/DELETE específicas (upload ≠ overwrite). Usar helpers do Storage nas policies quando útil. 
+**Isolamento por usuário (opcional):** manter RLS simples por `user_id` apenas para garantir privacidade caso haja múltiplas sessões/dispositivos do mesmo(a) profissional.
 
+**Storage privado:** buckets privados com políticas por `owner_id = auth.uid()`; upload ≠ overwrite; versionamento lógico por `documents.hash`.
 
-NFS-e nacional: preparar adapter com driver municipal (hoje) e driver nacional (flag) — obrigatória a partir de jan/2026. 
+**NFS‑e nacional:** preparar adapter com driver municipal (hoje) e driver nacional (flag) — obrigatória a partir de **jan/2026**.
 
+**Open Finance:** seguir OAuth2/OIDC com FAPI e escopos/consentimentos; **sem scrapers**.
 
-Open Finance: seguir OAuth2/OIDC com FAPI e escopos/consentimentos; nada de scrapers. 
+**LGPD:** implementar direitos do titular (export/erase; revogar consentimento) e trilha de auditoria.
 
+---
 
-LGPD: implementar direitos do titular (export/erase; revogar consentimento) e trilha de auditoria. 
+## 3) Domínio (tabelas núcleo)
 
+**users** (mínimo, 1 proprietário), **clients**, **accounts**, **entries** (ledger imutável), **documents** (storage path + hash), **bank_accounts**, **bank_transactions**, **tax_obligations**, **tasks**, **proposals**, **ai_insights**.
 
-3) Domínio (tabelas núcleo)
+### Invariantes
 
-tenants, users, user_tenants(role), clients, accounts, entries(ledger imutável), documents(storage path + hash), bank_accounts, bank_transactions, tax_obligations, tasks, proposals, ai_insights.
+* **entries não editáveis:** ajustes geram novas linhas.
+* **documents.hash** garante idempotência de importações.
+* **bank_transactions.external_id** único por provedor.
 
-Invariantes
+> Removidos: `tenants`, `user_tenants(role)` e qualquer referência a `tenant_id`.
 
-entries não editáveis: ajustes geram novas linhas.
+---
 
-documents.hash garante idempotência de importações.
+## 4) Superfície de produto (rotas)
 
-bank_transactions.external_id único por provedor.
+`/dashboard`, `/clientes`, `/lancamentos`, `/bancos`, `/fiscal`, `/documentos`, `/tarefas`, `/propostas`, `/relatorios`, `/copiloto`, `/config`.
 
-4) Superfície de produto (rotas)
+> Sem escopo/slug de tenant. Toda a UI opera sobre a **conta única** do contador(a).
 
-/dashboard, /clientes, /lancamentos, /bancos, /fiscal, /documentos, /tarefas, /propostas, /relatorios, /copiloto, /config.
+---
 
-5) Ações do agente (Server Actions / Adapters)
-5.1 Server Actions (sincronas, UI-coladas)
+## 5) Ações do agente (Server Actions / Adapters)
 
-createClient(input) → cria cliente (Zod valida); retorna row.
+### 5.1 Server Actions (síncronas, UI‑coladas)
 
-uploadDocument({path, entry_id?}) → registra metadados do arquivo.
+* `createClient(input)` → cria cliente (Zod valida); retorna row.
+* `uploadDocument({ path, entry_id? })` → registra metadados do arquivo.
+* `createEntry(input)` → insere lançamento (valida débito=crédito).
+* `classifyEntry(entry_id)` → chama `ai/classify`, grava `ai_insights`.
+* `reconcileMatch(tx_id, entry_id, score)` → aplica conciliação se `score >= threshold`.
+* `importNFe(xml)` → usa adapter NFe, valida assinatura/schema e gera entries + documents. (Validação segue manuais oficiais da NF‑e.)
 
-createEntry(input) → insere lançamento (valida débito=crédito).
+### 5.2 Jobs/Functions (assíncronas)
 
-classifyEntry(entry_id) → chama ai/classify, grava ai_insights.
+* `openfinance/pull-transactions(consent_id, since)` → normaliza e insere `bank_transactions` com idempotência.
+* `nfse/import(xml, mode)` → `mode: municipal | nacional` (feature‑flag para 2026).
+* `fiscal/run-das(client_id, period)` → calcula DAS/gera tarefa e lembrete.
+* `observability/metrics-snapshot()` → coleta métricas (OCR/IA/conciliação).
 
-reconcileMatch(tx_id, entry_id, score) → aplica conciliação se score>=threshold.
+### 5.3 Adapters (infra ponta‑a‑ponta)
 
-importNFe(xml) → usa adapter NFe, valida assinatura/schema e gera entries + documents. (Validação de XML/assinatura segue manuais oficiais da NF-e.) 
+* **Open Finance:** `createConsentRedirect()`, `handleConsentCallback()`, `fetchAccounts()`, `fetchTransactions()`.
+* **NFe:** `validateAndParse(xml)` → assinatura + schema → DTO.
+* **NFS‑e:** `importNFSe(xml, driver)` → driver municipal | nacional.
 
+---
 
-5.2 Jobs/Functions (assíncronas)
+## 6) Políticas RLS (simples)
 
-openfinance/pull-transactions(consent_id, since) → normaliza e insere bank_transactions com idempotência. (FAPI/escopos por consent.) 
+* Habilitar RLS **somente por usuário** quando aplicável: `owner_id = auth.uid()`.
+* **SEM** filtro por `tenant_id`.
+* Storage: política por bucket privado; uploads exigem `INSERT`, overwrite exige `SELECT + UPDATE`.
 
+---
 
-nfse/import(xml, mode) → mode: municipal|nacional (flag para 2026). 
+## 7) Critérios de aceitação (BDD condensado)
 
+**Classificação IA:**
 
-fiscal/run-das(client_id, period) → calcula DAS/gera tarefa e lembrete.
+* `conf >= 0.85` → estado “Aguardando confirmação”.
+* `< 0.6` → força revisão (explicação exibível: palavras‑chave/CFOP/CST/similaridade).
 
-observability/metrics-snapshot() → coleta métricas (OCR/IA/conciliação).
+**Conciliação:**
 
-5.3 Adapters (infra ponta-a-ponta)
+* Matching `descrição + valor + data±2d` com `score >= 0.9` propõe conciliar; ação confirma e marca ambos como “Conciliados”.
 
-Open Finance: createConsentRedirect(), handleConsentCallback(), fetchAccounts(), fetchTransactions(). (Padrão BACEN; alternativa: agregador Belvo para acelerar POC e padronização). 
+**NFe:**
 
+* Ao importar XML válido, sistema valida assinatura e schema, cria lançamento com fornecedor/CFOP/CST/valores e anexa XML + DANFE.
 
-NFe: validateAndParse(xml) → assinatura + schema → DTO. 
+**Open Finance:**
 
+* Fluxo consent → callback → fetch transações; transações não duplicam (`external_id` único).
 
-NFS-e: importNFSe(xml, driver) → driver municipal | nacional. 
+**LGPD:**
 
-6) Políticas RLS (padrão)
+* Endpoint de export/erase por titular e trilha de acesso a documentos.
 
-Habilitar RLS em todas as tabelas expostas.
+---
 
-SELECT/INSERT/UPDATE/DELETE condicionados a tenant_id = current_setting('request.jwt.claims')::jsonb->>'tenant_id'. (Ou função current_tenant().)
+## 8) Estrutura de repositório (monorepo)
 
-Storage: política por bucket/tenant folder; uploads exigem INSERT, overwrite exige SELECT+UPDATE. 
-
-7) Critérios de aceitação (BDD condensado)
-
-Classificação IA: se conf>=0.85, estado “Aguardando confirmação”; <0.6 força revisão — com explicação exibível (palavras-chave/CFOP/CST/similaridade).
-
-Conciliação: matching descrição+valor+data±2d com score>=0.9 propõe conciliar; ação confirma e marca ambos como “Conciliados”.
-
-NFe: ao importar XML válido, sistema valida assinatura e schema, cria lançamento com fornecedor/CFOP/CST/valores e anexa XML + DANFE. 
-Nota Fiscal Eletrônica
-
-Open Finance: fluxo consent → callback → fetch transações; transações não podem duplicar (external_id único). 
-openfinancebrasil.atlassian.net
-
-LGPD: endpoint de export/erase por titular e trilha de acesso a documentos. 
-
-
-8) Estrutura de repositório (monorepo)
+```
 apps/web/            # Next.js (App Router + Server Actions)
   app/               # rotas + RSC
   actions/           # Server Actions (CRUD/IA/conciliacao/NFe)
-  lib/               # supabase client, auth, rls helpers
+  lib/               # supabase client, auth, rls helpers (por user_id)
   components/        # UI (shadcn/ui, TanStack Table)
   tests/             # unit, integration, e2e
 packages/domain/     # entidades, zod, regras contábeis
@@ -110,61 +117,50 @@ packages/adapters/   # openfinance, nfe, nfse
 packages/ai/         # prompts, parsers, explainability
 packages/bdd/        # .feature + steps
 infra/               # migrations SQL, policies RLS/Storage, seeds
+```
 
-9) Variáveis de ambiente
+> Observação: helpers e migrations não devem referenciar `tenant_id`.
 
-NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+---
 
-OPENFINANCE_CLIENT_ID, OPENFINANCE_CLIENT_SECRET, OPENFINANCE_PROVIDER_URL
+## 9) Variáveis de ambiente
 
-NFSE_MODE=municipal|nacional (feature-flag 2026). 
+* `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+* `OPENFINANCE_CLIENT_ID`, `OPENFINANCE_CLIENT_SECRET`, `OPENFINANCE_PROVIDER_URL`
+* `NFSE_MODE=municipal|nacional` (feature‑flag 2026)
 
+---
 
-10) Roadmap orientado a agente (ordem de execução)
+## 10) Roadmap orientado a agente (ordem de execução)
 
-Bootstrap: criar app Next (App Router) + configurar Server Actions. 
+1. **Bootstrap:** criar app Next (App Router) + configurar Server Actions.
+2. **DB & RLS:** criar tabelas núcleo; **habilitar RLS por `owner_id`** (quando aplicável). Testes negativos.
+3. **Storage:** criar bucket privado + policies (INSERT/SELECT/UPDATE/DELETE separados).
+4. **UI esqueleto:** rotas listadas; forms com Server Actions (CRUD de clients/documents).
+5. **Adapter NFe:** validação assinatura/schema + mapeamento; BDD “XML válido”.
+6. **Open Finance:** consent → callback → `fetchTransactions`; idempotência; preparar certificação/conformidade.
+7. **IA classificação:** serviço de sugestão + explicabilidade + limiares.
+8. **Conciliação:** matcher probabilístico com tolerância de data.
+9. **LGPD:** export/erase + auditoria de acessos.
+10. **NFS‑e nacional:** manter driver e feature‑flag para a virada/obrigatoriedade 2026.
 
+---
 
-DB & RLS: criar tabelas núcleo + ENABLE RLS + policies por tenant_id. Testes negativos. 
+## 11) Dicionário de comandos para o agente
 
+* `make:table <name>` → cria migration SQL com `owner_id`, timestamps e índices.
+* `make:policy <table> owner` → gera ENABLE RLS + policy `owner_id = auth.uid()`.
+* `make:storage-policy <bucket> <op>` → policy de Storage (op: `select|insert|update|delete`).
+* `gen:server-action <name>` → cria arquivo em `apps/web/actions/<name>.ts` com `"use server"`.
+* `gen:adapter nfe|nfse|openfinance <method>` → stubs com TODO e referências normativas.
+* `bdd:add <feature>` → cria `.feature` e steps vazios em `packages/bdd`.
 
-Storage: criar bucket por tenant + policies (INSERT/SELECT/UPDATE/DELETE separados). 
+> Removido o comando `make:policy <table> tenant` e qualquer gerador que inclua `tenant_id`.
 
-UI esqueleto: rotas listadas; forms com Server Actions (CRUD de clients/documents). 
+---
 
-Adapter NFe: validação assinatura/schema + mapeamento; BDD “XML válido”. 
+## 12) Critérios de “Pronto” e “Feito”
 
-Open Finance: consent → callback → fetchTransactions; idempotência; preparar certificação/conformidade. 
+**DoR:** regra de negócio + exceções; eventos de domínio; cenário `.feature`; métrica alvo.
 
-
-IA classificação: serviço de sugestão + explicabilidade + limiares.
-
-Conciliação: matcher probabilístico com tolerância de data.
-
-LGPD: export/erase + auditoria de acessos. 
-
-
-NFS-e nacional: manter driver e feature-flag para a virada/obrigatoriedade 2026. 
-
-11) Dicionário de comandos para o agente
-
-make:table <name> → cria migration SQL com tenant_id, timestamps e índices.
-
-make:policy <table> tenant → gera ENABLE RLS + policy tenant_id = current_tenant(). 
-Supabase
-
-make:storage-policy <bucket> <op> → cria policy de Storage (op: select|insert|update|delete). 
-Supabase
-
-gen:server-action <name> → cria arquivo em apps/web/actions/<name>.ts com "use server". 
-Next.js
-
-gen:adapter nfe|nfse|openfinance <method> → stubs com TODO e referências normativas.
-
-bdd:add <feature> → cria .feature e steps vazios em packages/bdd.
-
-12) Critérios de “Pronto” e “Feito”
-
-DoR: regra de negócio + exceções; eventos de domínio; cenário .feature; métrica alvo.
-
-DoD: cenários BDD passando no CI; políticas RLS testadas; Storage policies verificadas; a11y básico e loading states.
+**DoD:** cenários BDD passando no CI; policies RLS por usuário verificadas; Storage policies verificadas; a11y básico e loading states.

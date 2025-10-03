@@ -1,55 +1,82 @@
-import { headers } from 'next/headers'
+import { addMonths, startOfMonth, endOfMonth } from 'date-fns'
 import Link from 'next/link'
 
-import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 import { requirePermission } from '@/lib/auth/rbac'
+import { getTaxObligations, getTaxObligationStats } from '@/actions/tax-obligations'
+import { FiscalCalendar } from '@/components/fiscal/fiscal-calendar'
+import { ObligationsList } from '@/components/fiscal/obligations-list'
+import { FiscalStats } from '@/components/fiscal/fiscal-stats'
+import { Button } from '@/components/ui/button'
+import { IconPlus } from '@tabler/icons-react'
 
 export default async function FiscalPage() {
   await requirePermission('fiscal.read')
 
-  const headersList = await headers()
-  const dashboardUrl = buildTenantUrlFromHeaders(headersList, '/dashboard')
+  // Buscar obrigações dos próximos 3 meses
+  const threeMonthsFromNow = addMonths(new Date(), 3)
+  const obligationsResult = await getTaxObligations({
+    from_date: startOfMonth(new Date()).toISOString().split('T')[0],
+    to_date: endOfMonth(threeMonthsFromNow).toISOString().split('T')[0],
+  })
+
+  // Buscar estatísticas
+  const statsResult = await getTaxObligationStats()
+
+  const obligations = obligationsResult.success ? obligationsResult.data : []
+  const stats = statsResult.success
+    ? statsResult.data
+    : {
+        total: 0,
+        pending: 0,
+        calculated: 0,
+        paid: 0,
+        overdue: 0,
+        total_amount: 0,
+        pending_amount: 0,
+        overdue_amount: 0,
+      }
+
+  // Filtrar obrigações dos próximos 30 dias para a lista
+  const thirtyDaysFromNow = addMonths(new Date(), 1)
+  const upcomingObligations = obligations.filter((o) => {
+    const dueDate = new Date(o.due_date)
+    return dueDate <= thirtyDaysFromNow
+  })
 
   return (
-    <div className='space-y-6'>
-      <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-        <div className='space-y-1'>
-          <h1 className='text-3xl font-bold tracking-tight'>Fiscal</h1>
-          <p className='text-muted-foreground'>Gestão de obrigações fiscais, DAS, NFe e NFS-e.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Fiscal</h1>
+          <p className="text-muted-foreground">Gestão de obrigações fiscais, DAS, NFe e NFS-e.</p>
         </div>
-        <Link href={dashboardUrl} className='text-sm text-primary hover:underline'>
-          ← Voltar para o dashboard
-        </Link>
+        <div className="flex items-center gap-2">
+          <Button size="sm" disabled>
+            <IconPlus className="h-4 w-4 mr-2" />
+            Nova Obrigação
+          </Button>
+          <Link href="/dashboard">
+            <Button variant="outline" size="sm">
+              ← Voltar
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Empty State */}
-      <div className='flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center'>
-        <div className='mx-auto flex max-w-[420px] flex-col items-center justify-center text-center'>
-          <div className='flex h-20 w-20 items-center justify-center rounded-full bg-muted'>
-            <svg
-              className='h-10 w-10 text-muted-foreground'
-              fill='none'
-              height='24'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              viewBox='0 0 24 24'
-              width='24'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' />
-              <polyline points='14,2 14,8 20,8' />
-              <line x1='16' x2='8' y1='13' y2='13' />
-              <line x1='16' x2='8' y1='17' y2='17' />
-              <polyline points='10,9 9,9 8,9' />
-            </svg>
-          </div>
-          <h3 className='mt-4 text-lg font-semibold'>Área fiscal em construção</h3>
-          <p className='mb-4 mt-2 text-sm text-muted-foreground'>
-            Em breve você verá aqui a gestão completa de obrigações fiscais, cálculo de DAS,
-            importação de NFe e emissão de NFS-e.
-          </p>
+      {/* Estatísticas */}
+      <FiscalStats stats={stats} />
+
+      {/* Grid: Calendário + Lista */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Calendário (2 colunas) */}
+        <div className="lg:col-span-2">
+          <FiscalCalendar obligations={obligations} />
+        </div>
+
+        {/* Lista de próximas obrigações (1 coluna) */}
+        <div className="lg:col-span-1">
+          <ObligationsList obligations={upcomingObligations} />
         </div>
       </div>
     </div>

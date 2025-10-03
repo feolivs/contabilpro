@@ -19,13 +19,15 @@ export const timelineKeys = {
 interface UseClientTimelineOptions {
   category?: TimelineCategory;
   limit?: number;
+  fromDate?: string;
+  toDate?: string;
 }
 
 export function useClientTimeline(
   clientId: string,
   options: UseClientTimelineOptions = {}
 ) {
-  const { category, limit = 20 } = options;
+  const { category, limit = 20, fromDate, toDate } = options;
 
   // Construir filtros baseado na categoria
   const getEventTypes = (cat?: TimelineCategory): TimelineEventType[] | undefined => {
@@ -44,6 +46,8 @@ export function useClientTimeline(
   const filters: TimelineFilters = {
     client_id: clientId,
     event_type: getEventTypes(category),
+    from_date: fromDate,
+    to_date: toDate,
     pageSize: limit,
   };
 

@@ -7,7 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, FileText, CheckSquare, DollarSign, Calendar } from "lucide-react"
 import { useClientTimeline } from "@/hooks/use-timeline"
 import { TimelineEvent } from "./timeline-event"
+import { TimelineFilters } from "./timeline-filters"
 import type { TimelineCategory } from "@/types/timeline"
+import type { DateRange } from "react-day-picker"
+import { subDays, startOfMonth, startOfYear } from "date-fns"
 
 interface ClientTimelineSectionProps {
   clientId: string
@@ -25,6 +28,7 @@ const PAGE_SIZE = 10
 export function ClientTimelineSection({ clientId }: ClientTimelineSectionProps) {
   const [activeCategory, setActiveCategory] = useState<TimelineCategory | "all">("all")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>()
 
   const {
     events,
@@ -35,6 +39,8 @@ export function ClientTimelineSection({ clientId }: ClientTimelineSectionProps) 
     isLoadingMore
   } = useClientTimeline(clientId, {
     category: activeCategory === "all" ? undefined : activeCategory,
+    fromDate: dateRange?.from?.toISOString(),
+    toDate: dateRange?.to?.toISOString(),
     limit: visibleCount
   })
 
@@ -52,6 +58,50 @@ export function ClientTimelineSection({ clientId }: ClientTimelineSectionProps) 
     loadMore()
   }
 
+  const handlePresetSelect = (preset: string) => {
+    const now = new Date()
+    let from: Date
+    let to: Date = now
+
+    switch (preset) {
+      case 'today':
+        from = new Date(now.setHours(0, 0, 0, 0))
+        break
+      case '7d':
+        from = subDays(now, 7)
+        break
+      case '30d':
+        from = subDays(now, 30)
+        break
+      case 'month':
+        from = startOfMonth(now)
+        break
+      case '3m':
+        from = subDays(now, 90)
+        break
+      case 'year':
+        from = startOfYear(now)
+        break
+      default:
+        from = subDays(now, 30)
+    }
+
+    setDateRange({ from, to })
+    setVisibleCount(PAGE_SIZE) // Reset pagination
+  }
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    if (range?.from) {
+      setDateRange({
+        from: range.from,
+        to: range.to || range.from
+      })
+    } else {
+      setDateRange(undefined)
+    }
+    setVisibleCount(PAGE_SIZE) // Reset pagination
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -60,6 +110,16 @@ export function ClientTimelineSection({ clientId }: ClientTimelineSectionProps) 
           Histórico completo de atividades e eventos
         </p>
       </div>
+
+      {/* Filtros de Data */}
+      <Card>
+        <CardContent className="pt-6">
+          <TimelineFilters
+            onDateRangeChange={handleDateRangeChange}
+            onPresetSelect={handlePresetSelect}
+          />
+        </CardContent>
+      </Card>
 
       <Tabs value={activeCategory} onValueChange={(v) => handleCategoryChange(v as TimelineCategory | "all")}>
         <TabsList className="grid w-full grid-cols-4">
