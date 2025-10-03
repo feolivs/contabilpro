@@ -76,13 +76,18 @@ export function TaskDialog({
   useEffect(() => {
     if (open) {
       if (task) {
+        // Converter ISO datetime para formato de input date (YYYY-MM-DD)
+        const dueDateValue = task.due_date
+          ? task.due_date.split('T')[0]
+          : '';
+
         form.reset({
           id: task.id,
           title: task.title,
           description: task.description || '',
           type: task.type,
           priority: task.priority,
-          due_date: task.due_date || '',
+          due_date: dueDateValue,
           client_id: task.client_id || clientId,
         });
       } else {

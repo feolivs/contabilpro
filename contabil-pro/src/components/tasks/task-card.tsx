@@ -175,6 +175,7 @@ export function TaskCard({
                 onClick={() => onStart(task.id)}
                 className="h-8 w-8 p-0"
                 title="Iniciar tarefa"
+                aria-label="Iniciar tarefa"
               >
                 <Play className="h-4 w-4" />
               </Button>
@@ -187,6 +188,7 @@ export function TaskCard({
                 onClick={() => onComplete(task.id)}
                 className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
                 title="Concluir tarefa"
+                aria-label="Concluir tarefa"
               >
                 <CheckCircle2 className="h-4 w-4" />
               </Button>
@@ -199,6 +201,7 @@ export function TaskCard({
                   size="sm"
                   variant="ghost"
                   className="h-8 w-8 p-0"
+                  aria-label="Mais opções"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>

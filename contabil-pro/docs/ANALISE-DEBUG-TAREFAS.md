@@ -181,6 +181,53 @@ due_date: z
 - Validação runtime com Zod
 - Casts explícitos e seguros
 
+### Melhoria #3: Conversão de Data ISO para Input
+
+**Problema:**
+- Banco retorna `due_date` em formato ISO completo: `2025-01-15T00:00:00Z`
+- Input HTML `type="date"` espera apenas: `2025-01-15`
+- Causaria erro ao editar tarefa
+
+**Solução:**
+```typescript
+// Converter ISO datetime para formato de input date (YYYY-MM-DD)
+const dueDateValue = task.due_date
+  ? task.due_date.split('T')[0]
+  : '';
+```
+
+**Benefício:**
+- Edição de tarefas funciona corretamente
+- Mantém compatibilidade com banco
+- Simples e eficiente
+
+### Melhoria #4: Acessibilidade (a11y)
+
+**Adicionado:**
+- `aria-label` em todos os botões de ícone
+- Labels descritivos para screen readers
+- Melhor navegação por teclado
+
+**Exemplos:**
+```typescript
+<Button aria-label="Iniciar tarefa">
+  <Play className="h-4 w-4" />
+</Button>
+
+<Button aria-label="Concluir tarefa">
+  <CheckCircle2 className="h-4 w-4" />
+</Button>
+
+<Button aria-label="Mais opções">
+  <MoreVertical className="h-4 w-4" />
+</Button>
+```
+
+**Benefício:**
+- Melhor experiência para usuários com deficiência visual
+- Conformidade com WCAG 2.1
+- Navegação por teclado mais intuitiva
+
 ---
 
 ## 📊 ANÁLISE DE QUALIDADE
@@ -195,6 +242,7 @@ due_date: z
 | Warnings | 0 | ✅ |
 | Cobertura de tipos | 100% | ✅ |
 | Bugs encontrados | 2 | ✅ Corrigidos |
+| Melhorias aplicadas | 4 | ✅ |
 
 ### Qualidade por Fase
 
