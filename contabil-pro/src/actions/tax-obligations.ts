@@ -56,7 +56,7 @@ export async function getTaxObligations(
 ): Promise<ActionResponse<TaxObligationWithClient[]>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     let query = supabase
       .from('tax_obligations')
@@ -124,7 +124,7 @@ export async function getTaxObligations(
 export async function getTaxObligationById(id: string): Promise<ActionResponse<TaxObligationWithClient>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     const { data, error } = await supabase
       .from('tax_obligations')
@@ -167,7 +167,7 @@ export async function createTaxObligation(
 ): Promise<ActionResponse<TaxObligation>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     // Validar input
     const validated = taxObligationSchema.parse(input)
@@ -222,7 +222,7 @@ export async function updateTaxObligation(
 ): Promise<ActionResponse<TaxObligation>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     // Validar input parcial
     const validated = taxObligationSchema.partial().parse(input)
@@ -275,7 +275,7 @@ export async function updateTaxObligation(
 export async function deleteTaxObligation(id: string): Promise<ActionResponse<void>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     const { error } = await supabase
       .from('tax_obligations')
@@ -313,7 +313,7 @@ export async function deleteTaxObligation(id: string): Promise<ActionResponse<vo
 export async function getTaxObligationStats(): Promise<ActionResponse<TaxObligationStats>> {
   try {
     const session = await requireAuth()
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     const { data, error } = await supabase
       .from('tax_obligations')
