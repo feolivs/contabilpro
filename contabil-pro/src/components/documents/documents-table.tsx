@@ -307,7 +307,7 @@ export function DocumentsTable({
               )}
               {showUnlinkAction && doc.client_id && doc.client && (
                 <DropdownMenuItem
-                  onClick={() => handleUnlinkClick(doc.id, doc.name, doc.client.name)}
+                  onClick={() => handleUnlinkClick(doc.id, doc.name, doc.client?.name || 'Cliente')}
                 >
                   <Link className="mr-2 h-4 w-4" />
                   Desvincular Cliente

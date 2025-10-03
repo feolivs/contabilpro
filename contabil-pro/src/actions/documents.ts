@@ -13,6 +13,8 @@ import {
   documentFiltersSchema,
   updateDocumentSchema,
   validateFile,
+  type DocumentFiltersInput,
+  type UpdateDocumentInput,
 } from '@/schemas/document.schema';
 import type {
   DocumentUploadResult,
@@ -20,6 +22,15 @@ import type {
   Document,
   DocumentWithRelations,
 } from '@/types/document.types';
+
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+type ActionResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
 
 // ============================================
 // ACTION 1: Upload de Documento

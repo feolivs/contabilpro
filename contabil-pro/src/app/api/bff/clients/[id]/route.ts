@@ -1,7 +1,7 @@
 ﻿import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { requirePermission } from '@/lib/auth/rbac'
+import { requirePermission } from '@/lib/rbac'
 import { createServerClient } from '@/lib/supabase'
 import { clientSchema } from '@/lib/validation'
 

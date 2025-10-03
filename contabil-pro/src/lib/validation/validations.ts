@@ -168,7 +168,7 @@ export const updateClientSchema = clientSchema
 // Schema para formulário multi-step - Step 1: Dados Fiscais
 export const clientStep1Schema = z.object({
   tipo_pessoa: z.enum(['PF', 'PJ'], {
-    errorMap: () => ({ message: 'Selecione o tipo de pessoa' })
+    message: 'Selecione o tipo de pessoa'
   }),
   document: z
     .string()

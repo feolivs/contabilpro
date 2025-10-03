@@ -11,6 +11,7 @@ import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 import { ClientDetailsCard } from '@/components/clients/details-card'
 import { ClientDocumentsSection } from '@/components/clients/client-documents-section'
 import { ClientTasksSection } from '@/components/clients/client-tasks-section'
+import { ClientTimelineSection } from '@/components/timeline/client-timeline-section'
 import {
   IconUser,
   IconFileText,
@@ -239,6 +240,9 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
         clientId={client.id}
         clientName={client.name}
       />
+
+      {/* Timeline do Cliente */}
+      <ClientTimelineSection clientId={client.id} />
 
       {/* Documentos do Cliente */}
       <ClientDocumentsSection

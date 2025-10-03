@@ -52,7 +52,7 @@ export function DocumentDetailsDialog({
       setLoadingTranslation(true);
       translateToAccountingLanguage(document.type, document.metadata)
         .then((result) => {
-          if (result.success) {
+          if (result.success && result.data) {
             setAccountingTranslation(result.data);
           }
         })

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getClientTimeline, logTimelineEvent } from '@/actions/timeline';
-import type { TimelineFilters } from '@/types/timeline';
+import type { TimelineFilters, TimelineCategory, ClientTimelineEvent, TimelineEventType } from '@/types/timeline';
 
 // ============================================
 // QUERY KEYS
@@ -16,8 +16,38 @@ export const timelineKeys = {
 // ============================================
 // HOOK: useClientTimeline (Timeline do Cliente)
 // ============================================
-export function useClientTimeline(filters: TimelineFilters) {
-  return useQuery({
+interface UseClientTimelineOptions {
+  category?: TimelineCategory;
+  limit?: number;
+}
+
+export function useClientTimeline(
+  clientId: string,
+  options: UseClientTimelineOptions = {}
+) {
+  const { category, limit = 20 } = options;
+
+  // Construir filtros baseado na categoria
+  const getEventTypes = (cat?: TimelineCategory): TimelineEventType[] | undefined => {
+    if (!cat) return undefined;
+
+    const categoryMap: Record<TimelineCategory, TimelineEventType[]> = {
+      documents: ['document_uploaded', 'document_deleted'],
+      tasks: ['task_created', 'task_started', 'task_completed', 'task_cancelled', 'task_updated'],
+      entries: ['entry_created', 'entry_updated'],
+      other: ['client_updated', 'note_added'],
+    };
+
+    return categoryMap[cat];
+  };
+
+  const filters: TimelineFilters = {
+    client_id: clientId,
+    event_type: getEventTypes(category),
+    pageSize: limit,
+  };
+
+  const query = useQuery({
     queryKey: timelineKeys.list(filters),
     queryFn: async () => {
       const result = await getClientTimeline(filters);
@@ -26,10 +56,23 @@ export function useClientTimeline(filters: TimelineFilters) {
       }
       return result.data;
     },
-    enabled: !!filters.client_id, // Só executar se tiver client_id
+    enabled: !!clientId,
     staleTime: 30 * 1000, // 30 segundos
     gcTime: 5 * 60 * 1000, // 5 minutos
   });
+
+  return {
+    events: (query.data?.events || []) as ClientTimelineEvent[],
+    total: query.data?.total || 0,
+    isLoading: query.isLoading,
+    error: query.error,
+    hasMore: (query.data?.events?.length || 0) < (query.data?.total || 0),
+    loadMore: () => {
+      // Implementação simples - pode ser melhorada com paginação real
+      console.log('Load more not fully implemented yet');
+    },
+    isLoadingMore: false,
+  };
 }
 
 // ============================================

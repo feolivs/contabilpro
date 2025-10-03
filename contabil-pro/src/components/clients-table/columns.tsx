@@ -271,6 +271,11 @@ export const clientColumns: ColumnDef<Client>[] = [
       const tenantPrefix = pathname.split('/clientes')[0] // /t/contabil-pro-teste
 
       const handleDelete = async () => {
+        if (!client.id) {
+          toast.error('ID do cliente não encontrado')
+          return
+        }
+
         setIsDeleting(true)
         try {
           const result = await deleteClient(client.id)

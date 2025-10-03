@@ -169,3 +169,12 @@ export const TIMELINE_CATEGORY_FILTERS = [
   { value: 'other', label: 'Outros', icon: '📝', types: ['client_updated', 'note_added'] },
 ] as const;
 
+// ============================================================================
+// Tipos Adicionais para Componentes
+// ============================================================================
+
+export type TimelineCategory = 'documents' | 'tasks' | 'entries' | 'other';
+
+// Alias para compatibilidade com componentes existentes
+export type ClientTimelineEvent = TimelineEvent;
+
