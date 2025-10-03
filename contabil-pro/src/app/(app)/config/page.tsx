@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { requirePermission } from '@/lib/auth/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+import { NotificationSettings } from '@/components/notifications/notification-settings'
 
 export default async function ConfigPage() {
   await requirePermission('config.read')
@@ -28,6 +29,7 @@ export default async function ConfigPage() {
         <TabsList>
           <TabsTrigger value='perfil'>Perfil</TabsTrigger>
           <TabsTrigger value='empresa'>Empresa</TabsTrigger>
+          <TabsTrigger value='notificacoes'>Notificações</TabsTrigger>
           <TabsTrigger value='preferencias'>Preferências</TabsTrigger>
           <TabsTrigger value='atalhos'>Atalhos</TabsTrigger>
           <TabsTrigger value='integracoes'>Integrações</TabsTrigger>
@@ -83,6 +85,10 @@ export default async function ConfigPage() {
               <Button disabled>Atualizar dados</Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value='notificacoes' className='space-y-4'>
+          <NotificationSettings />
         </TabsContent>
 
         <TabsContent value='preferencias' className='space-y-4'>

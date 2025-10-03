@@ -3,6 +3,7 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header'
+import { ServiceWorkerRegister } from '@/components/notifications/service-worker-register'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { filterNavigationByPermissions, tenantNavigation } from '@/config/navigation'
 import { getPermissionsForRoles, getRBACContext } from '@/lib/auth/rbac'
@@ -22,6 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className={inter.className} data-roles={roles.join(',')}>
       <Providers>
+        <ServiceWorkerRegister />
         <SidebarProvider>
           <AppSidebar navGroups={navGroups} />
           <SidebarInset>
