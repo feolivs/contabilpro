@@ -10,6 +10,7 @@ import { requirePermission } from '@/lib/auth/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 import { ClientDetailsCard } from '@/components/clients/details-card'
 import { ClientDocumentsSection } from '@/components/clients/client-documents-section'
+import { ClientTasksSection } from '@/components/clients/client-tasks-section'
 import {
   IconUser,
   IconFileText,
@@ -232,6 +233,12 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
           <p className='pt-2 italic'>Em breve você verá tarefas e timeline vinculadas aqui.</p>
         </CardContent>
       </Card>
+
+      {/* Tarefas do Cliente */}
+      <ClientTasksSection
+        clientId={client.id}
+        clientName={client.name}
+      />
 
       {/* Documentos do Cliente */}
       <ClientDocumentsSection
