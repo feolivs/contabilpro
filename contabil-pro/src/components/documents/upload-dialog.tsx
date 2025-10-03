@@ -1,47 +1,49 @@
-'use client';
+'use client'
 
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Upload, X, FileText, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { useDropzone } from 'react-dropzone';
+import { useCallback, useEffect, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { useRouter } from 'next/navigation'
+
+import { getClientsForDropdown } from '@/actions/clients-simple'
+import { generateUploadPath, registerUploadedDocument } from '@/actions/documents'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { generateUploadPath, registerUploadedDocument } from '@/actions/documents';
-import { getClientsForDropdown } from '@/actions/clients-simple';
-import { calculateFileHash, uploadToStorage } from '@/lib/upload-helper';
-import type { DocumentType } from '@/types/document.types';
-import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from '@/schemas/document.schema';
+} from '@/components/ui/select'
+import { calculateFileHash, uploadToStorage } from '@/lib/upload-helper'
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from '@/schemas/document.schema'
+import type { DocumentType } from '@/types/document.types'
+
+import { AlertCircle, CheckCircle2, FileText, Loader2, Upload, X } from 'lucide-react'
 
 interface UploadDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onUploadComplete?: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onUploadComplete?: () => void
   defaultValues?: {
-    client_id?: string;
-    type?: DocumentType;
-  };
+    client_id?: string
+    type?: DocumentType
+  }
 }
 
 interface UploadResult {
-  file: string;
-  success: boolean;
-  error?: string;
-  duplicate?: boolean;
+  file: string
+  success: boolean
+  error?: string
+  duplicate?: boolean
 }
 
 const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
@@ -51,52 +53,59 @@ const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
   { value: 'invoice', label: 'Fatura' },
   { value: 'contract', label: 'Contrato' },
   { value: 'other', label: 'Outro' },
-];
+]
 
-export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValues }: UploadDialogProps) {
-  const router = useRouter();
-  const [files, setFiles] = useState<File[]>([]);
-  const [type, setType] = useState<DocumentType>(defaultValues?.type || 'other');
-  const [clientId, setClientId] = useState<string>(defaultValues?.client_id || '');
-  const [clients, setClients] = useState<Array<{
-    id: string;
-    name: string;
-    document: string;
-    document_type: string;
-  }>>([]);
-  const [loadingClients, setLoadingClients] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [results, setResults] = useState<UploadResult[]>([]);
-  const [progress, setProgress] = useState(0);
+export function UploadDialog({
+  open,
+  onOpenChange,
+  onUploadComplete,
+  defaultValues,
+}: UploadDialogProps) {
+  const router = useRouter()
+  const [files, setFiles] = useState<File[]>([])
+  const [type, setType] = useState<DocumentType>(defaultValues?.type || 'other')
+  const [clientId, setClientId] = useState<string>(defaultValues?.client_id || '')
+  const [clients, setClients] = useState<
+    Array<{
+      id: string
+      name: string
+      document: string
+      document_type: string
+    }>
+  >([])
+  const [loadingClients, setLoadingClients] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [results, setResults] = useState<UploadResult[]>([])
+  const [progress, setProgress] = useState(0)
 
   // Aplicar defaultValues quando o dialog abrir
   useEffect(() => {
     if (open) {
       if (defaultValues?.type) {
-        setType(defaultValues.type);
+        setType(defaultValues.type)
       }
       if (defaultValues?.client_id) {
-        setClientId(defaultValues.client_id);
+        setClientId(defaultValues.client_id)
       }
       if (clients.length === 0) {
-        loadClients();
+        loadClients()
       }
     }
-  }, [open, defaultValues]);
+  }, [open, defaultValues])
 
   const loadClients = async () => {
-    setLoadingClients(true);
-    const result = await getClientsForDropdown();
+    setLoadingClients(true)
+    const result = await getClientsForDropdown()
     if (result.success) {
-      setClients(result.clients);
+      setClients(result.clients)
     }
-    setLoadingClients(false);
-  };
+    setLoadingClients(false)
+  }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles((prev) => [...prev, ...acceptedFiles]);
-    setResults([]);
-  }, []);
+    setFiles(prev => [...prev, ...acceptedFiles])
+    setResults([])
+  }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -112,48 +121,48 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
       'text/plain': ['.txt'],
     },
-  });
+  })
 
   const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    setFiles(prev => prev.filter((_, i) => i !== index))
+  }
 
   const handleUpload = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) return
 
-    setUploading(true);
-    setResults([]);
-    setProgress(0);
+    setUploading(true)
+    setResults([])
+    setProgress(0)
 
-    const uploadResults: UploadResult[] = [];
+    const uploadResults: UploadResult[] = []
 
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      const file = files[i]
 
       try {
         // 1. Calcular hash do arquivo (client-side)
-        const hash = await calculateFileHash(file);
+        const hash = await calculateFileHash(file)
 
         // 2. Gerar path no servidor
-        const pathResult = await generateUploadPath(file.name, hash, type);
+        const pathResult = await generateUploadPath(file.name, hash, type)
         if (!pathResult.success || !pathResult.path) {
           uploadResults.push({
             file: file.name,
             success: false,
             error: pathResult.error || 'Erro ao gerar path',
-          });
-          continue;
+          })
+          continue
         }
 
         // 3. Upload direto ao Storage (client-side, sem limite de 1MB)
-        const uploadResult = await uploadToStorage(file, pathResult.path);
+        const uploadResult = await uploadToStorage(file, pathResult.path)
         if (!uploadResult.success) {
           uploadResults.push({
             file: file.name,
             success: false,
             error: uploadResult.error || 'Erro no upload',
-          });
-          continue;
+          })
+          continue
         }
 
         // 4. Registrar metadados no banco
@@ -165,48 +174,48 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
           mime_type: file.type,
           type,
           client_id: clientId || undefined, // ✨ Vincular cliente se selecionado
-        });
+        })
 
         uploadResults.push({
           file: file.name,
           success: registerResult.success,
           error: registerResult.error,
           duplicate: registerResult.duplicate,
-        });
+        })
       } catch (error) {
         uploadResults.push({
           file: file.name,
           success: false,
           error: error instanceof Error ? error.message : 'Erro desconhecido',
-        });
+        })
       }
 
-      setProgress(((i + 1) / files.length) * 100);
+      setProgress(((i + 1) / files.length) * 100)
     }
 
-    setResults(uploadResults);
-    setUploading(false);
+    setResults(uploadResults)
+    setUploading(false)
 
     // Se todos foram bem-sucedidos, fechar após 2s
-    if (uploadResults.every((r) => r.success)) {
+    if (uploadResults.every(r => r.success)) {
       setTimeout(() => {
-        onOpenChange(false);
-        setFiles([]);
-        setResults([]);
-        onUploadComplete?.(); // Chamar callback para recarregar lista
-      }, 2000);
+        onOpenChange(false)
+        setFiles([])
+        setResults([])
+        onUploadComplete?.() // Chamar callback para recarregar lista
+      }, 2000)
     }
-  };
+  }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className='max-w-2xl'>
         <DialogHeader>
           <DialogTitle>Upload de Documentos</DialogTitle>
           <DialogDescription>
@@ -214,16 +223,16 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {/* Tipo de Documento */}
-          <div className="space-y-2">
-            <Label htmlFor="type">Tipo de Documento</Label>
-            <Select value={type} onValueChange={(value) => setType(value as DocumentType)}>
-              <SelectTrigger id="type">
+          <div className='space-y-2'>
+            <Label htmlFor='type'>Tipo de Documento</Label>
+            <Select value={type} onValueChange={value => setType(value as DocumentType)}>
+              <SelectTrigger id='type'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {DOCUMENT_TYPES.map((docType) => (
+                {DOCUMENT_TYPES.map(docType => (
                   <SelectItem key={docType.value} value={docType.value}>
                     {docType.label}
                   </SelectItem>
@@ -233,30 +242,28 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
           </div>
 
           {/* Cliente (Opcional) */}
-          <div className="space-y-2">
-            <Label htmlFor="client">
+          <div className='space-y-2'>
+            <Label htmlFor='client'>
               Cliente (Opcional)
-              {loadingClients && (
-                <Loader2 className="inline-block ml-2 h-3 w-3 animate-spin" />
-              )}
+              {loadingClients && <Loader2 className='inline-block ml-2 h-3 w-3 animate-spin' />}
             </Label>
             <Select
               value={clientId || 'none'}
-              onValueChange={(value) => setClientId(value === 'none' ? '' : value)}
+              onValueChange={value => setClientId(value === 'none' ? '' : value)}
               disabled={loadingClients}
             >
-              <SelectTrigger id="client">
-                <SelectValue placeholder="Selecione um cliente..." />
+              <SelectTrigger id='client'>
+                <SelectValue placeholder='Selecione um cliente...' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">
-                  <span className="text-muted-foreground">Nenhum (vincular depois)</span>
+                <SelectItem value='none'>
+                  <span className='text-muted-foreground'>Nenhum (vincular depois)</span>
                 </SelectItem>
-                {clients.map((client) => (
+                {clients.map(client => (
                   <SelectItem key={client.id} value={client.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{client.name}</span>
-                      <span className="text-xs text-muted-foreground">
+                    <div className='flex items-center gap-2'>
+                      <span className='font-medium'>{client.name}</span>
+                      <span className='text-xs text-muted-foreground'>
                         {client.document_type === 'cpf' ? 'CPF' : 'CNPJ'}: {client.document}
                       </span>
                     </div>
@@ -265,7 +272,7 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
               </SelectContent>
             </Select>
             {clientId && (
-              <p className="text-xs text-muted-foreground">
+              <p className='text-xs text-muted-foreground'>
                 ✓ Documento será vinculado ao cliente selecionado
               </p>
             )}
@@ -283,13 +290,13 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
               `}
             >
               <input {...getInputProps()} />
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-sm text-muted-foreground">
+              <Upload className='mx-auto h-12 w-12 text-muted-foreground mb-4' />
+              <p className='text-sm text-muted-foreground'>
                 {isDragActive
                   ? 'Solte os arquivos aqui...'
                   : 'Arraste arquivos ou clique para selecionar'}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className='text-xs text-muted-foreground mt-2'>
                 Formatos: {ALLOWED_EXTENSIONS.join(', ').toUpperCase()} • Máximo: 100MB
               </p>
             </div>
@@ -297,55 +304,53 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
 
           {/* Lista de Arquivos */}
           {files.length > 0 && (
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Label>Arquivos Selecionados ({files.length})</Label>
-              <div className="max-h-48 overflow-y-auto space-y-2">
+              <div className='max-h-48 overflow-y-auto space-y-2'>
                 {files.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                    className='flex items-center justify-between p-3 bg-muted rounded-lg'
                   >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.size)}
-                        </p>
+                    <div className='flex items-center gap-3 flex-1 min-w-0'>
+                      <FileText className='h-5 w-5 text-muted-foreground flex-shrink-0' />
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium truncate'>{file.name}</p>
+                        <p className='text-xs text-muted-foreground'>{formatFileSize(file.size)}</p>
                       </div>
                     </div>
                     {!uploading && (
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                         onClick={() => removeFile(index)}
-                        className="flex-shrink-0"
+                        className='flex-shrink-0'
                       >
-                        <X className="h-4 w-4" />
+                        <X className='h-4 w-4' />
                       </Button>
                     )}
                   </div>
                 ))}
               </div>
               <Button
-                variant="outline"
-                size="sm"
+                variant='outline'
+                size='sm'
                 onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.multiple = true;
-                  input.accept = ALLOWED_EXTENSIONS.map((ext) => `.${ext}`).join(',');
-                  input.onchange = (e) => {
-                    const target = e.target as HTMLInputElement;
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.multiple = true
+                  input.accept = ALLOWED_EXTENSIONS.map(ext => `.${ext}`).join(',')
+                  input.onchange = e => {
+                    const target = e.target as HTMLInputElement
                     if (target.files) {
-                      setFiles((prev) => [...prev, ...Array.from(target.files!)]);
+                      setFiles(prev => [...prev, ...Array.from(target.files!)])
                     }
-                  };
-                  input.click();
+                  }
+                  input.click()
                 }}
                 disabled={uploading}
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className='h-4 w-4 mr-2' />
                 Adicionar Mais
               </Button>
             </div>
@@ -353,8 +358,8 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
 
           {/* Progress Bar */}
           {uploading && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
+            <div className='space-y-2'>
+              <div className='flex items-center justify-between text-sm'>
                 <span>Enviando...</span>
                 <span>{Math.round(progress)}%</span>
               </div>
@@ -364,9 +369,9 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
 
           {/* Resultados */}
           {results.length > 0 && (
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Label>Resultados</Label>
-              <div className="max-h-32 overflow-y-auto space-y-2">
+              <div className='max-h-32 overflow-y-auto space-y-2'>
                 {results.map((result, index) => (
                   <div
                     key={index}
@@ -375,17 +380,19 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
                     }`}
                   >
                     {result.success ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <CheckCircle2 className='h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0' />
                     ) : (
-                      <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+                      <AlertCircle className='h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0' />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{result.file}</p>
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-medium truncate'>{result.file}</p>
                       {result.duplicate && (
-                        <p className="text-xs text-muted-foreground">Arquivo duplicado (já existe)</p>
+                        <p className='text-xs text-muted-foreground'>
+                          Arquivo duplicado (já existe)
+                        </p>
                       )}
                       {result.error && (
-                        <p className="text-xs text-red-600 dark:text-red-400">{result.error}</p>
+                        <p className='text-xs text-red-600 dark:text-red-400'>{result.error}</p>
                       )}
                     </div>
                   </div>
@@ -395,19 +402,19 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
           )}
 
           {/* Ações */}
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={uploading}>
+          <div className='flex justify-end gap-2'>
+            <Button variant='outline' onClick={() => onOpenChange(false)} disabled={uploading}>
               Cancelar
             </Button>
             <Button onClick={handleUpload} disabled={files.length === 0 || uploading}>
               {uploading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                   Enviando...
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-4 w-4" />
+                  <Upload className='mr-2 h-4 w-4' />
                   Enviar {files.length > 0 && `(${files.length})`}
                 </>
               )}
@@ -416,6 +423,5 @@ export function UploadDialog({ open, onOpenChange, onUploadComplete, defaultValu
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
-

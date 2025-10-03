@@ -3,7 +3,6 @@
 import { useActionState } from 'react'
 
 import { updateBankAccountFromForm } from '@/actions/bank-accounts'
-import { initialBankAccountFormState } from '@/types/bank-accounts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { BankAccount } from '@/lib/validations'
+import { initialBankAccountFormState } from '@/types/bank-accounts'
 
 interface BankAccountEditFormProps {
   account: BankAccount

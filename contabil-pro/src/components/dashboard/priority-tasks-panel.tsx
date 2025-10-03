@@ -3,8 +3,9 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+
+import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons-react'
 
 interface PriorityTask {
   id: string
@@ -26,7 +27,8 @@ const priorityConfig = {
   },
   medium: {
     label: 'Média',
-    className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400',
+    className:
+      'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400',
   },
   low: {
     label: 'Baixa',
@@ -60,7 +62,7 @@ const mockTasks: PriorityTask[] = [
 
 export function PriorityTasksPanel({ tasks = mockTasks, onToggleTask }: PriorityTasksPanelProps) {
   const sortedTasks = [...tasks]
-    .filter((t) => !t.completed)
+    .filter(t => !t.completed)
     .sort((a, b) => {
       const priorityOrder = { high: 0, medium: 1, low: 2 }
       return priorityOrder[a.priority] - priorityOrder[b.priority]
@@ -68,23 +70,21 @@ export function PriorityTasksPanel({ tasks = mockTasks, onToggleTask }: Priority
     .slice(0, 5)
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Tarefas Prioritárias</CardTitle>
-        <CardDescription className="text-xs">
+    <Card className='h-full'>
+      <CardHeader className='pb-3'>
+        <CardTitle className='text-base'>Tarefas Prioritárias</CardTitle>
+        <CardDescription className='text-xs'>
           {sortedTasks.length} tarefas pendentes
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className='space-y-2'>
         {sortedTasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <IconCircleCheck className="h-8 w-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Todas as tarefas concluídas!
-            </p>
+          <div className='flex flex-col items-center justify-center py-8 text-center'>
+            <IconCircleCheck className='h-8 w-8 text-muted-foreground/50 mb-2' />
+            <p className='text-sm text-muted-foreground'>Todas as tarefas concluídas!</p>
           </div>
         ) : (
-          sortedTasks.map((task) => {
+          sortedTasks.map(task => {
             const config = priorityConfig[task.priority]
             const deadline = new Date(task.deadline)
             const today = new Date()
@@ -105,37 +105,32 @@ export function PriorityTasksPanel({ tasks = mockTasks, onToggleTask }: Priority
                   id={task.id}
                   checked={task.completed}
                   onCheckedChange={() => onToggleTask?.(task.id)}
-                  className="mt-0.5"
+                  className='mt-0.5'
                 />
-                <div className="flex-1 min-w-0">
+                <div className='flex-1 min-w-0'>
                   <label
                     htmlFor={task.id}
-                    className="text-sm font-medium leading-tight cursor-pointer"
+                    className='text-sm font-medium leading-tight cursor-pointer'
                   >
                     {task.title}
                   </label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground">
+                  <div className='mt-1 flex items-center gap-2'>
+                    <p className='text-xs text-muted-foreground'>
                       {deadline.toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: 'short',
                       })}
                       {isUrgent && (
-                        <span className="ml-1 text-red-600 dark:text-red-400 font-medium">
+                        <span className='ml-1 text-red-600 dark:text-red-400 font-medium'>
                           • {daysUntil === 0 ? 'Hoje' : `${daysUntil}d`}
                         </span>
                       )}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {isUrgent && (
-                    <IconAlertTriangle className="h-4 w-4 text-red-500" />
-                  )}
-                  <Badge
-                    variant="outline"
-                    className={cn('text-[10px] h-5 px-2', config.className)}
-                  >
+                <div className='flex items-center gap-2 flex-shrink-0'>
+                  {isUrgent && <IconAlertTriangle className='h-4 w-4 text-red-500' />}
+                  <Badge variant='outline' className={cn('text-[10px] h-5 px-2', config.className)}>
                     {config.label}
                   </Badge>
                 </div>
@@ -147,4 +142,3 @@ export function PriorityTasksPanel({ tasks = mockTasks, onToggleTask }: Priority
     </Card>
   )
 }
-

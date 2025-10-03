@@ -136,4 +136,3 @@ export const DEFAULT_DUE_DATES: Partial<Record<TaxObligationType, number>> = {
   inss: 20, // INSS vence dia 20
   fgts: 7, // FGTS vence dia 7
 }
-

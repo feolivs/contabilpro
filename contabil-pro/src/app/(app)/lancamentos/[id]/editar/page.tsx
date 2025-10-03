@@ -8,7 +8,7 @@ import { requirePermission } from '@/lib/auth/rbac'
 import { EntryEditForm } from '../../entry-edit-form'
 
 interface EditarLancamentoProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 export default async function EditarLancamentoPage({ params }: EditarLancamentoProps) {

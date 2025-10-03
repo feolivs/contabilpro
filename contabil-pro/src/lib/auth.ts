@@ -2,8 +2,9 @@
 
 import { redirect } from 'next/navigation'
 
-import { createAdminClient, createServerClient } from './supabase'
 import type { AuthSession } from '@/types/auth'
+
+import { createServerClient } from './supabase'
 
 // Verificar sessao (simplificado - sem multi-tenant)
 export async function verifySession(): Promise<AuthSession | null> {

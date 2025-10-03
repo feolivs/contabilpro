@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -25,10 +25,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
 /**
  * Formata data em formato brasileiro
  */
-export function formatDate(
-  date: string | Date,
-  formatStr: string = 'dd/MM/yyyy, HH:mm'
-): string {
+export function formatDate(date: string | Date, formatStr: string = 'dd/MM/yyyy, HH:mm'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return format(dateObj, formatStr, { locale: ptBR })
 }

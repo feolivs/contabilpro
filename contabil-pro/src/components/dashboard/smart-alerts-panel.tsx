@@ -1,8 +1,9 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+
 import {
   IconAlertTriangle,
   IconArrowRight,
@@ -10,7 +11,6 @@ import {
   IconSparkles,
   IconX,
 } from '@tabler/icons-react'
-import { cn } from '@/lib/utils'
 
 interface SmartAlert {
   id: string
@@ -86,21 +86,21 @@ const mockAlerts: SmartAlert[] = [
 
 export function SmartAlertsPanel({ alerts = mockAlerts, onDismiss }: SmartAlertsPanelProps) {
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Alertas Inteligentes</CardTitle>
-        <CardDescription className="text-xs">
+    <Card className='h-full'>
+      <CardHeader className='pb-3'>
+        <CardTitle className='text-base'>Alertas Inteligentes</CardTitle>
+        <CardDescription className='text-xs'>
           {alerts.length} {alerts.length === 1 ? 'alerta ativo' : 'alertas ativos'}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className='space-y-2'>
         {alerts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <IconCircleCheck className="h-8 w-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">Nenhum alerta no momento</p>
+          <div className='flex flex-col items-center justify-center py-8 text-center'>
+            <IconCircleCheck className='h-8 w-8 text-muted-foreground/50 mb-2' />
+            <p className='text-sm text-muted-foreground'>Nenhum alerta no momento</p>
           </div>
         ) : (
-          alerts.map((alert) => {
+          alerts.map(alert => {
             const config = alertConfig[alert.type]
             const AlertIcon = config.icon
 
@@ -113,33 +113,33 @@ export function SmartAlertsPanel({ alerts = mockAlerts, onDismiss }: SmartAlerts
                 )}
               >
                 <AlertIcon className={cn('h-5 w-5 flex-shrink-0 mt-0.5', config.iconClassName)} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-semibold leading-tight">{alert.title}</h4>
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-start justify-between gap-2'>
+                    <h4 className='text-sm font-semibold leading-tight'>{alert.title}</h4>
                     {alert.dismissible && (
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 hover:bg-background/50"
+                        variant='ghost'
+                        size='sm'
+                        className='h-5 w-5 p-0 hover:bg-background/50'
                         onClick={() => onDismiss?.(alert.id)}
                       >
-                        <IconX className="h-3 w-3" />
-                        <span className="sr-only">Dispensar</span>
+                        <IconX className='h-3 w-3' />
+                        <span className='sr-only'>Dispensar</span>
                       </Button>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                  <p className='mt-1 text-xs text-muted-foreground leading-relaxed'>
                     {alert.description}
                   </p>
                   {alert.action && (
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-2 h-7 px-2 text-xs font-medium"
+                      variant='ghost'
+                      size='sm'
+                      className='mt-2 h-7 px-2 text-xs font-medium'
                       onClick={alert.action.onClick}
                     >
                       {alert.action.label}
-                      <IconArrowRight className="ml-1 h-3 w-3" />
+                      <IconArrowRight className='ml-1 h-3 w-3' />
                     </Button>
                   )}
                 </div>
@@ -151,4 +151,3 @@ export function SmartAlertsPanel({ alerts = mockAlerts, onDismiss }: SmartAlerts
     </Card>
   )
 }
-

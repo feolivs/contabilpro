@@ -3,10 +3,10 @@
 import { useActionState } from 'react'
 
 import { importEntriesFromCSV } from '@/actions/entries'
-import { initialEntryImportState } from '@/types/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { initialEntryImportState } from '@/types/entries'
 
 export function EntryImportForm() {
   const [state, action, isPending] = useActionState(importEntriesFromCSV, initialEntryImportState)

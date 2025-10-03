@@ -3,7 +3,6 @@
 import { useActionState } from 'react'
 
 import { createBankAccountFromForm } from '@/actions/bank-accounts'
-import { initialBankAccountFormState } from '@/types/bank-accounts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { initialBankAccountFormState } from '@/types/bank-accounts'
 
 export function BankAccountForm() {
   const [state, action, isPending] = useActionState(

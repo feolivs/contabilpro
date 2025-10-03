@@ -1,13 +1,13 @@
-import type { DashboardSummary } from '@/types/dashboard'
 import { getDashboardSummary, getDashboardTrend, getRecentActivity } from '@/actions/dashboard'
 import { ChartAreaInteractive } from '@/components/chart-area-interactive'
-import { CompactKPIs } from '@/components/dashboard/compact-kpis'
-import { TaxObligationsPanel } from '@/components/dashboard/tax-obligations-panel'
-import { PriorityTasksPanel } from '@/components/dashboard/priority-tasks-panel'
-import { SmartAlertsPanel } from '@/components/dashboard/smart-alerts-panel'
 import { AccountingInbox } from '@/components/dashboard/accounting-inbox'
 import { CashFlowProjection } from '@/components/dashboard/cash-flow-projection'
+import { CompactKPIs } from '@/components/dashboard/compact-kpis'
+import { PriorityTasksPanel } from '@/components/dashboard/priority-tasks-panel'
+import { SmartAlertsPanel } from '@/components/dashboard/smart-alerts-panel'
+import { TaxObligationsPanel } from '@/components/dashboard/tax-obligations-panel'
 import { requirePermission } from '@/lib/auth/rbac'
+import type { DashboardSummary } from '@/types/dashboard'
 
 const EMPTY_SUMMARY: DashboardSummary = {
   revenue: { current: 0, previous: 0 },
@@ -42,18 +42,12 @@ export default async function DashboardPage() {
       <header className='flex items-center justify-between'>
         <div>
           <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
-          <p className='text-xs text-muted-foreground'>
-            Visão consolidada • Atualizado agora
-          </p>
+          <p className='text-xs text-muted-foreground'>Visão consolidada • Atualizado agora</p>
         </div>
       </header>
 
       {/* KPIs Compactos - Faixa Superior */}
-      <CompactKPIs
-        summary={summary}
-        overdueAmount={overdueAmount}
-        overdueCount={overdueCount}
-      />
+      <CompactKPIs summary={summary} overdueAmount={overdueAmount} overdueCount={overdueCount} />
 
       {/* Grid Principal: Gráfico + Painel Lateral */}
       <div className='grid gap-4 lg:grid-cols-12'>

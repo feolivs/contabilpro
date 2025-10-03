@@ -4,8 +4,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import { readFileSync } from 'fs'
 import { join } from 'path'
+import { readFileSync } from 'fs'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -27,29 +27,29 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 async function executeSQLFile(filePath: string, description: string) {
   console.log(`\n📝 Executando: ${description}`)
   console.log(`   Arquivo: ${filePath}`)
-  
+
   try {
     const sql = readFileSync(filePath, 'utf-8')
-    
+
     // Dividir em statements individuais (separados por ;)
     const statements = sql
       .split(';')
       .map(s => s.trim())
       .filter(s => s.length > 0 && !s.startsWith('--'))
-    
+
     console.log(`   Total de statements: ${statements.length}`)
-    
+
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i]
-      
+
       // Pular comentários e linhas vazias
       if (statement.startsWith('--') || statement.trim().length === 0) {
         continue
       }
-      
+
       try {
         const { error } = await supabase.rpc('exec', { sql: statement + ';' })
-        
+
         if (error) {
           // Alguns erros são esperados (ex: "já existe")
           if (
@@ -73,7 +73,7 @@ async function executeSQLFile(filePath: string, description: string) {
         throw err
       }
     }
-    
+
     console.log(`   ✅ ${description} concluída com sucesso!`)
     return true
   } catch (error) {
@@ -84,59 +84,56 @@ async function executeSQLFile(filePath: string, description: string) {
 
 async function main() {
   console.log('🚀 Aplicando melhorias na tabela clients...\n')
-  
+
   const migrationsDir = join(process.cwd(), 'infra', 'migrations')
-  
+
   // Migration 011: Melhorias na tabela clients
   const migration011 = join(migrationsDir, '011_clients_improvements.sql')
   const success011 = await executeSQLFile(
     migration011,
     'Migration 011: Melhorias na tabela clients'
   )
-  
+
   if (!success011) {
     console.error('\n❌ Falha ao aplicar migration 011. Abortando.')
     process.exit(1)
   }
-  
+
   // Migration 012: Melhorias nas políticas RLS
   const migration012 = join(migrationsDir, '012_client_rls_improvements.sql')
   const success012 = await executeSQLFile(
     migration012,
     'Migration 012: Melhorias nas políticas RLS'
   )
-  
+
   if (!success012) {
     console.error('\n❌ Falha ao aplicar migration 012. Abortando.')
     process.exit(1)
   }
-  
+
   // Verificar se as mudanças foram aplicadas
   console.log('\n🔍 Verificando mudanças...')
-  
+
   // Verificar se document_norm existe
-  const { data: columns, error: columnsError } = await supabase
-    .from('clients')
-    .select('*')
-    .limit(0)
-  
+  const { data: columns, error: columnsError } = await supabase.from('clients').select('*').limit(0)
+
   if (columnsError) {
     console.error('❌ Erro ao verificar colunas:', columnsError)
   } else {
     console.log('✅ Tabela clients acessível')
   }
-  
+
   // Verificar view materializada
   const { data: stats, error: statsError } = await supabase.rpc('exec', {
     sql: 'SELECT COUNT(*) FROM client_stats_by_tenant;',
   })
-  
+
   if (statsError) {
     console.error('⚠️  View materializada pode não estar disponível:', statsError.message)
   } else {
     console.log('✅ View materializada client_stats_by_tenant criada')
   }
-  
+
   // Verificar funções
   const { data: functions, error: functionsError } = await supabase.rpc('exec', {
     sql: `
@@ -153,13 +150,13 @@ async function main() {
       );
     `,
   })
-  
+
   if (functionsError) {
     console.error('⚠️  Erro ao verificar funções:', functionsError.message)
   } else {
     console.log('✅ Funções criadas com sucesso')
   }
-  
+
   console.log('\n✅ Todas as melhorias foram aplicadas com sucesso!')
   console.log('\n📋 Próximos passos:')
   console.log('   1. Testar a normalização de documentos')
@@ -173,4 +170,3 @@ main().catch(error => {
   console.error('❌ Erro fatal:', error)
   process.exit(1)
 })
-

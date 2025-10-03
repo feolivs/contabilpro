@@ -2,12 +2,13 @@
 import Link from 'next/link'
 
 import { getClients, getClientStats } from '@/actions/clients'
-import { Button } from '@/components/ui/button'
-import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { requirePermission } from '@/lib/auth/rbac'
 import { ClientStats } from '@/components/clients'
-import { IconPlus, IconUpload } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/auth/rbac'
+import { buildTenantUrlFromHeaders } from '@/lib/navigation'
+
 import { ClientsPageContent } from './clients-page-content'
+import { IconPlus, IconUpload } from '@tabler/icons-react'
 
 export default async function ClientesPage() {
   await requirePermission('clientes.read')
@@ -17,12 +18,10 @@ export default async function ClientesPage() {
   const newClientUrl = buildTenantUrlFromHeaders(headersList, '/clientes/novo')
 
   // Buscar clientes e estatísticas em paralelo
-  const [clientsResult, stats] = await Promise.all([
-    getClients(),
-    getClientStats(),
-  ])
+  const [clientsResult, stats] = await Promise.all([getClients(), getClientStats()])
 
-  const clients = clientsResult.success && Array.isArray(clientsResult.data) ? clientsResult.data : []
+  const clients =
+    clientsResult.success && Array.isArray(clientsResult.data) ? clientsResult.data : []
 
   return (
     <div className='space-y-6'>
@@ -52,11 +51,7 @@ export default async function ClientesPage() {
       <ClientStats stats={stats} />
 
       {/* Tabela ou Empty State */}
-      <ClientsPageContent
-        clients={clients}
-        newClientUrl={newClientUrl}
-        importUrl={importUrl}
-      />
+      <ClientsPageContent clients={clients} newClientUrl={newClientUrl} importUrl={importUrl} />
     </div>
   )
 }

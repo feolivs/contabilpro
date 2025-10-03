@@ -3,17 +3,17 @@
  * Evita limite de 1MB do Next.js Server Actions
  */
 
-import { createClient } from '@/lib/supabase-client';
+import { createClient } from '@/lib/supabase-client'
 
 /**
  * Calcula hash SHA-256 de um arquivo (client-side)
  */
 export async function calculateFileHash(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  const arrayBuffer = await file.arrayBuffer()
+  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
 }
 
 /**
@@ -24,23 +24,20 @@ export async function uploadToStorage(
   path: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = createClient();
+    const supabase = createClient()
 
-    const { error } = await supabase.storage
-      .from('documentos')
-      .upload(path, file, {
-        contentType: file.type,
-        cacheControl: '3600',
-        upsert: false,
-      });
+    const { error } = await supabase.storage.from('documentos').upload(path, file, {
+      contentType: file.type,
+      cacheControl: '3600',
+      upsert: false,
+    })
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error.message }
     }
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    return { success: false, error: 'Erro ao fazer upload' };
+    return { success: false, error: 'Erro ao fazer upload' }
   }
 }
-

@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+
 import {
-  IconUsers,
   IconFileText,
-  IconReceipt,
   IconPlus,
-  IconUpload,
+  IconReceipt,
   IconSearch,
+  IconUpload,
+  IconUsers,
 } from '@tabler/icons-react'
 
 interface EmptyStateProps {
@@ -29,7 +30,7 @@ interface EmptyStateProps {
 
 /**
  * Componente EmptyState - Estado vazio com call-to-action
- * 
+ *
  * Features:
  * - Tipos pré-configurados (clients, documents, entries, search)
  * - Customizável (título, descrição, ícone, ações)
@@ -72,7 +73,8 @@ export function EmptyState({
     entries: {
       icon: IconReceipt,
       title: 'Nenhum lançamento registrado',
-      description: 'Registre seu primeiro lançamento contábil para começar a controlar suas finanças.',
+      description:
+        'Registre seu primeiro lançamento contábil para começar a controlar suas finanças.',
       action: {
         label: 'Novo Lançamento',
         icon: IconPlus,
@@ -98,52 +100,45 @@ export function EmptyState({
   const Icon = config.icon
 
   return (
-    <Card className="border-dashed">
-      <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
+    <Card className='border-dashed'>
+      <CardContent className='flex flex-col items-center justify-center py-12 px-6 text-center'>
         {/* Ícone */}
-        <div className="mb-4 rounded-full bg-muted p-4">
-          <Icon className="h-10 w-10 text-muted-foreground" />
+        <div className='mb-4 rounded-full bg-muted p-4'>
+          <Icon className='h-10 w-10 text-muted-foreground' />
         </div>
 
         {/* Título */}
-        <h3 className="mb-2 text-lg font-semibold">
-          {title || config.title}
-        </h3>
+        <h3 className='mb-2 text-lg font-semibold'>{title || config.title}</h3>
 
         {/* Descrição */}
-        <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+        <p className='mb-6 max-w-sm text-sm text-muted-foreground'>
           {description || config.description}
         </p>
 
         {/* Ações */}
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className='flex flex-col gap-2 sm:flex-row'>
           {action && (
-            <Button
-              onClick={action.onClick}
-              variant={action.variant || 'default'}
-            >
-              {type !== 'custom' && presets[type].action?.icon &&
+            <Button onClick={action.onClick} variant={action.variant || 'default'}>
+              {type !== 'custom' &&
+                presets[type].action?.icon &&
                 (() => {
                   const ActionIcon = presets[type].action!.icon!
-                  return <ActionIcon className="mr-2 h-4 w-4" />
-                })()
-              }
+                  return <ActionIcon className='mr-2 h-4 w-4' />
+                })()}
               {action.label}
             </Button>
           )}
 
           {secondaryAction && (
-            <Button
-              onClick={secondaryAction.onClick}
-              variant="outline"
-            >
-              {type !== 'custom' && type in presets && 'secondaryAction' in presets[type] &&
-               (presets[type] as any).secondaryAction?.icon &&
+            <Button onClick={secondaryAction.onClick} variant='outline'>
+              {type !== 'custom' &&
+                type in presets &&
+                'secondaryAction' in presets[type] &&
+                (presets[type] as any).secondaryAction?.icon &&
                 (() => {
                   const SecondaryIcon = (presets[type] as any).secondaryAction!.icon!
-                  return <SecondaryIcon className="mr-2 h-4 w-4" />
-                })()
-              }
+                  return <SecondaryIcon className='mr-2 h-4 w-4' />
+                })()}
               {secondaryAction.label}
             </Button>
           )}
@@ -196,24 +191,15 @@ export function EmptyStateInline({
   const Icon = config.icon
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
-      <Icon className="mb-3 h-8 w-8 text-muted-foreground" />
-      <h4 className="mb-1 text-sm font-medium">
-        {title || config.title}
-      </h4>
-      <p className="mb-4 text-xs text-muted-foreground">
-        {description || config.description}
-      </p>
+    <div className='flex flex-col items-center justify-center py-8 px-6 text-center'>
+      <Icon className='mb-3 h-8 w-8 text-muted-foreground' />
+      <h4 className='mb-1 text-sm font-medium'>{title || config.title}</h4>
+      <p className='mb-4 text-xs text-muted-foreground'>{description || config.description}</p>
       {action && (
-        <Button
-          onClick={action.onClick}
-          variant={action.variant || 'outline'}
-          size="sm"
-        >
+        <Button onClick={action.onClick} variant={action.variant || 'outline'} size='sm'>
           {action.label}
         </Button>
       )}
     </div>
   )
 }
-

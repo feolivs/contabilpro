@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { requirePermission } from '@/lib/auth/rbac'
 
 interface LancamentoDetalheProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 function formatCurrency(value: number | string | null | undefined) {

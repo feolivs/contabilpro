@@ -3,8 +3,9 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { IconFileInvoice, IconFileText, IconReceipt, IconArrowRight } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+
+import { IconArrowRight, IconFileInvoice, IconFileText, IconReceipt } from '@tabler/icons-react'
 
 interface InboxItem {
   id: string
@@ -80,23 +81,23 @@ export function AccountingInbox({
   const totalPending = items.reduce((sum, item) => sum + (item.count || 0), 0)
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className='grid gap-4 md:grid-cols-2'>
       {/* Inbox de Documentos */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Inbox Contábil</CardTitle>
-          <CardDescription className="text-xs">
+        <CardHeader className='pb-3'>
+          <CardTitle className='text-base'>Inbox Contábil</CardTitle>
+          <CardDescription className='text-xs'>
             {totalPending} {totalPending === 1 ? 'item pendente' : 'itens pendentes'}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className='space-y-2'>
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <IconFileText className="h-8 w-8 text-muted-foreground/50 mb-2" />
-              <p className="text-sm text-muted-foreground">Inbox vazio</p>
+            <div className='flex flex-col items-center justify-center py-6 text-center'>
+              <IconFileText className='h-8 w-8 text-muted-foreground/50 mb-2' />
+              <p className='text-sm text-muted-foreground'>Inbox vazio</p>
             </div>
           ) : (
-            items.map((item) => {
+            items.map(item => {
               const config = typeConfig[item.type]
               const ItemIcon = config.icon
 
@@ -108,11 +109,11 @@ export function AccountingInbox({
                     'hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                   )}
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className='flex items-center gap-3 min-w-0 flex-1'>
                     <ItemIcon className={cn('h-5 w-5 flex-shrink-0', config.className)} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className='min-w-0 flex-1'>
+                      <p className='text-sm font-medium truncate'>{item.title}</p>
+                      <p className='text-xs text-muted-foreground'>
                         {new Date(item.date).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: 'short',
@@ -120,7 +121,10 @@ export function AccountingInbox({
                       </p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="flex-shrink-0 h-6 min-w-[2rem] justify-center">
+                  <Badge
+                    variant='secondary'
+                    className='flex-shrink-0 h-6 min-w-[2rem] justify-center'
+                  >
                     {item.count}
                   </Badge>
                 </button>
@@ -132,9 +136,9 @@ export function AccountingInbox({
 
       {/* Contas a Receber em Atraso */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Contas a Receber</CardTitle>
-          <CardDescription className="text-xs">
+        <CardHeader className='pb-3'>
+          <CardTitle className='text-base'>Contas a Receber</CardTitle>
+          <CardDescription className='text-xs'>
             {new Intl.NumberFormat('pt-BR', {
               style: 'currency',
               currency: 'BRL',
@@ -142,27 +146,25 @@ export function AccountingInbox({
             em atraso
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className='space-y-2'>
           {overdueReceivables.ranges.map((range, index) => {
             const percentage =
-              overdueReceivables.total > 0
-                ? (range.amount / overdueReceivables.total) * 100
-                : 0
+              overdueReceivables.total > 0 ? (range.amount / overdueReceivables.total) * 100 : 0
 
             return (
               <div
                 key={index}
-                className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                className='flex items-center justify-between gap-3 rounded-lg border p-3'
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-sm font-medium">{range.label}</p>
-                    <p className="text-xs text-muted-foreground">
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-center justify-between gap-2 mb-1'>
+                    <p className='text-sm font-medium'>{range.label}</p>
+                    <p className='text-xs text-muted-foreground'>
                       {range.count} {range.count === 1 ? 'cliente' : 'clientes'}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className='flex items-center gap-2'>
+                    <div className='flex-1 h-1.5 bg-muted rounded-full overflow-hidden'>
                       <div
                         className={cn(
                           'h-full rounded-full transition-all',
@@ -173,7 +175,7 @@ export function AccountingInbox({
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
-                    <p className="text-xs font-mono font-semibold tabular-nums">
+                    <p className='text-xs font-mono font-semibold tabular-nums'>
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
@@ -185,13 +187,12 @@ export function AccountingInbox({
               </div>
             )
           })}
-          <Button variant="outline" size="sm" className="w-full mt-2">
+          <Button variant='outline' size='sm' className='w-full mt-2'>
             Ver detalhes
-            <IconArrowRight className="ml-2 h-4 w-4" />
+            <IconArrowRight className='ml-2 h-4 w-4' />
           </Button>
         </CardContent>
       </Card>
     </div>
   )
 }
-

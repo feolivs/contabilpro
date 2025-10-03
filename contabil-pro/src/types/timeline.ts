@@ -18,47 +18,46 @@ export type TimelineEventType =
   | 'entry_created'
   | 'entry_updated'
   | 'client_updated'
-  | 'note_added';
+  | 'note_added'
 
 // ============================================================================
 // Interface Principal
 // ============================================================================
 
 export interface TimelineEvent {
-  id: string;
-  tenant_id: string;
-  client_id: string;
-  event_type: TimelineEventType;
-  title: string;
-  description?: string;
-  metadata?: Record<string, any>;
-  document_id?: string;
-  task_id?: string;
-  entry_id?: string;
-  user_id: string;
-  created_at: string;
+  id: string
+  client_id: string
+  event_type: TimelineEventType
+  title: string
+  description?: string
+  metadata?: Record<string, any>
+  document_id?: string
+  task_id?: string
+  entry_id?: string
+  user_id: string
+  created_at: string
 
   // Relacionamentos (quando incluídos na query)
   user?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   client?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   document?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   task?: {
-    id: string;
-    title: string;
-  };
+    id: string
+    title: string
+  }
   entry?: {
-    id: string;
-    description?: string;
-  };
+    id: string
+    description?: string
+  }
 }
 
 // ============================================================================
@@ -66,14 +65,14 @@ export interface TimelineEvent {
 // ============================================================================
 
 export interface CreateTimelineEventInput {
-  client_id: string;
-  event_type: TimelineEventType;
-  title: string;
-  description?: string;
-  metadata?: Record<string, any>;
-  document_id?: string;
-  task_id?: string;
-  entry_id?: string;
+  client_id: string
+  event_type: TimelineEventType
+  title: string
+  description?: string
+  metadata?: Record<string, any>
+  document_id?: string
+  task_id?: string
+  entry_id?: string
 }
 
 // ============================================================================
@@ -81,12 +80,12 @@ export interface CreateTimelineEventInput {
 // ============================================================================
 
 export interface TimelineFilters {
-  client_id: string;
-  event_type?: TimelineEventType | TimelineEventType[];
-  from_date?: string;
-  to_date?: string;
-  page?: number;
-  pageSize?: number;
+  client_id: string
+  event_type?: TimelineEventType | TimelineEventType[]
+  from_date?: string
+  to_date?: string
+  page?: number
+  pageSize?: number
 }
 
 // ============================================================================
@@ -94,9 +93,9 @@ export interface TimelineFilters {
 // ============================================================================
 
 export interface TimelineEventConfig {
-  icon: string;
-  color: string;
-  label: string;
+  icon: string
+  color: string
+  label: string
 }
 
 export const TIMELINE_EVENT_CONFIG: Record<TimelineEventType, TimelineEventConfig> = {
@@ -155,7 +154,7 @@ export const TIMELINE_EVENT_CONFIG: Record<TimelineEventType, TimelineEventConfi
     color: 'text-gray-600',
     label: 'Nota adicionada',
   },
-};
+}
 
 // ============================================================================
 // Filtros de Categoria
@@ -163,18 +162,27 @@ export const TIMELINE_EVENT_CONFIG: Record<TimelineEventType, TimelineEventConfi
 
 export const TIMELINE_CATEGORY_FILTERS = [
   { value: 'all', label: 'Todas', icon: '📊' },
-  { value: 'documents', label: 'Documentos', icon: '📄', types: ['document_uploaded', 'document_deleted'] },
-  { value: 'tasks', label: 'Tarefas', icon: '📋', types: ['task_created', 'task_started', 'task_completed', 'task_cancelled', 'task_updated'] },
+  {
+    value: 'documents',
+    label: 'Documentos',
+    icon: '📄',
+    types: ['document_uploaded', 'document_deleted'],
+  },
+  {
+    value: 'tasks',
+    label: 'Tarefas',
+    icon: '📋',
+    types: ['task_created', 'task_started', 'task_completed', 'task_cancelled', 'task_updated'],
+  },
   { value: 'entries', label: 'Lançamentos', icon: '💰', types: ['entry_created', 'entry_updated'] },
   { value: 'other', label: 'Outros', icon: '📝', types: ['client_updated', 'note_added'] },
-] as const;
+] as const
 
 // ============================================================================
 // Tipos Adicionais para Componentes
 // ============================================================================
 
-export type TimelineCategory = 'documents' | 'tasks' | 'entries' | 'other';
+export type TimelineCategory = 'documents' | 'tasks' | 'entries' | 'other'
 
 // Alias para compatibilidade com componentes existentes
-export type ClientTimelineEvent = TimelineEvent;
-
+export type ClientTimelineEvent = TimelineEvent

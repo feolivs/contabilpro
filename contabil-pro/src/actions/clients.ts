@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import type { ClientFormState, ClientImportState } from '@/types/clients'
 import { requireAuth } from '@/lib/auth'
-import { clientSchema } from '@/lib/validation'
 import { createServerClient } from '@/lib/supabase'
+import { clientSchema } from '@/lib/validation'
+import type { ClientFormState, ClientImportState } from '@/types/clients'
 
 import { type z } from 'zod'
 
@@ -25,11 +25,7 @@ export async function createClient(input: z.infer<typeof baseClientSchema>) {
 
     const validatedData = baseClientSchema.parse(input)
 
-    const { data, error } = await supabase
-      .from('clients')
-      .insert(validatedData)
-      .select()
-      .single()
+    const { data, error } = await supabase.from('clients').insert(validatedData).select().single()
 
     if (error) {
       throw new Error(`Erro ao criar cliente: ${error.message}`)
@@ -88,7 +84,7 @@ export async function getClients() {
     const session = await requireAuth()
     console.log('[getClients] Session:', {
       userId: session.user.id,
-      role: session.role
+      role: session.role,
     })
 
     const supabase = await createServerClient()
@@ -101,7 +97,7 @@ export async function getClients() {
 
     console.log('[getClients] Query result:', {
       dataCount: data?.length || 0,
-      error: error?.message
+      error: error?.message,
     })
 
     if (error) {
@@ -115,7 +111,7 @@ export async function getClients() {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido',
-      data: []
+      data: [],
     }
   }
 }
@@ -124,8 +120,6 @@ export async function getClientById(id: string) {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
 
@@ -147,8 +141,6 @@ export async function updateClient(id: string, input: z.infer<typeof updateClien
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const validatedData = updateClientSchema.parse(input)
 
@@ -237,8 +229,6 @@ export async function deleteClient(id: string) {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
     const { error } = await supabase.from('clients').delete().eq('id', id)
 
     if (error) {
@@ -290,8 +280,6 @@ export async function importClientsFromCSV(
 
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     let processed = 0
     let created = 0
@@ -425,8 +413,6 @@ export async function searchClients(query: string) {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
     // Validar query
     if (!query || query.trim().length < 2) {
       return []
@@ -468,12 +454,7 @@ export async function bulkActivateClients(clientIds: string[]) {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
-    const { error } = await supabase
-      .from('clients')
-      .update({ status: 'ativo' })
-      .in('id', clientIds)
+    const { error } = await supabase.from('clients').update({ status: 'ativo' }).in('id', clientIds)
 
     if (error) {
       throw new Error(`Erro ao ativar clientes: ${error.message}`)
@@ -497,8 +478,6 @@ export async function bulkDeactivateClients(clientIds: string[]) {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const { error } = await supabase
       .from('clients')
@@ -528,12 +507,7 @@ export async function bulkDeleteClients(clientIds: string[]) {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
-    const { error } = await supabase
-      .from('clients')
-      .delete()
-      .in('id', clientIds)
+    const { error } = await supabase.from('clients').delete().in('id', clientIds)
 
     if (error) {
       throw new Error(`Erro ao excluir clientes: ${error.message}`)
@@ -549,4 +523,3 @@ export async function bulkDeleteClients(clientIds: string[]) {
     }
   }
 }
-

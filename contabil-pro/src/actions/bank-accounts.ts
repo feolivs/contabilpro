@@ -5,22 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { requireAuth } from '@/lib/auth'
 import { setRLSContext } from '@/lib/auth/rls'
 import { bankAccountSchema, bankTransactionSchema } from '@/lib/validations'
+import type { BankAccountFormState, BankTransactionImportState } from '@/types/bank-accounts'
 
 import { type z } from 'zod'
-import {
-  BankAccountFormState,
-  BankTransactionImportState,
-  initialBankAccountFormState,
-  initialBankTransactionImportState,
-  type BankAccount,
-  type BankTransaction,
-  type BankTransactionWithAccount,
-  type BankTransactionFilters,
-  type BankTransactionImportRow,
-  type BankTransactionImportResult,
-  type ReconciliationMatch,
-  type ReconciliationSuggestion
-} from '@/types/bank-accounts'
 
 const baseBankAccountSchema = bankAccountSchema.omit({
   id: true,

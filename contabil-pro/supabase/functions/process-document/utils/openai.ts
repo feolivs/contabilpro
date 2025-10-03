@@ -2,16 +2,16 @@
 // UTILS: Cliente OpenAI (GPT-4o-mini)
 // ============================================
 
-import OpenAI from 'https://deno.land/x/openai@v4.20.1/mod.ts';
-import type { ClassificationResult, DocumentType, ExtractedData } from './types.ts';
+import type { ClassificationResult, DocumentType, ExtractedData } from './types.ts'
+import OpenAI from 'https://deno.land/x/openai@v4.20.1/mod.ts'
 
 // Inicializar cliente OpenAI
 const openai = new OpenAI({
   apiKey: Deno.env.get('OPENAI_API_KEY'),
-});
+})
 
 // Modelo a ser usado (GPT-4o-mini para custo otimizado)
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'gpt-4o-mini'
 
 // ============================================
 // Classificar Documento
@@ -48,14 +48,14 @@ Retorne JSON com:
     ],
     response_format: { type: 'json_object' },
     temperature: 0,
-  });
+  })
 
-  const result = JSON.parse(response.choices[0].message.content || '{}');
+  const result = JSON.parse(response.choices[0].message.content || '{}')
   return {
     type: result.type || 'other',
     confidence: result.confidence || 0.5,
     reasoning: result.reasoning || 'Classificação automática',
-  };
+  }
 }
 
 // ============================================
@@ -160,9 +160,9 @@ export async function extractStructuredData(
 - vigencia_fim: Vigência fim (ISO 8601, opcional)`,
 
     other: `Extraia informações relevantes do documento.`,
-  };
+  }
 
-  const prompt = prompts[documentType] || prompts.other;
+  const prompt = prompts[documentType] || prompts.other
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -184,9 +184,9 @@ Para CNPJ/CPF, mantenha apenas dígitos.`,
     ],
     response_format: { type: 'json_object' },
     temperature: 0,
-  });
+  })
 
-  return JSON.parse(response.choices[0].message.content || '{}');
+  return JSON.parse(response.choices[0].message.content || '{}')
 }
 
 // ============================================
@@ -217,13 +217,12 @@ export async function ocrImage(
       },
     ],
     max_tokens: 4096,
-  });
+  })
 
-  const text = response.choices[0].message.content || '';
-  
+  const text = response.choices[0].message.content || ''
+
   // Estimar confiança baseado no tamanho do texto extraído
-  const confidence = text.length > 100 ? 0.9 : text.length > 50 ? 0.7 : 0.5;
+  const confidence = text.length > 100 ? 0.9 : text.length > 50 ? 0.7 : 0.5
 
-  return { text, confidence };
+  return { text, confidence }
 }
-

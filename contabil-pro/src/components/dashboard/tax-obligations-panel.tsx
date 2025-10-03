@@ -2,8 +2,9 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+
+import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react'
 
 interface TaxObligation {
   id: string
@@ -22,13 +23,15 @@ const statusConfig = {
     label: 'Em dia',
     icon: IconCheck,
     variant: 'default' as const,
-    className: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400',
+    className:
+      'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400',
   },
   pending: {
     label: 'Pendente',
     icon: IconClock,
     variant: 'secondary' as const,
-    className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400',
+    className:
+      'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400',
   },
   overdue: {
     label: 'Atrasado',
@@ -67,21 +70,19 @@ export function TaxObligationsPanel({ obligations = mockObligations }: TaxObliga
   })
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Obrigações Fiscais</CardTitle>
-        <CardDescription className="text-xs">Próximos 30 dias</CardDescription>
+    <Card className='h-full'>
+      <CardHeader className='pb-3'>
+        <CardTitle className='text-base'>Obrigações Fiscais</CardTitle>
+        <CardDescription className='text-xs'>Próximos 30 dias</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className='space-y-2'>
         {sortedObligations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <IconCheck className="h-8 w-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Nenhuma obrigação pendente
-            </p>
+          <div className='flex flex-col items-center justify-center py-8 text-center'>
+            <IconCheck className='h-8 w-8 text-muted-foreground/50 mb-2' />
+            <p className='text-sm text-muted-foreground'>Nenhuma obrigação pendente</p>
           </div>
         ) : (
-          sortedObligations.map((obligation) => {
+          sortedObligations.map(obligation => {
             const config = statusConfig[obligation.status]
             const StatusIcon = config.icon
             const dueDate = new Date(obligation.dueDate)
@@ -98,14 +99,14 @@ export function TaxObligationsPanel({ obligations = mockObligations }: TaxObliga
                   'hover:bg-accent/50'
                 )}
               >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <StatusIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{obligation.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                <div className='flex items-center gap-3 min-w-0 flex-1'>
+                  <StatusIcon className='h-4 w-4 flex-shrink-0 text-muted-foreground' />
+                  <div className='min-w-0 flex-1'>
+                    <p className='text-sm font-medium truncate'>{obligation.name}</p>
+                    <p className='text-xs text-muted-foreground'>
                       Venc. {formattedDate}
                       {obligation.amount && (
-                        <span className="ml-2 font-mono">
+                        <span className='ml-2 font-mono'>
                           {new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
@@ -116,7 +117,7 @@ export function TaxObligationsPanel({ obligations = mockObligations }: TaxObliga
                   </div>
                 </div>
                 <Badge
-                  variant="outline"
+                  variant='outline'
                   className={cn('flex-shrink-0 text-[10px] h-5 px-2', config.className)}
                 >
                   {config.label}
@@ -129,4 +130,3 @@ export function TaxObligationsPanel({ obligations = mockObligations }: TaxObliga
     </Card>
   )
 }
-

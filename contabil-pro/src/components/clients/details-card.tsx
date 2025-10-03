@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDocument } from '@/lib/validation'
+
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -63,17 +64,17 @@ export function ClientDetailsCard({ title, icon: Icon, data }: ClientDetailsCard
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+        <CardTitle className='flex items-center gap-2 text-lg'>
+          {Icon && <Icon className='h-5 w-5 text-muted-foreground' />}
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <dl className="space-y-3">
+        <dl className='space-y-3'>
           {data.map((item, index) => (
-            <div key={index} className="flex justify-between gap-4">
-              <dt className="text-sm text-muted-foreground">{item.label}:</dt>
-              <dd className="text-sm font-medium text-right">
+            <div key={index} className='flex justify-between gap-4'>
+              <dt className='text-sm text-muted-foreground'>{item.label}:</dt>
+              <dd className='text-sm font-medium text-right'>
                 {formatValue(item.value, item.format)}
               </dd>
             </div>
@@ -87,20 +88,19 @@ export function ClientDetailsCard({ title, icon: Icon, data }: ClientDetailsCard
 // Variante compacta para uso em modais ou sidebars
 export function ClientDetailsCardCompact({ title, icon: Icon, data }: ClientDetailsCardProps) {
   return (
-    <div className="space-y-2">
-      <h3 className="flex items-center gap-2 text-sm font-semibold">
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+    <div className='space-y-2'>
+      <h3 className='flex items-center gap-2 text-sm font-semibold'>
+        {Icon && <Icon className='h-4 w-4 text-muted-foreground' />}
         {title}
       </h3>
-      <dl className="space-y-2 pl-6">
+      <dl className='space-y-2 pl-6'>
         {data.map((item, index) => (
-          <div key={index} className="flex justify-between gap-4 text-xs">
-            <dt className="text-muted-foreground">{item.label}:</dt>
-            <dd className="font-medium text-right">{formatValue(item.value, item.format)}</dd>
+          <div key={index} className='flex justify-between gap-4 text-xs'>
+            <dt className='text-muted-foreground'>{item.label}:</dt>
+            <dd className='font-medium text-right'>{formatValue(item.value, item.format)}</dd>
           </div>
         ))}
       </dl>
     </div>
   )
 }
-

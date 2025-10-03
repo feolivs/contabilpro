@@ -1,7 +1,5 @@
 'use client'
 
-/* eslint-disable unused-imports/no-unused-vars */
-
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -696,5 +694,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-/* eslint-enable unused-imports/no-unused-vars */

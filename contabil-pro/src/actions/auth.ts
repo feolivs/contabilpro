@@ -72,7 +72,7 @@ export async function loginAction(
     console.log('Login bem-sucedido:', {
       userId: data.session.user.id,
       email: data.session.user.email,
-    });
+    })
 
     // Redirecionar para dashboard ou página solicitada
     redirectUrl = '/dashboard'

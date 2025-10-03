@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+
+import { importClientsFromCSV } from '@/actions/clients'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Table,
   TableBody,
@@ -15,9 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { IconUpload, IconCheck, IconX, IconAlertTriangle, IconFileText } from '@tabler/icons-react'
 import { validateDocument } from '@/lib/validation'
-import { importClientsFromCSV } from '@/actions/clients'
+
+import { IconAlertTriangle, IconCheck, IconFileText, IconUpload, IconX } from '@tabler/icons-react'
 
 interface ParsedRow {
   line: number
@@ -34,7 +36,7 @@ interface ParsedRow {
 
 /**
  * Componente de Importação Avançada de Clientes
- * 
+ *
  * Features:
  * - Upload de CSV
  * - Validação em tempo real
@@ -109,7 +111,7 @@ export function ClientImportAdvanced() {
 
       // Parse header
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
-      
+
       // Validar headers obrigatórios
       if (!headers.includes('name') || !headers.includes('document')) {
         alert('CSV deve conter as colunas: name, document')
@@ -122,7 +124,7 @@ export function ClientImportAdvanced() {
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(',').map(v => v.trim())
         const row: any = {}
-        
+
         headers.forEach((header, index) => {
           row[header] = values[index] || ''
         })
@@ -145,7 +147,7 @@ export function ClientImportAdvanced() {
 
     // Filtrar apenas linhas sem erros
     const validRows = parsedData.filter(row => row.errors.length === 0)
-    
+
     if (validRows.length === 0) {
       alert('Nenhuma linha válida para importar')
       return
@@ -176,31 +178,32 @@ export function ClientImportAdvanced() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Upload */}
       <Card>
         <CardHeader>
           <CardTitle>1. Selecione o arquivo CSV</CardTitle>
           <CardDescription>
-            O arquivo deve conter as colunas: name, document (obrigatórios), email, phone, address (opcionais)
+            O arquivo deve conter as colunas: name, document (obrigatórios), email, phone, address
+            (opcionais)
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="file">Arquivo CSV</Label>
+          <div className='grid gap-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='file'>Arquivo CSV</Label>
               <Input
-                id="file"
-                type="file"
-                accept=".csv"
+                id='file'
+                type='file'
+                accept='.csv'
                 onChange={handleFileChange}
                 disabled={isValidating || isImporting}
               />
             </div>
 
             {file && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <IconFileText className="h-4 w-4" />
+              <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <IconFileText className='h-4 w-4' />
                 <span>{file.name}</span>
                 <span>({(file.size / 1024).toFixed(2)} KB)</span>
               </div>
@@ -218,53 +221,54 @@ export function ClientImportAdvanced() {
               <CardTitle>2. Validação dos Dados</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900/20">
-                    <IconFileText className="h-4 w-4 text-blue-600" />
+              <div className='grid gap-4 md:grid-cols-4'>
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-full bg-blue-100 p-2 dark:bg-blue-900/20'>
+                    <IconFileText className='h-4 w-4 text-blue-600' />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{stats.total}</div>
-                    <div className="text-xs text-muted-foreground">Total de linhas</div>
+                    <div className='text-2xl font-bold'>{stats.total}</div>
+                    <div className='text-xs text-muted-foreground'>Total de linhas</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-green-100 p-2 dark:bg-green-900/20">
-                    <IconCheck className="h-4 w-4 text-green-600" />
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-full bg-green-100 p-2 dark:bg-green-900/20'>
+                    <IconCheck className='h-4 w-4 text-green-600' />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-green-600">{stats.valid}</div>
-                    <div className="text-xs text-muted-foreground">Válidas</div>
+                    <div className='text-2xl font-bold text-green-600'>{stats.valid}</div>
+                    <div className='text-xs text-muted-foreground'>Válidas</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-yellow-100 p-2 dark:bg-yellow-900/20">
-                    <IconAlertTriangle className="h-4 w-4 text-yellow-600" />
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-full bg-yellow-100 p-2 dark:bg-yellow-900/20'>
+                    <IconAlertTriangle className='h-4 w-4 text-yellow-600' />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-yellow-600">{stats.withWarnings}</div>
-                    <div className="text-xs text-muted-foreground">Com avisos</div>
+                    <div className='text-2xl font-bold text-yellow-600'>{stats.withWarnings}</div>
+                    <div className='text-xs text-muted-foreground'>Com avisos</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/20">
-                    <IconX className="h-4 w-4 text-red-600" />
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-full bg-red-100 p-2 dark:bg-red-900/20'>
+                    <IconX className='h-4 w-4 text-red-600' />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-red-600">{stats.withErrors}</div>
-                    <div className="text-xs text-muted-foreground">Com erros</div>
+                    <div className='text-2xl font-bold text-red-600'>{stats.withErrors}</div>
+                    <div className='text-xs text-muted-foreground'>Com erros</div>
                   </div>
                 </div>
               </div>
 
               {stats.valid > 0 && (
-                <Alert className="mt-4">
-                  <IconCheck className="h-4 w-4" />
+                <Alert className='mt-4'>
+                  <IconCheck className='h-4 w-4' />
                   <AlertDescription>
-                    {stats.valid} {stats.valid === 1 ? 'cliente' : 'clientes'} pronto(s) para importar
+                    {stats.valid} {stats.valid === 1 ? 'cliente' : 'clientes'} pronto(s) para
+                    importar
                   </AlertDescription>
                 </Alert>
               )}
@@ -280,11 +284,11 @@ export function ClientImportAdvanced() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border max-h-96 overflow-auto">
+              <div className='rounded-md border max-h-96 overflow-auto'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Linha</TableHead>
+                      <TableHead className='w-12'>Linha</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Nome</TableHead>
                       <TableHead>Documento</TableHead>
@@ -293,37 +297,33 @@ export function ClientImportAdvanced() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {parsedData.slice(0, 50).map((row) => (
+                    {parsedData.slice(0, 50).map(row => (
                       <TableRow key={row.line}>
-                        <TableCell className="font-mono text-xs">{row.line}</TableCell>
+                        <TableCell className='font-mono text-xs'>{row.line}</TableCell>
                         <TableCell>
                           {row.errors.length > 0 ? (
-                            <Badge variant="destructive">Erro</Badge>
+                            <Badge variant='destructive'>Erro</Badge>
                           ) : row.warnings.length > 0 ? (
-                            <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+                            <Badge variant='outline' className='border-yellow-500 text-yellow-600'>
                               Aviso
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="border-green-500 text-green-600">
+                            <Badge variant='outline' className='border-green-500 text-green-600'>
                               OK
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="font-medium">{row.data.name}</TableCell>
-                        <TableCell className="font-mono text-sm">{row.data.document}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className='font-medium'>{row.data.name}</TableCell>
+                        <TableCell className='font-mono text-sm'>{row.data.document}</TableCell>
+                        <TableCell className='text-sm text-muted-foreground'>
                           {row.data.email || '-'}
                         </TableCell>
                         <TableCell>
                           {row.errors.length > 0 && (
-                            <div className="text-xs text-destructive">
-                              {row.errors.join(', ')}
-                            </div>
+                            <div className='text-xs text-destructive'>{row.errors.join(', ')}</div>
                           )}
                           {row.warnings.length > 0 && row.errors.length === 0 && (
-                            <div className="text-xs text-yellow-600">
-                              {row.warnings.join(', ')}
-                            </div>
+                            <div className='text-xs text-yellow-600'>{row.warnings.join(', ')}</div>
                           )}
                         </TableCell>
                       </TableRow>
@@ -333,7 +333,7 @@ export function ClientImportAdvanced() {
               </div>
 
               {parsedData.length > 50 && (
-                <p className="mt-2 text-xs text-muted-foreground">
+                <p className='mt-2 text-xs text-muted-foreground'>
                   Mostrando 50 de {parsedData.length} linhas
                 </p>
               )}
@@ -341,9 +341,9 @@ export function ClientImportAdvanced() {
           </Card>
 
           {/* Ações */}
-          <div className="flex items-center justify-between">
+          <div className='flex items-center justify-between'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={() => {
                 setFile(null)
                 setParsedData([])
@@ -354,11 +354,8 @@ export function ClientImportAdvanced() {
               Cancelar
             </Button>
 
-            <Button
-              onClick={handleImport}
-              disabled={stats.valid === 0 || isImporting}
-            >
-              <IconUpload className="mr-2 h-4 w-4" />
+            <Button onClick={handleImport} disabled={stats.valid === 0 || isImporting}>
+              <IconUpload className='mr-2 h-4 w-4' />
               {isImporting ? 'Importando...' : `Importar ${stats.valid} cliente(s)`}
             </Button>
           </div>
@@ -374,21 +371,21 @@ export function ClientImportAdvanced() {
           <CardContent>
             {importResult.status === 'success' ? (
               <Alert>
-                <IconCheck className="h-4 w-4" />
+                <IconCheck className='h-4 w-4' />
                 <AlertDescription>
                   {importResult.message}
                   {importResult.summary && (
-                    <div className="mt-2 space-y-1">
+                    <div className='mt-2 space-y-1'>
                       <p>Processados: {importResult.summary.processed}</p>
-                      <p className="text-green-600">Importados: {importResult.summary.created}</p>
-                      <p className="text-red-600">Ignorados: {importResult.summary.skipped}</p>
+                      <p className='text-green-600'>Importados: {importResult.summary.created}</p>
+                      <p className='text-red-600'>Ignorados: {importResult.summary.skipped}</p>
                     </div>
                   )}
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert variant="destructive">
-                <IconX className="h-4 w-4" />
+              <Alert variant='destructive'>
+                <IconX className='h-4 w-4' />
                 <AlertDescription>{importResult.message}</AlertDescription>
               </Alert>
             )}
@@ -398,4 +395,3 @@ export function ClientImportAdvanced() {
     </div>
   )
 }
-

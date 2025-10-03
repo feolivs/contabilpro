@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { validateDocument } from './document-utils'
+import { z } from 'zod'
 
 /**
  * Schema de validação para Cliente
@@ -29,17 +29,22 @@ export const clientSchema = z.object({
   notes: z.string().max(1000, 'Observações muito longas').optional(),
 
   // Campos fiscais
-  tipo_pessoa: z.enum(['PF', 'PJ'], {
-    message: 'Tipo de pessoa deve ser PF ou PJ'
-  }).optional(),
-  regime_tributario: z.enum(['MEI', 'Simples', 'Presumido', 'Real'], {
-    message: 'Regime tributário inválido'
-  }).optional(),
+  tipo_pessoa: z
+    .enum(['PF', 'PJ'], {
+      message: 'Tipo de pessoa deve ser PF ou PJ',
+    })
+    .optional(),
+  regime_tributario: z
+    .enum(['MEI', 'Simples', 'Presumido', 'Real'], {
+      message: 'Regime tributário inválido',
+    })
+    .optional(),
   inscricao_estadual: z.string().max(20, 'Inscrição estadual muito longa').optional(),
   inscricao_municipal: z.string().max(20, 'Inscrição municipal muito longa').optional(),
 
   // Contato adicional
-  cep: z.string()
+  cep: z
+    .string()
     .regex(/^\d{5}-?\d{3}$/, 'CEP deve estar no formato 12345-678 ou 12345678')
     .optional()
     .or(z.literal('')),
@@ -47,25 +52,29 @@ export const clientSchema = z.object({
   responsavel_telefone: z.string().max(20, 'Telefone do responsável muito longo').optional(),
 
   // Campos financeiros
-  dia_vencimento: z.number()
+  dia_vencimento: z
+    .number()
     .int('Dia de vencimento deve ser um número inteiro')
     .min(1, 'Dia de vencimento deve ser entre 1 e 31')
     .max(31, 'Dia de vencimento deve ser entre 1 e 31')
     .optional(),
-  valor_plano: z.number()
-    .positive('Valor do plano deve ser positivo')
+  valor_plano: z.number().positive('Valor do plano deve ser positivo').optional(),
+  forma_cobranca: z
+    .enum(['boleto', 'pix', 'cartao', 'transferencia'], {
+      message: 'Forma de cobrança inválida',
+    })
     .optional(),
-  forma_cobranca: z.enum(['boleto', 'pix', 'cartao', 'transferencia'], {
-    message: 'Forma de cobrança inválida'
-  }).optional(),
 
   // Campos de gestão
   tags: z.array(z.string().max(50, 'Tag muito longa')).default([]),
-  status: z.enum(['ativo', 'inadimplente', 'onboarding', 'inativo'], {
-    message: 'Status inválido'
-  }).default('ativo'),
+  status: z
+    .enum(['ativo', 'inadimplente', 'onboarding', 'inativo'], {
+      message: 'Status inválido',
+    })
+    .default('ativo'),
   ultima_atividade: z.date().optional(),
-  score_risco: z.number()
+  score_risco: z
+    .number()
     .int('Score de risco deve ser um número inteiro')
     .min(0, 'Score de risco deve ser entre 0 e 100')
     .max(100, 'Score de risco deve ser entre 0 e 100')
@@ -168,7 +177,7 @@ export const updateClientSchema = clientSchema
 // Schema para formulário multi-step - Step 1: Dados Fiscais
 export const clientStep1Schema = z.object({
   tipo_pessoa: z.enum(['PF', 'PJ'], {
-    message: 'Selecione o tipo de pessoa'
+    message: 'Selecione o tipo de pessoa',
   }),
   document: z
     .string()
@@ -186,7 +195,8 @@ export const clientStep2Schema = z.object({
   phone: z.string().max(20, 'Telefone muito longo').optional(),
   responsavel_nome: z.string().max(255, 'Nome do responsável muito longo').optional(),
   responsavel_telefone: z.string().max(20, 'Telefone do responsável muito longo').optional(),
-  cep: z.string()
+  cep: z
+    .string()
     .regex(/^\d{5}-?\d{3}$/, 'CEP deve estar no formato 12345-678')
     .optional()
     .or(z.literal('')),
@@ -197,14 +207,13 @@ export const clientStep2Schema = z.object({
 
 // Schema para formulário multi-step - Step 3: Financeiro
 export const clientStep3Schema = z.object({
-  dia_vencimento: z.number()
+  dia_vencimento: z
+    .number()
     .int('Dia de vencimento deve ser um número inteiro')
     .min(1, 'Dia de vencimento deve ser entre 1 e 31')
     .max(31, 'Dia de vencimento deve ser entre 1 e 31')
     .optional(),
-  valor_plano: z.number()
-    .positive('Valor do plano deve ser positivo')
-    .optional(),
+  valor_plano: z.number().positive('Valor do plano deve ser positivo').optional(),
   forma_cobranca: z.enum(['boleto', 'pix', 'cartao', 'transferencia']).optional(),
   tags: z.array(z.string().max(50, 'Tag muito longa')).default([]),
 })

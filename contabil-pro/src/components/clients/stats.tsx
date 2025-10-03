@@ -1,8 +1,9 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { IconUsers, IconUserCheck, IconCurrencyReal, IconTrendingUp } from '@tabler/icons-react'
 import { Skeleton } from '@/components/ui/skeleton'
+
+import { IconCurrencyReal, IconTrendingUp, IconUserCheck, IconUsers } from '@tabler/icons-react'
 
 interface ClientStatsProps {
   stats?: {
@@ -16,13 +17,13 @@ interface ClientStatsProps {
 
 /**
  * Mini-KPIs de clientes
- * 
+ *
  * Exibe 4 métricas principais:
  * - Total de clientes
  * - Clientes ativos
  * - Receita total (MRR)
  * - Taxa de crescimento
- * 
+ *
  * Features:
  * - Loading states com skeleton
  * - Formatação de valores (moeda, porcentagem)
@@ -32,16 +33,16 @@ interface ClientStatsProps {
 export function ClientStats({ stats, isLoading }: ClientStatsProps) {
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-[100px]" />
-              <Skeleton className="h-4 w-4 rounded-full" />
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <Skeleton className='h-4 w-[100px]' />
+              <Skeleton className='h-4 w-4 rounded-full' />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-8 w-[80px] mb-1" />
-              <Skeleton className="h-3 w-[120px]" />
+              <Skeleton className='h-8 w-[80px] mb-1' />
+              <Skeleton className='h-3 w-[120px]' />
             </CardContent>
           </Card>
         ))}
@@ -49,12 +50,7 @@ export function ClientStats({ stats, isLoading }: ClientStatsProps) {
     )
   }
 
-  const {
-    total_clients = 0,
-    active_clients = 0,
-    total_revenue = 0,
-    growth_rate = 0,
-  } = stats || {}
+  const { total_clients = 0, active_clients = 0, total_revenue = 0, growth_rate = 0 } = stats || {}
 
   const kpis = [
     {
@@ -91,30 +87,29 @@ export function ClientStats({ stats, isLoading }: ClientStatsProps) {
       description: 'Últimos 30 dias',
       icon: IconTrendingUp,
       iconColor: growth_rate >= 0 ? 'text-emerald-600' : 'text-red-600',
-      iconBg: growth_rate >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/20' : 'bg-red-100 dark:bg-red-900/20',
+      iconBg:
+        growth_rate >= 0
+          ? 'bg-emerald-100 dark:bg-emerald-900/20'
+          : 'bg-red-100 dark:bg-red-900/20',
     },
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {kpis.map((kpi) => {
+    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+      {kpis.map(kpi => {
         const Icon = kpi.icon
-        
+
         return (
           <Card key={kpi.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {kpi.title}
-              </CardTitle>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>{kpi.title}</CardTitle>
               <div className={`rounded-full p-2 ${kpi.iconBg}`}>
                 <Icon className={`h-4 w-4 ${kpi.iconColor}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {kpi.description}
-              </p>
+              <div className='text-2xl font-bold'>{kpi.value}</div>
+              <p className='text-xs text-muted-foreground'>{kpi.description}</p>
             </CardContent>
           </Card>
         )
@@ -129,13 +124,13 @@ export function ClientStats({ stats, isLoading }: ClientStatsProps) {
 export function ClientStatsCompact({ stats, isLoading }: ClientStatsProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-4">
+      <div className='flex items-center gap-4'>
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
+          <div key={i} className='flex items-center gap-2'>
+            <Skeleton className='h-8 w-8 rounded-full' />
             <div>
-              <Skeleton className="h-4 w-[60px] mb-1" />
-              <Skeleton className="h-3 w-[40px]" />
+              <Skeleton className='h-4 w-[60px] mb-1' />
+              <Skeleton className='h-3 w-[40px]' />
             </div>
           </div>
         ))}
@@ -143,12 +138,7 @@ export function ClientStatsCompact({ stats, isLoading }: ClientStatsProps) {
     )
   }
 
-  const {
-    total_clients = 0,
-    active_clients = 0,
-    total_revenue = 0,
-    growth_rate = 0,
-  } = stats || {}
+  const { total_clients = 0, active_clients = 0, total_revenue = 0, growth_rate = 0 } = stats || {}
 
   const kpis = [
     {
@@ -183,16 +173,16 @@ export function ClientStatsCompact({ stats, isLoading }: ClientStatsProps) {
   ]
 
   return (
-    <div className="flex items-center gap-4 overflow-x-auto">
-      {kpis.map((kpi) => {
+    <div className='flex items-center gap-4 overflow-x-auto'>
+      {kpis.map(kpi => {
         const Icon = kpi.icon
-        
+
         return (
-          <div key={kpi.label} className="flex items-center gap-2 min-w-fit">
+          <div key={kpi.label} className='flex items-center gap-2 min-w-fit'>
             <Icon className={`h-5 w-5 ${kpi.color}`} />
             <div>
-              <div className="text-sm font-semibold">{kpi.value}</div>
-              <div className="text-xs text-muted-foreground">{kpi.label}</div>
+              <div className='text-sm font-semibold'>{kpi.value}</div>
+              <div className='text-xs text-muted-foreground'>{kpi.label}</div>
             </div>
           </div>
         )
@@ -200,4 +190,3 @@ export function ClientStatsCompact({ stats, isLoading }: ClientStatsProps) {
     </div>
   )
 }
-

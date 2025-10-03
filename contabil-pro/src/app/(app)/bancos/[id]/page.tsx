@@ -16,7 +16,7 @@ import {
 import { requirePermission } from '@/lib/auth/rbac'
 
 interface ContaBancariaDetalheProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 function formatCurrency(value: number | string | null | undefined) {

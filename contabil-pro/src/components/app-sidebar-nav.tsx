@@ -65,13 +65,7 @@ export function SidebarNavigation({ groups }: SidebarNavigationProps) {
   ))
 }
 
-function NavigationLink({
-  item,
-  pathname,
-}: {
-  item: NavigationItem
-  pathname: string
-}) {
+function NavigationLink({ item, pathname }: { item: NavigationItem; pathname: string }) {
   const Icon = ICONS[item.icon] ?? LayoutDashboard
   const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { ModeToggle } from '@/components/mode-toggle'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -55,6 +56,7 @@ export function SiteHeader({ navGroups }: SiteHeaderProps) {
           <h1 className='truncate text-base font-semibold md:text-lg'>{currentTitle}</h1>
         </div>
         <div className='ml-auto flex items-center gap-2'>
+          <NotificationBell />
           <ModeToggle />
         </div>
       </div>

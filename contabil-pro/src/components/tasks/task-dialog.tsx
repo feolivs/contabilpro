@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -20,44 +20,37 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
-import { createTaskSchema, updateTaskSchema } from '@/schemas/task.schema';
-import type { CreateTaskInput, UpdateTaskInput } from '@/schemas/task.schema';
-import type { Task } from '@/types/tasks';
-import {
-  TASK_PRIORITY_LABELS,
-  TASK_TYPE_LABELS,
-} from '@/types/tasks';
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks'
+import type { CreateTaskInput, UpdateTaskInput } from '@/schemas/task.schema'
+import { createTaskSchema, updateTaskSchema } from '@/schemas/task.schema'
+import type { Task } from '@/types/tasks'
+import { TASK_PRIORITY_LABELS, TASK_TYPE_LABELS } from '@/types/tasks'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 
 interface TaskDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  task?: Task | null;
-  clientId?: string;
-  clientName?: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  task?: Task | null
+  clientId?: string
+  clientName?: string
 }
 
-export function TaskDialog({
-  open,
-  onOpenChange,
-  task,
-  clientId,
-  clientName,
-}: TaskDialogProps) {
-  const isEditing = !!task;
-  const createTask = useCreateTask();
-  const updateTask = useUpdateTask();
+export function TaskDialog({ open, onOpenChange, task, clientId, clientName }: TaskDialogProps) {
+  const isEditing = !!task
+  const createTask = useCreateTask()
+  const updateTask = useUpdateTask()
 
   // Form - usar any temporariamente para resolver conflito de tipos
   const form = useForm<any>({
@@ -70,16 +63,14 @@ export function TaskDialog({
       due_date: '',
       client_id: clientId,
     },
-  });
+  })
 
   // Reset form quando abrir/fechar ou mudar task
   useEffect(() => {
     if (open) {
       if (task) {
         // Converter ISO datetime para formato de input date (YYYY-MM-DD)
-        const dueDateValue = task.due_date
-          ? task.due_date.split('T')[0]
-          : '';
+        const dueDateValue = task.due_date ? task.due_date.split('T')[0] : ''
 
         form.reset({
           id: task.id,
@@ -89,7 +80,7 @@ export function TaskDialog({
           priority: task.priority,
           due_date: dueDateValue,
           client_id: task.client_id || clientId,
-        });
+        })
       } else {
         form.reset({
           title: '',
@@ -98,58 +89,53 @@ export function TaskDialog({
           priority: 'medium',
           due_date: '',
           client_id: clientId,
-        });
+        })
       }
     }
-  }, [open, task, clientId, form]);
+  }, [open, task, clientId, form])
 
   // Submit
   const onSubmit = async (data: any) => {
     if (isEditing) {
-      const result = await updateTask.mutateAsync(data as UpdateTaskInput);
+      const result = await updateTask.mutateAsync(data as UpdateTaskInput)
       if (result.success) {
-        onOpenChange(false);
+        onOpenChange(false)
       }
     } else {
-      const result = await createTask.mutateAsync(data as CreateTaskInput);
+      const result = await createTask.mutateAsync(data as CreateTaskInput)
       if (result.success) {
-        onOpenChange(false);
+        onOpenChange(false)
       }
     }
-  };
+  }
 
-  const isPending = createTask.isPending || updateTask.isPending;
+  const isPending = createTask.isPending || updateTask.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Editar Tarefa' : 'Nova Tarefa'}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Tarefa' : 'Nova Tarefa'}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? 'Atualize as informações da tarefa.'
               : clientName
-              ? `Criar nova tarefa para ${clientName}.`
-              : 'Criar nova tarefa.'}
+                ? `Criar nova tarefa para ${clientName}.`
+                : 'Criar nova tarefa.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
             {/* Título */}
             <FormField
               control={form.control}
-              name="title"
+              name='title'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Título *</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Calcular DAS de Outubro"
-                      {...field}
-                    />
+                    <Input placeholder='Ex: Calcular DAS de Outubro' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,13 +145,13 @@ export function TaskDialog({
             {/* Descrição */}
             <FormField
               control={form.control}
-              name="description"
+              name='description'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Detalhes adicionais sobre a tarefa..."
+                      placeholder='Detalhes adicionais sobre a tarefa...'
                       rows={3}
                       {...field}
                     />
@@ -176,11 +162,11 @@ export function TaskDialog({
             />
 
             {/* Tipo e Prioridade */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               {/* Tipo */}
               <FormField
                 control={form.control}
-                name="type"
+                name='type'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo *</FormLabel>
@@ -191,7 +177,7 @@ export function TaskDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo" />
+                          <SelectValue placeholder='Selecione o tipo' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -210,7 +196,7 @@ export function TaskDialog({
               {/* Prioridade */}
               <FormField
                 control={form.control}
-                name="priority"
+                name='priority'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prioridade *</FormLabel>
@@ -221,7 +207,7 @@ export function TaskDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione a prioridade" />
+                          <SelectValue placeholder='Selecione a prioridade' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -241,16 +227,14 @@ export function TaskDialog({
             {/* Data de Vencimento */}
             <FormField
               control={form.control}
-              name="due_date"
+              name='due_date'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Data de Vencimento</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type='date' {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Deixe em branco se não houver prazo definido
-                  </FormDescription>
+                  <FormDescription>Deixe em branco se não houver prazo definido</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -258,15 +242,15 @@ export function TaskDialog({
 
             <DialogFooter>
               <Button
-                type="button"
-                variant="outline"
+                type='button'
+                variant='outline'
                 onClick={() => onOpenChange(false)}
                 disabled={isPending}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type='submit' disabled={isPending}>
+                {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
                 {isEditing ? 'Salvar' : 'Criar Tarefa'}
               </Button>
             </DialogFooter>
@@ -274,6 +258,5 @@ export function TaskDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
-

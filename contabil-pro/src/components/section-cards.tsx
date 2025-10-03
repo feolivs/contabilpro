@@ -1,5 +1,4 @@
-﻿import type { DashboardSummary } from '@/types/dashboard'
-import { Badge } from '@/components/ui/badge'
+﻿import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardAction,
@@ -8,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import type { DashboardSummary } from '@/types/dashboard'
 
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react'
 

@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 import { requirePermission } from '@/lib/auth/rbac'
+import { buildTenantUrlFromHeaders } from '@/lib/navigation'
 
 export default async function CopilotoPage() {
   await requirePermission('copiloto.read')

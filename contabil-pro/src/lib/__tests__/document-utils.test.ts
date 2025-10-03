@@ -1,18 +1,18 @@
-import { describe, expect, it } from 'vitest'
 import {
-  normalizeDocument,
-  validateCPF,
-  validateCNPJ,
-  validateDocument,
-  formatCPF,
+  applyDocumentMask,
   formatCNPJ,
+  formatCPF,
   formatDocument,
+  generateRandomCNPJ,
+  generateRandomCPF,
   getDocumentType,
   getTipoPessoa,
-  applyDocumentMask,
-  generateRandomCPF,
-  generateRandomCNPJ,
+  normalizeDocument,
+  validateCNPJ,
+  validateCPF,
+  validateDocument,
 } from '../document-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('Document Utils', () => {
   describe('normalizeDocument', () => {
@@ -234,7 +234,7 @@ describe('Document Utils', () => {
       const cpf1 = generateRandomCPF()
       const cpf2 = generateRandomCPF()
       const cpf3 = generateRandomCPF()
-      
+
       // Probabilidade muito baixa de gerar 3 CPFs iguais
       expect(cpf1 === cpf2 && cpf2 === cpf3).toBe(false)
     })
@@ -251,10 +251,9 @@ describe('Document Utils', () => {
       const cnpj1 = generateRandomCNPJ()
       const cnpj2 = generateRandomCNPJ()
       const cnpj3 = generateRandomCNPJ()
-      
+
       // Probabilidade muito baixa de gerar 3 CNPJs iguais
       expect(cnpj1 === cnpj2 && cnpj2 === cnpj3).toBe(false)
     })
   })
 })
-

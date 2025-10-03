@@ -1,15 +1,15 @@
 import {
   accountSchema,
   bankTransactionSchema,
+  clientMultiStepSchema,
   clientSchema,
-  createClientSchema,
-  updateClientSchema,
   clientStep1Schema,
   clientStep2Schema,
   clientStep3Schema,
-  clientMultiStepSchema,
+  createClientSchema,
   documentSchema,
   entrySchema,
+  updateClientSchema,
 } from '../validations'
 import { describe, expect, it } from 'vitest'
 
@@ -315,7 +315,7 @@ describe('Validation Schemas', () => {
     it('should validate financial data step', () => {
       const step3 = {
         dia_vencimento: 10,
-        valor_plano: 299.90,
+        valor_plano: 299.9,
         forma_cobranca: 'boleto' as const,
         tags: ['mei', 'ecommerce'],
       }
@@ -347,7 +347,7 @@ describe('Validation Schemas', () => {
         phone: '(11) 99999-9999',
         cep: '12345-678',
         dia_vencimento: 10,
-        valor_plano: 299.90,
+        valor_plano: 299.9,
         forma_cobranca: 'boleto' as const,
       }
 

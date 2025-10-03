@@ -1,15 +1,16 @@
 /**
  * Indicador de Estado do Dashboard
- * 
+ *
  * Mostra ao usuário o status dos dados (tempo real, cache, erro)
  * com timestamp e ações de recuperação
  */
 
-import { AlertCircle, Clock, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ResilientResponse } from '@/lib/resilience'
+import { Button } from '@/components/ui/button'
+import type { ResilientResponse } from '@/lib/resilience'
+
+import { AlertCircle, Clock, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 
 interface DashboardStateIndicatorProps {
   state: ResilientResponse<any>
@@ -17,10 +18,10 @@ interface DashboardStateIndicatorProps {
   className?: string
 }
 
-export function DashboardStateIndicator({ 
-  state, 
-  onRetry, 
-  className = '' 
+export function DashboardStateIndicator({
+  state,
+  onRetry,
+  className = '',
 }: DashboardStateIndicatorProps) {
   const { metadata } = state
 
@@ -28,9 +29,9 @@ export function DashboardStateIndicator({
   if (state.success && metadata.source === 'live' && !metadata.degraded) {
     return (
       <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
-        <Wifi className="h-4 w-4 text-green-500" />
+        <Wifi className='h-4 w-4 text-green-500' />
         <span>Dados atualizados</span>
-        <Badge variant="outline" className="text-xs">
+        <Badge variant='outline' className='text-xs'>
           Tempo real
         </Badge>
       </div>
@@ -40,33 +41,29 @@ export function DashboardStateIndicator({
   // Estado degradado - dados em cache
   if (metadata.source === 'cache' || metadata.source === 'fallback') {
     const isStale = metadata.degraded
-    const timeAgo = metadata.lastSuccessAt 
+    const timeAgo = metadata.lastSuccessAt
       ? formatTimeAgo(metadata.lastSuccessAt)
       : 'há alguns minutos'
 
     return (
-      <Alert className={`${className} ${isStale ? 'border-yellow-200 bg-yellow-50' : 'border-blue-200 bg-blue-50'}`}>
-        <Clock className="h-4 w-4" />
-        <AlertDescription className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      <Alert
+        className={`${className} ${isStale ? 'border-yellow-200 bg-yellow-50' : 'border-blue-200 bg-blue-50'}`}
+      >
+        <Clock className='h-4 w-4' />
+        <AlertDescription className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
             <span>
-              {isStale 
+              {isStale
                 ? `Dados de ${timeAgo} (alguns dados podem estar desatualizados)`
-                : `Dados de ${timeAgo}`
-              }
+                : `Dados de ${timeAgo}`}
             </span>
-            <Badge variant={isStale ? 'destructive' : 'secondary'} className="text-xs">
+            <Badge variant={isStale ? 'destructive' : 'secondary'} className='text-xs'>
               {isStale ? 'Desatualizado' : 'Cache'}
             </Badge>
           </div>
           {onRetry && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onRetry}
-              className="ml-4"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
+            <Button variant='outline' size='sm' onClick={onRetry} className='ml-4'>
+              <RefreshCw className='h-3 w-3 mr-1' />
               Atualizar
             </Button>
           )}
@@ -79,25 +76,18 @@ export function DashboardStateIndicator({
   if (!state.success) {
     return (
       <Alert className={`${className} border-red-200 bg-red-50`}>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <WifiOff className="h-4 w-4 text-red-500" />
-            <span>
-              {metadata.userMessage || 'Erro ao carregar dados'}
-            </span>
-            <Badge variant="destructive" className="text-xs">
+        <AlertCircle className='h-4 w-4' />
+        <AlertDescription className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <WifiOff className='h-4 w-4 text-red-500' />
+            <span>{metadata.userMessage || 'Erro ao carregar dados'}</span>
+            <Badge variant='destructive' className='text-xs'>
               Erro
             </Badge>
           </div>
           {onRetry && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onRetry}
-              className="ml-4"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
+            <Button variant='outline' size='sm' onClick={onRetry} className='ml-4'>
+              <RefreshCw className='h-3 w-3 mr-1' />
               Tentar novamente
             </Button>
           )}
@@ -109,7 +99,7 @@ export function DashboardStateIndicator({
   // Estado desconhecido
   return (
     <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
-      <AlertCircle className="h-4 w-4 text-gray-400" />
+      <AlertCircle className='h-4 w-4 text-gray-400' />
       <span>Estado desconhecido</span>
     </div>
   )
@@ -118,41 +108,34 @@ export function DashboardStateIndicator({
 /**
  * Versão compacta para usar em cards
  */
-export function DashboardStateIndicatorCompact({ 
-  state, 
-  onRetry, 
-  className = '' 
+export function DashboardStateIndicatorCompact({
+  state,
+  onRetry,
+  className = '',
 }: DashboardStateIndicatorProps) {
   const { metadata } = state
 
   if (state.success && metadata.source === 'live' && !metadata.degraded) {
     return (
-      <Badge variant="outline" className={`text-xs ${className}`}>
-        <Wifi className="h-3 w-3 mr-1 text-green-500" />
+      <Badge variant='outline' className={`text-xs ${className}`}>
+        <Wifi className='h-3 w-3 mr-1 text-green-500' />
         Atual
       </Badge>
     )
   }
 
   if (metadata.source === 'cache' || metadata.source === 'fallback') {
-    const timeAgo = metadata.lastSuccessAt 
-      ? formatTimeAgo(metadata.lastSuccessAt)
-      : 'cache'
+    const timeAgo = metadata.lastSuccessAt ? formatTimeAgo(metadata.lastSuccessAt) : 'cache'
 
     return (
       <div className={`flex items-center gap-1 ${className}`}>
-        <Badge variant={metadata.degraded ? 'destructive' : 'secondary'} className="text-xs">
-          <Clock className="h-3 w-3 mr-1" />
+        <Badge variant={metadata.degraded ? 'destructive' : 'secondary'} className='text-xs'>
+          <Clock className='h-3 w-3 mr-1' />
           {timeAgo}
         </Badge>
         {onRetry && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onRetry}
-            className="h-6 w-6 p-0"
-          >
-            <RefreshCw className="h-3 w-3" />
+          <Button variant='ghost' size='sm' onClick={onRetry} className='h-6 w-6 p-0'>
+            <RefreshCw className='h-3 w-3' />
           </Button>
         )}
       </div>
@@ -161,18 +144,13 @@ export function DashboardStateIndicatorCompact({
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      <Badge variant="destructive" className="text-xs">
-        <WifiOff className="h-3 w-3 mr-1" />
+      <Badge variant='destructive' className='text-xs'>
+        <WifiOff className='h-3 w-3 mr-1' />
         Erro
       </Badge>
       {onRetry && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onRetry}
-          className="h-6 w-6 p-0"
-        >
-          <RefreshCw className="h-3 w-3" />
+        <Button variant='ghost' size='sm' onClick={onRetry} className='h-6 w-6 p-0'>
+          <RefreshCw className='h-3 w-3' />
         </Button>
       )}
     </div>
@@ -186,13 +164,13 @@ function formatTimeAgo(date: Date): string {
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  
+
   if (diffMinutes < 1) return 'agora'
   if (diffMinutes < 60) return `${diffMinutes}min`
-  
+
   const diffHours = Math.floor(diffMinutes / 60)
   if (diffHours < 24) return `${diffHours}h`
-  
+
   const diffDays = Math.floor(diffHours / 24)
   return `${diffDays}d`
 }

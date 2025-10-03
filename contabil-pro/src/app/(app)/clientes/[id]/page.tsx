@@ -1,30 +1,31 @@
-﻿import Link from 'next/link'
+﻿import { headers } from 'next/headers'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 
 import { getClientById } from '@/actions/clients'
+import { ClientDocumentsSection } from '@/components/clients/client-documents-section'
+import { ClientTasksSection } from '@/components/clients/client-tasks-section'
+import { ClientDetailsCard } from '@/components/clients/details-card'
+import { ClientTimelineSection } from '@/components/timeline/client-timeline-section'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { requirePermission } from '@/lib/auth/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { ClientDetailsCard } from '@/components/clients/details-card'
-import { ClientDocumentsSection } from '@/components/clients/client-documents-section'
-import { ClientTasksSection } from '@/components/clients/client-tasks-section'
-import { ClientTimelineSection } from '@/components/timeline/client-timeline-section'
+
 import {
-  IconUser,
+  IconClock,
+  IconCurrencyReal,
   IconFileText,
   IconMail,
   IconMapPin,
-  IconCurrencyReal,
-  IconSettings,
   IconNotes,
-  IconClock
+  IconSettings,
+  IconUser,
 } from '@tabler/icons-react'
 
 interface ClienteDetalheProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 function formatDate(value: string | Date | null | undefined) {
@@ -64,7 +65,15 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
   const dadosBasicos = [
     { label: 'Nome', value: client.name },
     { label: 'Documento', value: client.document, format: 'document' as const },
-    { label: 'Tipo de Pessoa', value: client.tipo_pessoa === 'PF' ? 'Pessoa Física' : client.tipo_pessoa === 'PJ' ? 'Pessoa Jurídica' : null },
+    {
+      label: 'Tipo de Pessoa',
+      value:
+        client.tipo_pessoa === 'PF'
+          ? 'Pessoa Física'
+          : client.tipo_pessoa === 'PJ'
+            ? 'Pessoa Jurídica'
+            : null,
+    },
     { label: 'Status', value: client.status },
   ]
 
@@ -100,14 +109,20 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
   ]
 
   // Badge de status
-  const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  const statusConfig: Record<
+    string,
+    { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+  > = {
     ativo: { label: 'Ativo', variant: 'default' },
     inativo: { label: 'Inativo', variant: 'secondary' },
     pendente: { label: 'Pendente', variant: 'outline' },
     suspenso: { label: 'Suspenso', variant: 'destructive' },
   }
 
-  const statusInfo = statusConfig[client.status || 'ativo'] || { label: 'Ativo', variant: 'default' as const }
+  const statusInfo = statusConfig[client.status || 'ativo'] || {
+    label: 'Ativo',
+    variant: 'default' as const,
+  }
 
   return (
     <div className='space-y-6'>
@@ -115,15 +130,11 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
         <div className='space-y-1'>
           <h1 className='text-3xl font-bold tracking-tight'>{client.name}</h1>
-          <p className='text-muted-foreground'>
-            Detalhes completos do cadastro do cliente.
-          </p>
+          <p className='text-muted-foreground'>Detalhes completos do cadastro do cliente.</p>
         </div>
         <div className='flex flex-wrap items-center gap-2'>
           <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-          {client.regime_tributario && (
-            <Badge variant="outline">{client.regime_tributario}</Badge>
-          )}
+          {client.regime_tributario && <Badge variant='outline'>{client.regime_tributario}</Badge>}
           <Button asChild variant='outline' size='sm'>
             <Link href={listUrl}>Voltar</Link>
           </Button>
@@ -136,41 +147,25 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
       {/* Grid de Cards */}
       <div className='grid gap-6 md:grid-cols-2'>
         {/* Dados Básicos */}
-        <ClientDetailsCard
-          title="Dados Básicos"
-          icon={IconUser}
-          data={dadosBasicos}
-        />
+        <ClientDetailsCard title='Dados Básicos' icon={IconUser} data={dadosBasicos} />
 
         {/* Dados Fiscais */}
         {(client.regime_tributario || client.inscricao_estadual || client.inscricao_municipal) && (
-          <ClientDetailsCard
-            title="Dados Fiscais"
-            icon={IconFileText}
-            data={dadosFiscais}
-          />
+          <ClientDetailsCard title='Dados Fiscais' icon={IconFileText} data={dadosFiscais} />
         )}
 
         {/* Dados de Contato */}
-        <ClientDetailsCard
-          title="Dados de Contato"
-          icon={IconMail}
-          data={dadosContato}
-        />
+        <ClientDetailsCard title='Dados de Contato' icon={IconMail} data={dadosContato} />
 
         {/* Endereço */}
         {(client.address || client.city || client.state || client.cep || client.zip_code) && (
-          <ClientDetailsCard
-            title="Endereço"
-            icon={IconMapPin}
-            data={endereco}
-          />
+          <ClientDetailsCard title='Endereço' icon={IconMapPin} data={endereco} />
         )}
 
         {/* Dados Financeiros */}
         {(client.valor_plano || client.dia_vencimento || client.forma_cobranca) && (
           <ClientDetailsCard
-            title="Dados Financeiros"
+            title='Dados Financeiros'
             icon={IconCurrencyReal}
             data={dadosFinanceiros}
           />
@@ -178,11 +173,7 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
 
         {/* Dados de Gestão */}
         {(client.ultima_atividade || client.score_risco) && (
-          <ClientDetailsCard
-            title="Gestão"
-            icon={IconSettings}
-            data={dadosGestao}
-          />
+          <ClientDetailsCard title='Gestão' icon={IconSettings} data={dadosGestao} />
         )}
       </div>
 
@@ -190,8 +181,8 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
       {client.notes && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IconNotes className="h-5 w-5 text-muted-foreground" />
+            <CardTitle className='flex items-center gap-2'>
+              <IconNotes className='h-5 w-5 text-muted-foreground' />
               Observações
             </CardTitle>
           </CardHeader>
@@ -204,8 +195,8 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
       {/* Atividade Recente */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconClock className="h-5 w-5 text-muted-foreground" />
+          <CardTitle className='flex items-center gap-2'>
+            <IconClock className='h-5 w-5 text-muted-foreground' />
             Atividade Recente
           </CardTitle>
           <CardDescription>Histórico de alterações e atividades.</CardDescription>
@@ -236,19 +227,13 @@ export default async function ClienteDetalhePage({ params }: ClienteDetalheProps
       </Card>
 
       {/* Tarefas do Cliente */}
-      <ClientTasksSection
-        clientId={client.id}
-        clientName={client.name}
-      />
+      <ClientTasksSection clientId={client.id} clientName={client.name} />
 
       {/* Timeline do Cliente */}
       <ClientTimelineSection clientId={client.id} />
 
       {/* Documentos do Cliente */}
-      <ClientDocumentsSection
-        clientId={client.id}
-        clientName={client.name}
-      />
+      <ClientDocumentsSection clientId={client.id} clientName={client.name} />
     </div>
   )
 }

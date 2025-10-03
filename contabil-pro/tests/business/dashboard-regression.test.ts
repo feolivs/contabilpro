@@ -1,15 +1,16 @@
 /**
  * Testes de Regressão de Negócio - Dashboard
- * 
+ *
  * OBJETIVO: Garantir que o ciclo contábil básico funciona corretamente
  * ORÁCULO: Valores esperados documentados para cada cenário
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createClient } from '@supabase/supabase-js'
-import { getDashboardSummary } from '@/actions/dashboard'
 import { createClient as createClientAction } from '@/actions/clients'
+import { getDashboardSummary } from '@/actions/dashboard'
 import { createEntry } from '@/actions/entries'
+
+import { createClient } from '@supabase/supabase-js'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 // Configuração de teste
 const TEST_TENANT_ID = '550e8400-e29b-41d4-a716-446655440000'
@@ -48,7 +49,7 @@ describe('Dashboard Business Regression Tests', () => {
     // Limpar dados existentes do tenant de teste
     await supabase.from('entries').delete().eq('tenant_id', TEST_TENANT_ID)
     await supabase.from('clients').delete().eq('tenant_id', TEST_TENANT_ID)
-    
+
     // Criar contas de teste
     const { data: accounts } = await supabase
       .from('accounts')
@@ -61,18 +62,18 @@ describe('Dashboard Business Regression Tests', () => {
           code: '3.1.01',
         },
         {
-          id: 'acc-expense-test', 
+          id: 'acc-expense-test',
           tenant_id: TEST_TENANT_ID,
           name: 'Despesas de Teste',
           type: 'expense',
           code: '4.1.01',
-        }
+        },
       ])
       .select()
 
     testAccountIds = {
       revenue: 'acc-revenue-test',
-      expense: 'acc-expense-test'
+      expense: 'acc-expense-test',
     }
   })
 
@@ -166,11 +167,8 @@ describe('Dashboard Business Regression Tests', () => {
         document: '99999999999',
         type: 'individual',
       })
-      
-      await supabase
-        .from('clients')
-        .delete()
-        .eq('id', client.data!.id)
+
+      await supabase.from('clients').delete().eq('id', client.data!.id)
 
       // Dashboard não deve quebrar
       const dashboard = await getDashboardSummary(30)

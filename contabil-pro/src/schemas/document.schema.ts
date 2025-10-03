@@ -2,17 +2,10 @@
 // SCHEMAS: Validação com Zod
 // ============================================
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 // Schema de tipo de documento
-export const documentTypeSchema = z.enum([
-  'nfe',
-  'nfse',
-  'receipt',
-  'invoice',
-  'contract',
-  'other',
-]);
+export const documentTypeSchema = z.enum(['nfe', 'nfse', 'receipt', 'invoice', 'contract', 'other'])
 
 // Schema de upload
 export const uploadDocumentSchema = z.object({
@@ -20,9 +13,9 @@ export const uploadDocumentSchema = z.object({
   client_id: z.string().uuid().optional(),
   entry_id: z.string().uuid().optional(),
   metadata: z.record(z.any()).optional(),
-});
+})
 
-export type UploadDocumentInput = z.infer<typeof uploadDocumentSchema>;
+export type UploadDocumentInput = z.infer<typeof uploadDocumentSchema>
 
 // Schema de filtros
 export const documentFiltersSchema = z.object({
@@ -34,9 +27,9 @@ export const documentFiltersSchema = z.object({
   date_to: z.string().datetime().optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(100).default(20),
-});
+})
 
-export type DocumentFiltersInput = z.infer<typeof documentFiltersSchema>;
+export type DocumentFiltersInput = z.infer<typeof documentFiltersSchema>
 
 // Schema de atualização
 export const updateDocumentSchema = z.object({
@@ -45,12 +38,12 @@ export const updateDocumentSchema = z.object({
   client_id: z.string().uuid().nullable().optional(),
   entry_id: z.string().uuid().nullable().optional(),
   metadata: z.record(z.any()).optional(),
-});
+})
 
-export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>;
+export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>
 
 // Validação de arquivo
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
 
 export const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -64,28 +57,35 @@ export const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain',
-];
+]
 
 export const ALLOWED_EXTENSIONS = [
-  'pdf', 'png', 'jpg', 'jpeg', 'webp', 
-  'xml', 'csv', 'xlsx', 'docx', 'txt'
-];
+  'pdf',
+  'png',
+  'jpg',
+  'jpeg',
+  'webp',
+  'xml',
+  'csv',
+  'xlsx',
+  'docx',
+  'txt',
+]
 
 export function validateFile(file: File): { valid: boolean; error?: string } {
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: 'Arquivo muito grande. Máximo: 100MB'
-    };
+      error: 'Arquivo muito grande. Máximo: 100MB',
+    }
   }
 
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return { 
-      valid: false, 
-      error: 'Tipo de arquivo não permitido' 
-    };
+    return {
+      valid: false,
+      error: 'Tipo de arquivo não permitido',
+    }
   }
 
-  return { valid: true };
+  return { valid: true }
 }
-

@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable, clientColumns } from '@/components/clients-table'
+
+import { clientColumns, DataTable } from '@/components/clients-table'
 import { EmptyState } from '@/components/empty-state'
 import type { Client } from '@/lib/validations'
 
@@ -17,7 +18,7 @@ export function ClientsPageContent({ clients, newClientUrl, importUrl }: Clients
   if (clients.length === 0) {
     return (
       <EmptyState
-        type="clients"
+        type='clients'
         action={{
           label: 'Adicionar Cliente',
           onClick: () => router.push(newClientUrl),
@@ -32,4 +33,3 @@ export function ClientsPageContent({ clients, newClientUrl, importUrl }: Clients
 
   return <DataTable columns={clientColumns} data={clients} />
 }
-

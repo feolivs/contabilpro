@@ -1,14 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +12,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { IconCheck, IconX, IconTrash, IconChevronDown } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+import { IconCheck, IconChevronDown, IconTrash, IconX } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 interface BulkActionsProps {
@@ -31,7 +33,7 @@ interface BulkActionsProps {
 
 /**
  * Componente de Ações em Massa
- * 
+ *
  * Permite executar ações em múltiplos registros selecionados:
  * - Ativar clientes
  * - Inativar clientes
@@ -59,7 +61,7 @@ export function BulkActions({
 
     try {
       await onAction(action, selectedIds)
-      
+
       const actionLabels = {
         activate: 'ativados',
         deactivate: 'inativados',
@@ -94,64 +96,59 @@ export function BulkActions({
 
   return (
     <>
-      <div className="flex items-center gap-2 rounded-lg border bg-muted/50 p-2">
-        <div className="flex items-center gap-2 px-2">
-          <span className="text-sm font-medium">
+      <div className='flex items-center gap-2 rounded-lg border bg-muted/50 p-2'>
+        <div className='flex items-center gap-2 px-2'>
+          <span className='text-sm font-medium'>
             {selectedCount} {selectedCount === 1 ? 'selecionado' : 'selecionados'}
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className='flex items-center gap-1'>
           {/* Ativar */}
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => handleAction('activate')}
             disabled={isLoading}
           >
-            <IconCheck className="mr-2 h-4 w-4" />
+            <IconCheck className='mr-2 h-4 w-4' />
             Ativar
           </Button>
 
           {/* Inativar */}
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => handleAction('deactivate')}
             disabled={isLoading}
           >
-            <IconX className="mr-2 h-4 w-4" />
+            <IconX className='mr-2 h-4 w-4' />
             Inativar
           </Button>
 
           {/* Mais ações */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" disabled={isLoading}>
+              <Button variant='ghost' size='sm' disabled={isLoading}>
                 Mais
-                <IconChevronDown className="ml-2 h-4 w-4" />
+                <IconChevronDown className='ml-2 h-4 w-4' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align='end'>
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
+                className='text-destructive focus:text-destructive'
                 onClick={() => handleAction('delete')}
               >
-                <IconTrash className="mr-2 h-4 w-4" />
+                <IconTrash className='mr-2 h-4 w-4' />
                 Excluir selecionados
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="mx-2 h-6 w-px bg-border" />
+          <div className='mx-2 h-6 w-px bg-border' />
 
           {/* Limpar seleção */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClearSelection}
-            disabled={isLoading}
-          >
+          <Button variant='ghost' size='sm' onClick={onClearSelection} disabled={isLoading}>
             Limpar
           </Button>
         </div>
@@ -167,15 +164,14 @@ export function BulkActions({
               {selectedCount === 1 ? 'cliente' : 'clientes'}?
               <br />
               <br />
-              Esta ação não pode ser desfeita. Todos os dados relacionados também serão
-              excluídos.
+              Esta ação não pode ser desfeita. Todos os dados relacionados também serão excluídos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
             >
               Excluir
             </AlertDialogAction>
@@ -210,7 +206,7 @@ export function BulkActionsCompact({
 
     try {
       await onAction(action, selectedIds)
-      
+
       const actionLabels = {
         activate: 'ativados',
         deactivate: 'inativados',
@@ -243,39 +239,37 @@ export function BulkActionsCompact({
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">
+      <div className='flex items-center gap-2'>
+        <span className='text-sm text-muted-foreground'>
           {selectedCount} selecionado{selectedCount !== 1 && 's'}
         </span>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" disabled={isLoading}>
+            <Button variant='outline' size='sm' disabled={isLoading}>
               Ações
-              <IconChevronDown className="ml-2 h-4 w-4" />
+              <IconChevronDown className='ml-2 h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align='end'>
             <DropdownMenuItem onClick={() => handleAction('activate')}>
-              <IconCheck className="mr-2 h-4 w-4" />
+              <IconCheck className='mr-2 h-4 w-4' />
               Ativar
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleAction('deactivate')}>
-              <IconX className="mr-2 h-4 w-4" />
+              <IconX className='mr-2 h-4 w-4' />
               Inativar
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
+              className='text-destructive focus:text-destructive'
               onClick={() => handleAction('delete')}
             >
-              <IconTrash className="mr-2 h-4 w-4" />
+              <IconTrash className='mr-2 h-4 w-4' />
               Excluir
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onClearSelection}>
-              Limpar seleção
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onClearSelection}>Limpar seleção</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -286,15 +280,15 @@ export function BulkActionsCompact({
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Excluir {selectedCount} {selectedCount === 1 ? 'cliente' : 'clientes'}?
-              Esta ação não pode ser desfeita.
+              Excluir {selectedCount} {selectedCount === 1 ? 'cliente' : 'clientes'}? Esta ação não
+              pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
             >
               Excluir
             </AlertDialogAction>
@@ -304,4 +298,3 @@ export function BulkActionsCompact({
     </>
   )
 }
-

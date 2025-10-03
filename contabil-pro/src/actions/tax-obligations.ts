@@ -1,18 +1,19 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
 
-import { createServerClient } from '@/lib/supabase'
 import { requireAuth } from '@/lib/auth'
+import { createServerClient } from '@/lib/supabase'
 import type { ActionResponse } from '@/types/actions'
 import type {
   TaxObligation,
-  TaxObligationWithClient,
-  TaxObligationFormData,
   TaxObligationFilters,
+  TaxObligationFormData,
   TaxObligationStats,
+  TaxObligationWithClient,
 } from '@/types/tax-obligations'
+
+import { z } from 'zod'
 
 // Schema de validação
 const taxObligationSchema = z.object({
@@ -43,7 +44,10 @@ const taxObligationSchema = z.object({
   due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   amount: z.number().positive().optional().nullable(),
   status: z.enum(['pending', 'calculated', 'paid', 'overdue']).optional(),
-  regime_tributario: z.enum(['simples_nacional', 'lucro_presumido', 'lucro_real', 'mei']).optional().nullable(),
+  regime_tributario: z
+    .enum(['simples_nacional', 'lucro_presumido', 'lucro_real', 'mei'])
+    .optional()
+    .nullable(),
   recurrence: z.enum(['once', 'monthly', 'quarterly', 'yearly']).optional().nullable(),
   notes: z.string().optional().nullable(),
 })
@@ -121,7 +125,9 @@ export async function getTaxObligations(
 /**
  * Buscar obrigação fiscal por ID
  */
-export async function getTaxObligationById(id: string): Promise<ActionResponse<TaxObligationWithClient>> {
+export async function getTaxObligationById(
+  id: string
+): Promise<ActionResponse<TaxObligationWithClient>> {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
@@ -203,7 +209,7 @@ export async function createTaxObligation(
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: 'Dados inválidos: ' + error.errors.map((e) => e.message).join(', '),
+        error: 'Dados inválidos: ' + error.errors.map(e => e.message).join(', '),
       }
     }
     return {
@@ -259,7 +265,7 @@ export async function updateTaxObligation(
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: 'Dados inválidos: ' + error.errors.map((e) => e.message).join(', '),
+        error: 'Dados inválidos: ' + error.errors.map(e => e.message).join(', '),
       }
     }
     return {
@@ -330,13 +336,17 @@ export async function getTaxObligationStats(): Promise<ActionResponse<TaxObligat
 
     const stats: TaxObligationStats = {
       total: data.length,
-      pending: data.filter((o) => o.status === 'pending').length,
-      calculated: data.filter((o) => o.status === 'calculated').length,
-      paid: data.filter((o) => o.status === 'paid').length,
-      overdue: data.filter((o) => o.status === 'overdue').length,
+      pending: data.filter(o => o.status === 'pending').length,
+      calculated: data.filter(o => o.status === 'calculated').length,
+      paid: data.filter(o => o.status === 'paid').length,
+      overdue: data.filter(o => o.status === 'overdue').length,
       total_amount: data.reduce((sum, o) => sum + (o.amount || 0), 0),
-      pending_amount: data.filter((o) => o.status === 'pending').reduce((sum, o) => sum + (o.amount || 0), 0),
-      overdue_amount: data.filter((o) => o.status === 'overdue').reduce((sum, o) => sum + (o.amount || 0), 0),
+      pending_amount: data
+        .filter(o => o.status === 'pending')
+        .reduce((sum, o) => sum + (o.amount || 0), 0),
+      overdue_amount: data
+        .filter(o => o.status === 'overdue')
+        .reduce((sum, o) => sum + (o.amount || 0), 0),
     }
 
     return {
@@ -351,4 +361,3 @@ export async function getTaxObligationStats(): Promise<ActionResponse<TaxObligat
     }
   }
 }
-

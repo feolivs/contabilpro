@@ -2,23 +2,10 @@
 
 import { requireAuth } from '@/lib/auth'
 import { setRLSContext } from '@/lib/auth/rls'
-import { ActionResponse } from '@/types/actions'
-import {
-  createCachedFunction,
-  CACHE_CONFIG,
-  createCachedResponse,
-  CachedResponse
-} from '@/lib/cache'
-import {
-  withResilience,
-  ResilientResponse,
-  DASHBOARD_FALLBACK_DATA
-} from '@/lib/resilience'
-import type {
-  DashboardSummary,
-  TrendPoint,
-  RecentActivityItem
-} from '@/types/dashboard'
+import type { ResilientResponse } from '@/lib/resilience'
+import { DASHBOARD_FALLBACK_DATA, withResilience } from '@/lib/resilience'
+import type { ActionResponse } from '@/types/actions'
+import type { DashboardSummary, RecentActivityItem, TrendPoint } from '@/types/dashboard'
 
 export async function getDashboardSummary(
   rangeDays = 30
@@ -83,15 +70,11 @@ export async function getDashboardSummary(
     }
   }
 
-  return await withResilience(
-    operation,
-    DASHBOARD_FALLBACK_DATA.summary,
-    {
-      maxRetries: 2,
-      fallbackToCache: true,
-      showErrorToUser: true,
-    }
-  )
+  return await withResilience(operation, DASHBOARD_FALLBACK_DATA.summary, {
+    maxRetries: 2,
+    fallbackToCache: true,
+    showErrorToUser: true,
+  })
 }
 
 export async function getDashboardTrend(rangeDays = 90): Promise<ActionResponse<TrendPoint[]>> {

@@ -1,8 +1,9 @@
 ﻿import Link from 'next/link'
 
+import { ClientImportAdvanced } from '@/components/clients'
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/auth/rbac'
-import { ClientImportAdvanced } from '@/components/clients'
+
 import { IconArrowLeft } from '@tabler/icons-react'
 
 export default async function ImportarClientesPage() {

@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 
-import type { TrendPoint } from '@/types/dashboard'
 import {
   Card,
   CardAction,
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useIsMobile } from '@/hooks/use-mobile'
+import type { TrendPoint } from '@/types/dashboard'
 
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 

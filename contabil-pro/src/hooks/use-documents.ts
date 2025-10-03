@@ -1,14 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import {
-  getDocuments,
   deleteDocument,
-  updateDocument,
   getDocumentDownloadUrl,
+  getDocuments,
   getDocumentViewUrl,
-} from '@/actions/documents';
-import type { DocumentFiltersInput } from '@/schemas/document.schema';
-import type { UpdateDocumentInput } from '@/schemas/document.schema';
+  updateDocument,
+} from '@/actions/documents'
+import type { DocumentFiltersInput } from '@/schemas/document.schema'
+import type { UpdateDocumentInput } from '@/schemas/document.schema'
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 // ============================================
 // QUERY KEYS
@@ -16,11 +17,10 @@ import type { UpdateDocumentInput } from '@/schemas/document.schema';
 export const documentKeys = {
   all: ['documents'] as const,
   lists: () => [...documentKeys.all, 'list'] as const,
-  list: (filters: Partial<DocumentFiltersInput>) =>
-    [...documentKeys.lists(), filters] as const,
+  list: (filters: Partial<DocumentFiltersInput>) => [...documentKeys.lists(), filters] as const,
   details: () => [...documentKeys.all, 'detail'] as const,
   detail: (id: string) => [...documentKeys.details(), id] as const,
-};
+}
 
 // ============================================
 // HOOK: useDocuments (Listagem com Filtros)
@@ -31,56 +31,56 @@ export function useDocuments(filters: Partial<DocumentFiltersInput> = {}) {
     queryFn: () => getDocuments(filters),
     staleTime: 30 * 1000, // 30 segundos
     gcTime: 5 * 60 * 1000, // 5 minutos
-  });
+  })
 }
 
 // ============================================
 // HOOK: useDeleteDocument
 // ============================================
 export function useDeleteDocument() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (documentId: string) => deleteDocument(documentId),
-    onSuccess: (result) => {
+    onSuccess: result => {
       if (result.success) {
         // Invalidar todas as listas de documentos
-        queryClient.invalidateQueries({ queryKey: documentKeys.lists() });
-        toast.success('Documento deletado com sucesso');
+        queryClient.invalidateQueries({ queryKey: documentKeys.lists() })
+        toast.success('Documento deletado com sucesso')
       } else {
-        toast.error(result.error || 'Erro ao deletar documento');
+        toast.error(result.error || 'Erro ao deletar documento')
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao deletar documento');
+      toast.error(error.message || 'Erro ao deletar documento')
     },
-  });
+  })
 }
 
 // ============================================
 // HOOK: useUpdateDocument
 // ============================================
 export function useUpdateDocument() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (input: UpdateDocumentInput) => updateDocument(input),
     onSuccess: (result, variables) => {
       if (result.success) {
         // Invalidar listas e detalhe específico
-        queryClient.invalidateQueries({ queryKey: documentKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: documentKeys.lists() })
         queryClient.invalidateQueries({
           queryKey: documentKeys.detail(variables.id),
-        });
-        toast.success('Documento atualizado com sucesso');
+        })
+        toast.success('Documento atualizado com sucesso')
       } else {
-        toast.error(result.error || 'Erro ao atualizar documento');
+        toast.error(result.error || 'Erro ao atualizar documento')
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao atualizar documento');
+      toast.error(error.message || 'Erro ao atualizar documento')
     },
-  });
+  })
 }
 
 // ============================================
@@ -89,18 +89,18 @@ export function useUpdateDocument() {
 export function useDocumentDownloadUrl() {
   return useMutation({
     mutationFn: (documentId: string) => getDocumentDownloadUrl(documentId),
-    onSuccess: (result) => {
+    onSuccess: result => {
       if (result.success && result.url) {
         // Abrir em nova aba
-        window.open(result.url, '_blank');
+        window.open(result.url, '_blank')
       } else {
-        toast.error(result.error || 'Erro ao gerar URL de download');
+        toast.error(result.error || 'Erro ao gerar URL de download')
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao baixar documento');
+      toast.error(error.message || 'Erro ao baixar documento')
     },
-  });
+  })
 }
 
 // ============================================
@@ -110,19 +110,18 @@ export function useDocumentViewUrl() {
   return useMutation({
     mutationFn: (documentId: string) => getDocumentViewUrl(documentId),
     onError: (error: Error) => {
-      toast.error(error.message || 'Erro ao carregar visualização');
+      toast.error(error.message || 'Erro ao carregar visualização')
     },
-  });
+  })
 }
 
 // ============================================
 // HOOK: useInvalidateDocuments
 // ============================================
 export function useInvalidateDocuments() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return () => {
-    queryClient.invalidateQueries({ queryKey: documentKeys.lists() });
-  };
+    queryClient.invalidateQueries({ queryKey: documentKeys.lists() })
+  }
 }
-

@@ -1,3 +1,2 @@
-export { DataTable } from './data-table'
 export { clientColumns } from './columns'
-
+export { DataTable } from './data-table'

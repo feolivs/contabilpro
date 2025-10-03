@@ -5,6 +5,5 @@
 
 export * from './cache'
 export * from './query-client'
-export * from './resilience'
 export * from './rate-limit'
-
+export * from './resilience'

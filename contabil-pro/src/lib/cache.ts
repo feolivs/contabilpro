@@ -1,6 +1,6 @@
 /**
  * Política de Cache do Dashboard - ContabilPRO
- * 
+ *
  * DECISÃO: Cache "quase tempo real" com janela de 60s
  * RACIONAL: Dados contábeis não mudam a cada segundo, mas precisam ser atuais
  * IMPLICAÇÕES: Reduz carga no DB, melhora UX, mantém dados relevantes
@@ -16,21 +16,21 @@ export const CACHE_CONFIG = {
     tags: ['dashboard', 'summary'],
     staleWhileRevalidate: 30, // Serve cache por 30s extras enquanto revalida
   },
-  
+
   // Tendências: dados históricos, mudança ainda menor
   DASHBOARD_TREND: {
     duration: 300, // 5 minutos
     tags: ['dashboard', 'trend'],
     staleWhileRevalidate: 60,
   },
-  
+
   // Atividades recentes: mais dinâmico, cache menor
   RECENT_ACTIVITY: {
     duration: 30, // 30 segundos
     tags: ['dashboard', 'activity'],
     staleWhileRevalidate: 15,
   },
-  
+
   // Listas de clientes: mudança moderada
   CLIENTS_LIST: {
     duration: 120, // 2 minutos
@@ -40,7 +40,7 @@ export const CACHE_CONFIG = {
 } as const
 
 // Tipo para configuração de cache
-type CacheConfig = typeof CACHE_CONFIG[keyof typeof CACHE_CONFIG]
+type CacheConfig = (typeof CACHE_CONFIG)[keyof typeof CACHE_CONFIG]
 
 /**
  * Wrapper para cache com política consciente
@@ -50,14 +50,10 @@ export function createCachedFunction<T extends any[], R>(
   config: CacheConfig,
   keyPrefix: string
 ) {
-  return unstable_cache(
-    fn,
-    [keyPrefix],
-    {
-      revalidate: config.duration,
-      tags: config.tags ? [...config.tags] : undefined,
-    }
-  )
+  return unstable_cache(fn, [keyPrefix], {
+    revalidate: config.duration,
+    tags: config.tags ? [...config.tags] : undefined,
+  })
 }
 
 /**
@@ -65,7 +61,7 @@ export function createCachedFunction<T extends any[], R>(
  */
 export async function invalidateCache(tags: string[]) {
   const { revalidateTag } = await import('next/cache')
-  
+
   for (const tag of tags) {
     revalidateTag(tag)
   }
@@ -75,13 +71,7 @@ export async function invalidateCache(tags: string[]) {
  * Invalidação específica do dashboard
  */
 export async function invalidateDashboardCache(tenantId: string) {
-  await invalidateCache([
-    'dashboard',
-    `dashboard-${tenantId}`,
-    'summary',
-    'trend',
-    'activity'
-  ])
+  await invalidateCache(['dashboard', `dashboard-${tenantId}`, 'summary', 'trend', 'activity'])
 }
 
 /**
@@ -112,7 +102,7 @@ export function createCachedResponse<T>(
   source: 'cache' | 'database' = 'database'
 ): CachedResponse<T> {
   const now = new Date()
-  
+
   return {
     data,
     metadata: {
@@ -120,7 +110,7 @@ export function createCachedResponse<T>(
       expiresAt: new Date(now.getTime() + cacheDuration * 1000),
       source,
       tenantId,
-    }
+    },
   }
 }
 

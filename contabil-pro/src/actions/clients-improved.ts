@@ -12,12 +12,14 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+
 import { requireAuth } from '@/lib/auth'
 import { setRLSContext } from '@/lib/auth/rls'
-import { clientSchema } from '@/lib/validations'
-import { normalizeDocument, getTipoPessoa } from '@/lib/document-utils'
 import { fetchAddressByCEPCached } from '@/lib/cep-utils'
+import { getTipoPessoa } from '@/lib/document-utils'
 import { requireRateLimit } from '@/lib/rate-limit'
+import { clientSchema } from '@/lib/validations'
+
 import type { z } from 'zod'
 
 // ============================================================================
@@ -76,9 +78,7 @@ const createClientSchema = clientSchema.omit({
   updated_at: true,
 })
 
-export async function createClientImproved(
-  input: z.infer<typeof createClientSchema>
-) {
+export async function createClientImproved(input: z.infer<typeof createClientSchema>) {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -185,9 +185,7 @@ export async function createClientFromFormImproved(
       dia_vencimento: formData.get('dia_vencimento')
         ? Number(formData.get('dia_vencimento'))
         : undefined,
-      valor_plano: formData.get('valor_plano')
-        ? Number(formData.get('valor_plano'))
-        : undefined,
+      valor_plano: formData.get('valor_plano') ? Number(formData.get('valor_plano')) : undefined,
       forma_cobranca: formData.get('forma_cobranca')?.toString() || undefined,
 
       // Campos de gestão
@@ -266,10 +264,7 @@ export async function getClientStats(): Promise<ClientStats | null> {
 // SEARCH CLIENTS (com rate limiting e FTS)
 // ============================================================================
 
-export async function searchClients(
-  query: string,
-  limit: number = 10
-): Promise<SearchResult[]> {
+export async function searchClients(query: string, limit: number = 10): Promise<SearchResult[]> {
   try {
     const session = await requireAuth()
     const supabase = await setRLSContext(session)
@@ -395,4 +390,3 @@ export async function fetchAddressByCEP(cep: string) {
     }
   }
 }
-

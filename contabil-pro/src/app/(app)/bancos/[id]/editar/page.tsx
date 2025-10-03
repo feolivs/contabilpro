@@ -8,7 +8,7 @@ import { requirePermission } from '@/lib/auth/rbac'
 import { BankAccountEditForm } from '../../bank-account-edit-form'
 
 interface EditarContaBancariaProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 export default async function EditarContaBancariaPage({ params }: EditarContaBancariaProps) {

@@ -20,11 +20,11 @@ export interface RateLimitResult {
  * Configurações padrão de rate limit por ação
  */
 const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
-  'search_clients': { maxRequests: 5, windowSeconds: 10 },
-  'create_client': { maxRequests: 10, windowSeconds: 60 },
-  'import_clients': { maxRequests: 3, windowSeconds: 300 }, // 3 imports a cada 5 minutos
-  'export_data': { maxRequests: 5, windowSeconds: 60 },
-  'api_call': { maxRequests: 100, windowSeconds: 60 },
+  search_clients: { maxRequests: 5, windowSeconds: 10 },
+  create_client: { maxRequests: 10, windowSeconds: 60 },
+  import_clients: { maxRequests: 3, windowSeconds: 300 }, // 3 imports a cada 5 minutos
+  export_data: { maxRequests: 5, windowSeconds: 60 },
+  api_call: { maxRequests: 100, windowSeconds: 60 },
 }
 
 /**
@@ -36,9 +36,9 @@ export async function checkRateLimit(
   config?: RateLimitConfig
 ): Promise<RateLimitResult> {
   const supabase = createClient()
-  
+
   const { maxRequests, windowSeconds } = config || DEFAULT_LIMITS[action] || DEFAULT_LIMITS.api_call
-  
+
   try {
     const { data, error } = await supabase.rpc('check_rate_limit', {
       p_user_id: userId,
@@ -46,7 +46,7 @@ export async function checkRateLimit(
       p_max_requests: maxRequests,
       p_window_seconds: windowSeconds,
     })
-    
+
     if (error) {
       console.error('[RateLimit] Erro ao verificar rate limit:', error)
       // Em caso de erro, permitir a requisição (fail open)
@@ -56,13 +56,13 @@ export async function checkRateLimit(
         resetAt: new Date(Date.now() + windowSeconds * 1000),
       }
     }
-    
+
     const allowed = data as boolean
-    
+
     // Calcular remaining e resetAt (aproximado)
     const resetAt = new Date(Date.now() + windowSeconds * 1000)
     const remaining = allowed ? maxRequests - 1 : 0
-    
+
     return {
       allowed,
       remaining,
@@ -89,12 +89,10 @@ export async function requireRateLimit(
   config?: RateLimitConfig
 ): Promise<void> {
   const result = await checkRateLimit(userId, action, config)
-  
+
   if (!result.allowed) {
     const resetIn = Math.ceil((result.resetAt.getTime() - Date.now()) / 1000)
-    throw new Error(
-      `Rate limit excedido. Tente novamente em ${resetIn} segundos.`
-    )
+    throw new Error(`Rate limit excedido. Tente novamente em ${resetIn} segundos.`)
   }
 }
 
@@ -104,32 +102,32 @@ export async function requireRateLimit(
  */
 class InMemoryRateLimiter {
   private requests = new Map<string, number[]>()
-  
+
   check(key: string, maxRequests: number, windowMs: number): boolean {
     const now = Date.now()
     const windowStart = now - windowMs
-    
+
     // Obter requisições dentro da janela
     const userRequests = this.requests.get(key) || []
     const validRequests = userRequests.filter(timestamp => timestamp > windowStart)
-    
+
     // Verificar se excedeu o limite
     if (validRequests.length >= maxRequests) {
       return false
     }
-    
+
     // Adicionar nova requisição
     validRequests.push(now)
     this.requests.set(key, validRequests)
-    
+
     // Limpar requisições antigas periodicamente
     if (Math.random() < 0.01) {
       this.cleanup(windowStart)
     }
-    
+
     return true
   }
-  
+
   private cleanup(before: number): void {
     for (const [key, timestamps] of this.requests.entries()) {
       const valid = timestamps.filter(t => t > before)
@@ -140,11 +138,11 @@ class InMemoryRateLimiter {
       }
     }
   }
-  
+
   clear(): void {
     this.requests.clear()
   }
-  
+
   size(): number {
     return this.requests.size
   }
@@ -163,10 +161,10 @@ export function checkRateLimitMemory(
 ): RateLimitResult {
   const { maxRequests, windowSeconds } = config || DEFAULT_LIMITS[action] || DEFAULT_LIMITS.api_call
   const windowMs = windowSeconds * 1000
-  
+
   const key = `${userId}:${action}`
   const allowed = memoryLimiter.check(key, maxRequests, windowMs)
-  
+
   return {
     allowed,
     remaining: allowed ? maxRequests - 1 : 0,
@@ -191,25 +189,20 @@ export function getRateLimitMemorySize(): number {
 /**
  * Decorator para adicionar rate limiting a uma função
  */
-export function withRateLimit(
-  action: string,
-  config?: RateLimitConfig
-) {
-  return function <T extends (...args: any[]) => Promise<any>>(
-    target: T
-  ): T {
-    return (async function (this: any, ...args: any[]) {
+export function withRateLimit(action: string, config?: RateLimitConfig) {
+  return function <T extends (...args: any[]) => Promise<any>>(target: T): T {
+    return async function (this: any, ...args: any[]) {
       // Assumir que o primeiro argumento contém userId
       const userId = args[0]?.userId || args[0]?.user_id
-      
+
       if (!userId) {
         throw new Error('userId não encontrado para rate limiting')
       }
-      
+
       await requireRateLimit(userId, action, config)
-      
+
       return target.apply(this, args)
-    }) as T
+    } as T
   }
 }
 
@@ -223,14 +216,12 @@ export function useRateLimit(action: string, config?: RateLimitConfig) {
     userId: string
   ): Promise<ReturnType<T>> => {
     const result = await checkRateLimit(userId, action, config)
-    
+
     if (!result.allowed) {
       const resetIn = Math.ceil((result.resetAt.getTime() - Date.now()) / 1000)
-      throw new Error(
-        `Muitas requisições. Aguarde ${resetIn} segundos.`
-      )
+      throw new Error(`Muitas requisições. Aguarde ${resetIn} segundos.`)
     }
-    
+
     return fn() as ReturnType<T>
   }
 }
@@ -254,12 +245,12 @@ export function debounce<T extends (...args: any[]) => any>(
   delay: number
 ): (...args: Parameters<T>) => void {
   let timeoutId: NodeJS.Timeout | null = null
-  
+
   return function (this: any, ...args: Parameters<T>) {
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
-    
+
     timeoutId = setTimeout(() => {
       fn.apply(this, args)
     }, delay)
@@ -274,14 +265,13 @@ export function throttle<T extends (...args: any[]) => any>(
   delay: number
 ): (...args: Parameters<T>) => void {
   let lastCall = 0
-  
+
   return function (this: any, ...args: Parameters<T>) {
     const now = Date.now()
-    
+
     if (now - lastCall >= delay) {
       lastCall = now
       fn.apply(this, args)
     }
   }
 }
-

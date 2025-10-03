@@ -1,14 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -17,9 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { IconBookmark, IconTrash, IconPlus } from '@tabler/icons-react'
+
+import { IconBookmark, IconPlus, IconTrash } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 interface SavedFilter {
@@ -37,7 +39,7 @@ interface SavedFiltersProps {
 
 /**
  * Componente de Filtros Salvos
- * 
+ *
  * Permite salvar e carregar combinações de filtros personalizados.
  * Os filtros são armazenados no localStorage do navegador.
  */
@@ -81,7 +83,7 @@ export function SavedFilters({
     }
 
     // Verificar se já existe um filtro com esse nome
-    if (savedFilters.some((f) => f.name === filterName)) {
+    if (savedFilters.some(f => f.name === filterName)) {
       toast.error('Já existe um filtro com esse nome')
       return
     }
@@ -109,10 +111,10 @@ export function SavedFilters({
 
   // Excluir filtro
   const handleDeleteFilter = (filterId: string) => {
-    const filter = savedFilters.find((f) => f.id === filterId)
-    const updated = savedFilters.filter((f) => f.id !== filterId)
+    const filter = savedFilters.find(f => f.id === filterId)
+    const updated = savedFilters.filter(f => f.id !== filterId)
     saveFiltersToStorage(updated)
-    
+
     if (filter) {
       toast.success(`Filtro "${filter.name}" excluído`)
     }
@@ -125,59 +127,51 @@ export function SavedFilters({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <IconBookmark className="mr-2 h-4 w-4" />
+          <Button variant='outline' size='sm'>
+            <IconBookmark className='mr-2 h-4 w-4' />
             Filtros Salvos
             {savedFilters.length > 0 && (
-              <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+              <span className='ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground'>
                 {savedFilters.length}
               </span>
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[250px]">
+        <DropdownMenuContent align='end' className='w-[250px]'>
           {savedFilters.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              Nenhum filtro salvo
-            </div>
+            <div className='p-4 text-center text-sm text-muted-foreground'>Nenhum filtro salvo</div>
           ) : (
             <>
-              {savedFilters.map((filter) => (
+              {savedFilters.map(filter => (
                 <DropdownMenuItem
                   key={filter.id}
-                  className="flex items-center justify-between"
-                  onSelect={(e) => {
+                  className='flex items-center justify-between'
+                  onSelect={e => {
                     e.preventDefault()
                   }}
                 >
-                  <button
-                    className="flex-1 text-left"
-                    onClick={() => handleApplyFilter(filter)}
-                  >
+                  <button className='flex-1 text-left' onClick={() => handleApplyFilter(filter)}>
                     {filter.name}
                   </button>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={(e) => {
+                    variant='ghost'
+                    size='sm'
+                    className='h-6 w-6 p-0'
+                    onClick={e => {
                       e.stopPropagation()
                       handleDeleteFilter(filter.id)
                     }}
                   >
-                    <IconTrash className="h-3 w-3" />
+                    <IconTrash className='h-3 w-3' />
                   </Button>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
             </>
           )}
-          
-          <DropdownMenuItem
-            onSelect={() => setShowSaveDialog(true)}
-            disabled={!hasActiveFilters}
-          >
-            <IconPlus className="mr-2 h-4 w-4" />
+
+          <DropdownMenuItem onSelect={() => setShowSaveDialog(true)} disabled={!hasActiveFilters}>
+            <IconPlus className='mr-2 h-4 w-4' />
             Salvar filtros atuais
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -193,15 +187,15 @@ export function SavedFilters({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="filter-name">Nome do filtro</Label>
+          <div className='grid gap-4 py-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='filter-name'>Nome do filtro</Label>
               <Input
-                id="filter-name"
-                placeholder="Ex: Clientes MEI Ativos"
+                id='filter-name'
+                placeholder='Ex: Clientes MEI Ativos'
                 value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
-                onKeyDown={(e) => {
+                onChange={e => setFilterName(e.target.value)}
+                onKeyDown={e => {
                   if (e.key === 'Enter') {
                     handleSaveFilter()
                   }
@@ -210,12 +204,12 @@ export function SavedFilters({
             </div>
 
             {/* Preview dos filtros atuais */}
-            <div className="rounded-md border p-3">
-              <p className="text-sm font-medium mb-2">Filtros que serão salvos:</p>
-              <div className="space-y-1">
+            <div className='rounded-md border p-3'>
+              <p className='text-sm font-medium mb-2'>Filtros que serão salvos:</p>
+              <div className='space-y-1'>
                 {Object.entries(currentFilters).map(([key, value]) => (
-                  <div key={key} className="text-xs text-muted-foreground">
-                    <span className="font-medium">{key}:</span>{' '}
+                  <div key={key} className='text-xs text-muted-foreground'>
+                    <span className='font-medium'>{key}:</span>{' '}
                     {Array.isArray(value) ? value.join(', ') : String(value)}
                   </div>
                 ))}
@@ -224,7 +218,7 @@ export function SavedFilters({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+            <Button variant='outline' onClick={() => setShowSaveDialog(false)}>
               Cancelar
             </Button>
             <Button onClick={handleSaveFilter}>Salvar</Button>
@@ -259,14 +253,14 @@ export function SavedFiltersCompact({
   if (savedFilters.length === 0) return null
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Filtros salvos:</span>
-      <div className="flex flex-wrap gap-1">
-        {savedFilters.slice(0, 3).map((filter) => (
+    <div className='flex items-center gap-2'>
+      <span className='text-sm text-muted-foreground'>Filtros salvos:</span>
+      <div className='flex flex-wrap gap-1'>
+        {savedFilters.slice(0, 3).map(filter => (
           <Button
             key={filter.id}
-            variant="outline"
-            size="sm"
+            variant='outline'
+            size='sm'
             onClick={() => {
               onApplyFilter(filter.filters)
               toast.success(`Filtro "${filter.name}" aplicado`)
@@ -276,7 +270,7 @@ export function SavedFiltersCompact({
           </Button>
         ))}
         {savedFilters.length > 3 && (
-          <span className="text-xs text-muted-foreground self-center">
+          <span className='text-xs text-muted-foreground self-center'>
             +{savedFilters.length - 3} mais
           </span>
         )}
@@ -284,4 +278,3 @@ export function SavedFiltersCompact({
     </div>
   )
 }
-

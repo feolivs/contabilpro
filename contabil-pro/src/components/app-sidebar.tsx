@@ -44,9 +44,7 @@ function AppSummary() {
           </div>
           <div className='flex flex-col gap-0.5 leading-none'>
             <span className='font-medium'>ContabilPRO</span>
-            <span className='truncate text-sm text-muted-foreground'>
-              Sistema Contábil
-            </span>
+            <span className='truncate text-sm text-muted-foreground'>Sistema Contábil</span>
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>

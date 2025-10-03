@@ -3,16 +3,15 @@
  * Separado do supabase.ts para evitar importação de next/headers
  */
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !anonKey) {
-    throw new Error('Missing Supabase browser client configuration');
+    throw new Error('Missing Supabase browser client configuration')
   }
 
-  return createBrowserClient(url, anonKey);
+  return createBrowserClient(url, anonKey)
 }
-

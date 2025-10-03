@@ -3,7 +3,6 @@
 import { useActionState } from 'react'
 
 import { updateEntryFromForm } from '@/actions/entries'
-import { initialEntryFormState } from '@/types/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { Entry } from '@/lib/validations'
+import { initialEntryFormState } from '@/types/entries'
 
 interface EntryEditFormProps {
   entry: Entry & {

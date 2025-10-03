@@ -76,10 +76,14 @@ export const createErrorResponse = <T = unknown>(error: string, data?: T): Actio
 /**
  * Type guards para verificar tipos de resposta
  */
-export const isSuccessResponse = <T>(response: ActionResponse<T>): response is ActionResponse<T> & { success: true } => {
+export const isSuccessResponse = <T>(
+  response: ActionResponse<T>
+): response is ActionResponse<T> & { success: true } => {
   return response.success === true
 }
 
-export const isErrorResponse = <T>(response: ActionResponse<T>): response is ActionResponse<T> & { success: false } => {
+export const isErrorResponse = <T>(
+  response: ActionResponse<T>
+): response is ActionResponse<T> & { success: false } => {
   return response.success === false
 }

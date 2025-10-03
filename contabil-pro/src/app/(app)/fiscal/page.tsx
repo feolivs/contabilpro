@@ -1,13 +1,14 @@
-import { addMonths, startOfMonth, endOfMonth } from 'date-fns'
 import Link from 'next/link'
 
-import { requirePermission } from '@/lib/auth/rbac'
 import { getTaxObligations, getTaxObligationStats } from '@/actions/tax-obligations'
 import { FiscalCalendar } from '@/components/fiscal/fiscal-calendar'
-import { ObligationsList } from '@/components/fiscal/obligations-list'
 import { FiscalStats } from '@/components/fiscal/fiscal-stats'
+import { ObligationsList } from '@/components/fiscal/obligations-list'
 import { Button } from '@/components/ui/button'
+import { requirePermission } from '@/lib/auth/rbac'
+
 import { IconPlus } from '@tabler/icons-react'
+import { addDays, addMonths, endOfMonth, startOfMonth } from 'date-fns'
 
 export default async function FiscalPage() {
   await requirePermission('fiscal.read')
@@ -37,27 +38,27 @@ export default async function FiscalPage() {
       }
 
   // Filtrar obrigações dos próximos 30 dias para a lista
-  const thirtyDaysFromNow = addMonths(new Date(), 1)
-  const upcomingObligations = obligations.filter((o) => {
+  const thirtyDaysFromNow = addDays(new Date(), 30)
+  const upcomingObligations = obligations.filter(o => {
     const dueDate = new Date(o.due_date)
     return dueDate <= thirtyDaysFromNow
   })
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Header */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Fiscal</h1>
-          <p className="text-muted-foreground">Gestão de obrigações fiscais, DAS, NFe e NFS-e.</p>
+      <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+        <div className='space-y-1'>
+          <h1 className='text-3xl font-bold tracking-tight'>Fiscal</h1>
+          <p className='text-muted-foreground'>Gestão de obrigações fiscais, DAS, NFe e NFS-e.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" disabled>
-            <IconPlus className="h-4 w-4 mr-2" />
+        <div className='flex items-center gap-2'>
+          <Button size='sm' disabled>
+            <IconPlus className='h-4 w-4 mr-2' />
             Nova Obrigação
           </Button>
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">
+          <Link href='/dashboard'>
+            <Button variant='outline' size='sm'>
               ← Voltar
             </Button>
           </Link>
@@ -68,14 +69,14 @@ export default async function FiscalPage() {
       <FiscalStats stats={stats} />
 
       {/* Grid: Calendário + Lista */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className='grid gap-6 lg:grid-cols-3'>
         {/* Calendário (2 colunas) */}
-        <div className="lg:col-span-2">
+        <div className='lg:col-span-2'>
           <FiscalCalendar obligations={obligations} />
         </div>
 
         {/* Lista de próximas obrigações (1 coluna) */}
-        <div className="lg:col-span-1">
+        <div className='lg:col-span-1'>
           <ObligationsList obligations={upcomingObligations} />
         </div>
       </div>

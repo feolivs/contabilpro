@@ -1,19 +1,9 @@
 'use client'
 
-import { type ColumnDef } from '@tanstack/react-table'
-import { IconDots, IconPencil, IconTrash, IconEye, IconArrowUp, IconArrowDown, IconArrowsSort } from '@tabler/icons-react'
-import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { usePathname, useRouter } from 'next/navigation'
+
+import { deleteClient } from '@/actions/clients'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,12 +15,32 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { formatDocument } from '@/lib/document-utils'
 import { type Client } from '@/lib/validations'
+
+import {
+  IconArrowDown,
+  IconArrowsSort,
+  IconArrowUp,
+  IconDots,
+  IconEye,
+  IconPencil,
+  IconTrash,
+} from '@tabler/icons-react'
+import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { deleteClient } from '@/actions/clients'
+import { toast } from 'sonner'
 
 /**
  * Componente de header ordenável
@@ -40,18 +50,18 @@ function SortableHeader({ column, children }: { column: any; children: React.Rea
 
   return (
     <Button
-      variant="ghost"
-      size="sm"
-      className="-ml-3 h-8 data-[state=open]:bg-accent"
+      variant='ghost'
+      size='sm'
+      className='-ml-3 h-8 data-[state=open]:bg-accent'
       onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
     >
       {children}
       {isSorted === 'asc' ? (
-        <IconArrowUp className="ml-2 h-4 w-4" />
+        <IconArrowUp className='ml-2 h-4 w-4' />
       ) : isSorted === 'desc' ? (
-        <IconArrowDown className="ml-2 h-4 w-4" />
+        <IconArrowDown className='ml-2 h-4 w-4' />
       ) : (
-        <IconArrowsSort className="ml-2 h-4 w-4 opacity-50" />
+        <IconArrowsSort className='ml-2 h-4 w-4 opacity-50' />
       )}
     </Button>
   )
@@ -76,18 +86,17 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Selecionar todos"
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='Selecionar todos'
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Selecionar linha"
+        onCheckedChange={value => row.toggleSelected(!!value)}
+        aria-label='Selecionar linha'
       />
     ),
     enableSorting: false,
@@ -103,11 +112,11 @@ export const clientColumns: ColumnDef<Client>[] = [
       const tipoPessoa = row.original.tipo_pessoa
 
       return (
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col">
-            <span className="font-medium">{name}</span>
+        <div className='flex items-center gap-2'>
+          <div className='flex flex-col'>
+            <span className='font-medium'>{name}</span>
             {tipoPessoa && (
-              <span className="text-xs text-muted-foreground">
+              <span className='text-xs text-muted-foreground'>
                 {tipoPessoa === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
               </span>
             )}
@@ -123,7 +132,7 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: ({ column }) => <SortableHeader column={column}>Documento</SortableHeader>,
     cell: ({ row }) => {
       const document = row.getValue('document') as string
-      return <span className="font-mono text-sm">{formatDocument(document)}</span>
+      return <span className='font-mono text-sm'>{formatDocument(document)}</span>
     },
   },
 
@@ -134,9 +143,9 @@ export const clientColumns: ColumnDef<Client>[] = [
     cell: ({ row }) => {
       const email = row.getValue('email') as string | null
       return email ? (
-        <span className="text-sm text-muted-foreground">{email}</span>
+        <span className='text-sm text-muted-foreground'>{email}</span>
       ) : (
-        <span className="text-xs text-muted-foreground italic">Não informado</span>
+        <span className='text-xs text-muted-foreground italic'>Não informado</span>
       )
     },
   },
@@ -158,7 +167,7 @@ export const clientColumns: ColumnDef<Client>[] = [
       }
 
       return (
-        <Badge variant="outline" className={regimeColors[regime] || ''}>
+        <Badge variant='outline' className={regimeColors[regime] || ''}>
           {regime}
         </Badge>
       )
@@ -178,16 +187,28 @@ export const clientColumns: ColumnDef<Client>[] = [
       if (!status) return null
 
       const statusConfig: Record<string, { label: string; color: string }> = {
-        ativo: { label: 'Ativo', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
-        inativo: { label: 'Inativo', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' },
-        pendente: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
-        suspenso: { label: 'Suspenso', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' },
+        ativo: {
+          label: 'Ativo',
+          color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+        },
+        inativo: {
+          label: 'Inativo',
+          color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+        },
+        pendente: {
+          label: 'Pendente',
+          color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+        },
+        suspenso: {
+          label: 'Suspenso',
+          color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+        },
       }
 
       const config = statusConfig[status] || { label: status, color: '' }
 
       return (
-        <Badge variant="outline" className={config.color}>
+        <Badge variant='outline' className={config.color}>
           {config.label}
         </Badge>
       )
@@ -203,11 +224,11 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: ({ column }) => <SortableHeader column={column}>Valor do Plano</SortableHeader>,
     cell: ({ row }) => {
       const valor = row.getValue('valor_plano') as number | null
-      
+
       if (!valor) return null
 
       return (
-        <span className="font-medium">
+        <span className='font-medium'>
           {new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
@@ -223,9 +244,9 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: ({ column }) => <SortableHeader column={column}>Criado em</SortableHeader>,
     cell: ({ row }) => {
       const date = row.getValue('created_at') as string
-      
+
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className='text-sm text-muted-foreground'>
           {format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })}
         </span>
       )
@@ -238,13 +259,13 @@ export const clientColumns: ColumnDef<Client>[] = [
     header: ({ column }) => <SortableHeader column={column}>Última Atividade</SortableHeader>,
     cell: ({ row }) => {
       const date = row.getValue('ultima_atividade') as string | null
-      
+
       if (!date) {
-        return <span className="text-xs text-muted-foreground italic">Nunca</span>
+        return <span className='text-xs text-muted-foreground italic'>Nunca</span>
       }
 
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className='text-sm text-muted-foreground'>
           {format(new Date(date), 'dd/MM/yyyy', { locale: ptBR })}
         </span>
       )
@@ -299,28 +320,32 @@ export const clientColumns: ColumnDef<Client>[] = [
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <IconDots className="h-4 w-4" />
-                <span className="sr-only">Abrir menu</span>
+              <Button variant='ghost' size='icon' className='h-8 w-8'>
+                <IconDots className='h-4 w-4' />
+                <span className='sr-only'>Abrir menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align='end'>
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}`)}>
-                <IconEye className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}`)}
+              >
+                <IconEye className='mr-2 h-4 w-4' />
                 Ver detalhes
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}/editar`)}>
-                <IconPencil className="mr-2 h-4 w-4" />
+              <DropdownMenuItem
+                onClick={() => router.push(`${tenantPrefix}/clientes/${client.id}/editar`)}
+              >
+                <IconPencil className='mr-2 h-4 w-4' />
                 Editar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setShowDeleteDialog(true)}
-                className="text-destructive focus:text-destructive"
+                className='text-destructive focus:text-destructive'
               >
-                <IconTrash className="mr-2 h-4 w-4" />
+                <IconTrash className='mr-2 h-4 w-4' />
                 Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -331,8 +356,8 @@ export const clientColumns: ColumnDef<Client>[] = [
               <AlertDialogHeader>
                 <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja excluir o cliente <strong>{client.name}</strong>?
-                  Esta ação não pode ser desfeita.
+                  Tem certeza que deseja excluir o cliente <strong>{client.name}</strong>? Esta ação
+                  não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -340,7 +365,7 @@ export const clientColumns: ColumnDef<Client>[] = [
                 <AlertDialogAction
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
                 >
                   {isDeleting ? 'Excluindo...' : 'Excluir'}
                 </AlertDialogAction>
@@ -354,4 +379,3 @@ export const clientColumns: ColumnDef<Client>[] = [
     enableHiding: false,
   },
 ]
-

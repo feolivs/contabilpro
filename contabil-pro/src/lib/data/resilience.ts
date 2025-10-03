@@ -1,11 +1,11 @@
 /**
  * Sistema de Resiliência - ContabilPRO
- * 
+ *
  * OBJETIVO: Degradação elegante quando RPCs falham
  * ESTRATÉGIA: Fallback para dados em cache + estado claro para o usuário
  */
 
-import { CachedResponse, CacheMetadata } from './cache'
+import type { CacheMetadata } from './cache'
 
 export interface ResilienceConfig {
   maxRetries: number
@@ -46,12 +46,12 @@ export async function withResilience<T>(
 ): Promise<ResilientResponse<T>> {
   const finalConfig = { ...DEFAULT_RESILIENCE_CONFIG, ...config }
   let lastError: Error | null = null
-  
+
   // Tentar operação principal com retries
   for (let attempt = 0; attempt <= finalConfig.maxRetries; attempt++) {
     try {
       const data = await operation()
-      
+
       return {
         data,
         success: true,
@@ -59,20 +59,20 @@ export async function withResilience<T>(
           source: 'live',
           retryCount: attempt,
           degraded: false,
-        }
+        },
       }
     } catch (error) {
       lastError = error as Error
-      
+
       if (attempt < finalConfig.maxRetries) {
         await sleep(finalConfig.retryDelayMs * (attempt + 1)) // Backoff exponencial
       }
     }
   }
-  
+
   // Se chegou aqui, todas as tentativas falharam
   console.error('Operation failed after retries:', lastError)
-  
+
   // Tentar fallback para cache/dados estáticos
   if (finalConfig.fallbackToCache && fallbackData !== null) {
     return {
@@ -84,10 +84,10 @@ export async function withResilience<T>(
         retryCount: finalConfig.maxRetries,
         degraded: true,
         userMessage: 'Exibindo dados em cache. Alguns dados podem estar desatualizados.',
-      }
+      },
     }
   }
-  
+
   // Falha total
   return {
     data: null,
@@ -98,7 +98,7 @@ export async function withResilience<T>(
       retryCount: finalConfig.maxRetries,
       degraded: true,
       userMessage: 'Não foi possível carregar os dados. Tente novamente em alguns minutos.',
-    }
+    },
   }
 }
 
@@ -141,18 +141,16 @@ export function createUserStateMessage(
   switch (source) {
     case 'live':
       return 'Dados atualizados'
-    
+
     case 'cache':
-      const timeAgo = lastSuccessAt 
-        ? formatTimeAgo(lastSuccessAt)
-        : 'há alguns minutos'
+      const timeAgo = lastSuccessAt ? formatTimeAgo(lastSuccessAt) : 'há alguns minutos'
       return `Dados de ${timeAgo}`
-    
+
     case 'fallback':
-      return error 
+      return error
         ? 'Erro ao carregar dados. Tente novamente.'
         : 'Dados indisponíveis temporariamente'
-    
+
     default:
       return 'Estado desconhecido'
   }
@@ -165,13 +163,13 @@ function formatTimeAgo(date: Date): string {
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  
+
   if (diffMinutes < 1) return 'agora'
   if (diffMinutes < 60) return `há ${diffMinutes} min`
-  
+
   const diffHours = Math.floor(diffMinutes / 60)
   if (diffHours < 24) return `há ${diffHours}h`
-  
+
   const diffDays = Math.floor(diffHours / 24)
   return `há ${diffDays} dias`
 }
@@ -190,12 +188,12 @@ export class CircuitBreaker {
   private failures = 0
   private lastFailureTime = 0
   private state: 'closed' | 'open' | 'half-open' = 'closed'
-  
+
   constructor(
     private threshold = 5,
     private timeoutMs = 60000 // 1 minuto
   ) {}
-  
+
   async execute<T>(operation: () => Promise<T>): Promise<T> {
     if (this.state === 'open') {
       if (Date.now() - this.lastFailureTime > this.timeoutMs) {
@@ -204,7 +202,7 @@ export class CircuitBreaker {
         throw new Error('Circuit breaker is open')
       }
     }
-    
+
     try {
       const result = await operation()
       this.onSuccess()
@@ -214,21 +212,21 @@ export class CircuitBreaker {
       throw error
     }
   }
-  
+
   private onSuccess() {
     this.failures = 0
     this.state = 'closed'
   }
-  
+
   private onFailure() {
     this.failures++
     this.lastFailureTime = Date.now()
-    
+
     if (this.failures >= this.threshold) {
       this.state = 'open'
     }
   }
-  
+
   getState() {
     return {
       state: this.state,

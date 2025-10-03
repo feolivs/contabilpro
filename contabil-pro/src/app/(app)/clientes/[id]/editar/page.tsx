@@ -1,15 +1,15 @@
-﻿import Link from 'next/link'
+﻿import { headers } from 'next/headers'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 
 import { getClientById } from '@/actions/clients'
+import { ClientEditForm } from '@/components/clients/edit-form'
 import { Button } from '@/components/ui/button'
 import { requirePermission } from '@/lib/auth/rbac'
 import { buildTenantUrlFromHeaders } from '@/lib/navigation'
-import { ClientEditForm } from '@/components/clients/edit-form'
 
 interface EditarClienteProps {
-  params: Promise<{ id: string  }>
+  params: Promise<{ id: string }>
 }
 
 export default async function EditarClientePage({ params }: EditarClienteProps) {

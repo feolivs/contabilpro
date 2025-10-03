@@ -3,7 +3,6 @@
 import { useActionState } from 'react'
 
 import { createEntryFromForm } from '@/actions/entries'
-import { initialEntryFormState } from '@/types/entries'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { initialEntryFormState } from '@/types/entries'
 
 export function EntryForm() {
   const [state, action, isPending] = useActionState(createEntryFromForm, initialEntryFormState)

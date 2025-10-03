@@ -3,22 +3,11 @@
 import { revalidatePath } from 'next/cache'
 
 import { requireAuth } from '@/lib/auth'
-import { setRLSContext } from '@/lib/auth/rls'
 import { createServerClient } from '@/lib/supabase'
 import { entrySchema } from '@/lib/validations'
+import type { EntryFormState, EntryImportState } from '@/types/entries'
 
 import { type z } from 'zod'
-import {
-  EntryFormState,
-  EntryImportState,
-  initialEntryFormState,
-  initialEntryImportState,
-  type Entry,
-  type EntryWithRelations,
-  type EntryFilters,
-  type EntryImportRow,
-  type EntryImportResult
-} from '@/types/entries'
 
 const baseEntrySchema = entrySchema.omit({
   id: true,
@@ -32,8 +21,6 @@ export async function createEntry(input: z.infer<typeof baseEntrySchema>) {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const validatedData = baseEntrySchema.parse(input)
 
@@ -111,8 +98,6 @@ export async function getEntries() {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
     const { data, error } = await supabase
       .from('entries')
       .select(
@@ -142,8 +127,6 @@ export async function getEntryById(id: string) {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const { data, error } = await supabase
       .from('entries')
@@ -175,8 +158,6 @@ export async function updateEntry(id: string, input: z.infer<typeof updateEntryS
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const validatedData = updateEntrySchema.parse(input)
     const cleanData = Object.fromEntries(
@@ -312,8 +293,6 @@ export async function deleteEntry(id: string) {
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
     const { error } = await supabase.from('entries').delete().eq('id', id)
 
     if (error) {
@@ -336,8 +315,6 @@ export async function classifyEntry(entryId: string) {
   try {
     const session = await requireAuth()
     const supabase = await createServerClient()
-
-    
 
     const { data: entry, error: entryError } = await supabase
       .from('entries')
@@ -423,8 +400,6 @@ export async function importEntriesFromCSV(
     const session = await requireAuth()
     const supabase = await createServerClient()
 
-    
-
     let processed = 0
     let created = 0
     let skipped = 0
@@ -505,4 +480,3 @@ export async function importEntriesFromCSV(
     }
   }
 }
-

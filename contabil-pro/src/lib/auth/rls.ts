@@ -1,8 +1,9 @@
 'use server'
 
+import type { AuthSession } from '@/types/auth'
+
 import { createServerClient } from '../supabase'
 import { verifySession } from './index'
-import type { AuthSession } from '@/types/auth'
 
 /**
  * Helper para obter cliente Supabase autenticado
@@ -18,4 +19,3 @@ export async function setRLSContext(session?: AuthSession) {
   // Retorna o cliente Supabase já autenticado
   return await createServerClient()
 }
-

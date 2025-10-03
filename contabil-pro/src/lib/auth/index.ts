@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 
-import { createAdminClient, createServerClient } from '../supabase'
 import type { AuthSession } from '@/types/auth'
+
+import { createAdminClient, createServerClient } from '../supabase'
 
 // Verificar sessao e obter tenant_id do JWT
 export async function verifySession(): Promise<AuthSession | null> {
@@ -36,7 +37,10 @@ export async function verifySession(): Promise<AuthSession | null> {
         if (!adminError && data) {
           tenantId = typeof data.tenant_id === 'string' ? data.tenant_id : tenantId
           role = typeof data.role === 'string' ? data.role : role
-          tenantSlug = typeof (data.tenants as any)?.slug === 'string' ? (data.tenants as any).slug : tenantSlug
+          tenantSlug =
+            typeof (data.tenants as any)?.slug === 'string'
+              ? (data.tenants as any).slug
+              : tenantSlug
         }
       } catch (lookupError) {
         console.error('Nao foi possivel resolver tenant do usuario.', lookupError)

@@ -1,7 +1,8 @@
 'use client'
 
-import { CommandPalette } from './command-palette'
 import { searchClients } from '@/actions/clients'
+
+import { CommandPalette } from './command-palette'
 
 /**
  * Wrapper do CommandPalette que integra com a Server Action
@@ -10,4 +11,3 @@ import { searchClients } from '@/actions/clients'
 export function CommandPaletteWrapper() {
   return <CommandPalette searchClients={searchClients} />
 }
-

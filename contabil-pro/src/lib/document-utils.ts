@@ -16,12 +16,12 @@ export function normalizeDocument(document: string): string {
  */
 export function validateCPF(cpf: string): boolean {
   const cleaned = normalizeDocument(cpf)
-  
+
   if (cleaned.length !== 11) return false
-  
+
   // Rejeitar CPFs com todos os dígitos iguais
   if (/^(\d)\1{10}$/.test(cleaned)) return false
-  
+
   // Validar primeiro dígito verificador
   let sum = 0
   for (let i = 0; i < 9; i++) {
@@ -30,7 +30,7 @@ export function validateCPF(cpf: string): boolean {
   let digit = 11 - (sum % 11)
   if (digit >= 10) digit = 0
   if (digit !== parseInt(cleaned.charAt(9))) return false
-  
+
   // Validar segundo dígito verificador
   sum = 0
   for (let i = 0; i < 10; i++) {
@@ -39,7 +39,7 @@ export function validateCPF(cpf: string): boolean {
   digit = 11 - (sum % 11)
   if (digit >= 10) digit = 0
   if (digit !== parseInt(cleaned.charAt(10))) return false
-  
+
   return true
 }
 
@@ -48,12 +48,12 @@ export function validateCPF(cpf: string): boolean {
  */
 export function validateCNPJ(cnpj: string): boolean {
   const cleaned = normalizeDocument(cnpj)
-  
+
   if (cleaned.length !== 14) return false
-  
+
   // Rejeitar CNPJs com todos os dígitos iguais
   if (/^(\d)\1{13}$/.test(cleaned)) return false
-  
+
   // Validar primeiro dígito verificador
   let sum = 0
   let weight = 5
@@ -63,7 +63,7 @@ export function validateCNPJ(cnpj: string): boolean {
   }
   let digit = sum % 11 < 2 ? 0 : 11 - (sum % 11)
   if (digit !== parseInt(cleaned.charAt(12))) return false
-  
+
   // Validar segundo dígito verificador
   sum = 0
   weight = 6
@@ -73,7 +73,7 @@ export function validateCNPJ(cnpj: string): boolean {
   }
   digit = sum % 11 < 2 ? 0 : 11 - (sum % 11)
   if (digit !== parseInt(cleaned.charAt(13))) return false
-  
+
   return true
 }
 
@@ -82,15 +82,15 @@ export function validateCNPJ(cnpj: string): boolean {
  */
 export function validateDocument(document: string): boolean {
   const cleaned = normalizeDocument(document)
-  
+
   if (cleaned.length === 11) {
     return validateCPF(cleaned)
   }
-  
+
   if (cleaned.length === 14) {
     return validateCNPJ(cleaned)
   }
-  
+
   return false
 }
 
@@ -99,9 +99,9 @@ export function validateDocument(document: string): boolean {
  */
 export function formatCPF(cpf: string): string {
   const cleaned = normalizeDocument(cpf)
-  
+
   if (cleaned.length !== 11) return cpf
-  
+
   return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
 }
 
@@ -110,9 +110,9 @@ export function formatCPF(cpf: string): string {
  */
 export function formatCNPJ(cnpj: string): string {
   const cleaned = normalizeDocument(cnpj)
-  
+
   if (cleaned.length !== 14) return cnpj
-  
+
   return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
 }
 
@@ -121,15 +121,15 @@ export function formatCNPJ(cnpj: string): string {
  */
 export function formatDocument(document: string): string {
   const cleaned = normalizeDocument(document)
-  
+
   if (cleaned.length === 11) {
     return formatCPF(cleaned)
   }
-  
+
   if (cleaned.length === 14) {
     return formatCNPJ(cleaned)
   }
-  
+
   return document
 }
 
@@ -138,10 +138,10 @@ export function formatDocument(document: string): string {
  */
 export function getDocumentType(document: string): 'cpf' | 'cnpj' | null {
   const cleaned = normalizeDocument(document)
-  
+
   if (cleaned.length === 11) return 'cpf'
   if (cleaned.length === 14) return 'cnpj'
-  
+
   return null
 }
 
@@ -150,10 +150,10 @@ export function getDocumentType(document: string): 'cpf' | 'cnpj' | null {
  */
 export function getTipoPessoa(document: string): 'PF' | 'PJ' | null {
   const type = getDocumentType(document)
-  
+
   if (type === 'cpf') return 'PF'
   if (type === 'cnpj') return 'PJ'
-  
+
   return null
 }
 
@@ -163,12 +163,12 @@ export function getTipoPessoa(document: string): 'PF' | 'PJ' | null {
  */
 export function getDocumentMask(value: string): string {
   const cleaned = normalizeDocument(value)
-  
+
   if (cleaned.length <= 11) {
     // Máscara de CPF: 999.999.999-99
     return '999.999.999-99'
   }
-  
+
   // Máscara de CNPJ: 99.999.999/9999-99
   return '99.999.999/9999-99'
 }
@@ -178,9 +178,9 @@ export function getDocumentMask(value: string): string {
  */
 export function applyDocumentMask(value: string): string {
   const cleaned = normalizeDocument(value)
-  
+
   if (cleaned.length === 0) return ''
-  
+
   if (cleaned.length <= 11) {
     // Aplicar máscara de CPF
     let formatted = cleaned
@@ -195,7 +195,7 @@ export function applyDocumentMask(value: string): string {
     }
     return formatted
   }
-  
+
   // Aplicar máscara de CNPJ
   let formatted = cleaned
   if (cleaned.length > 2) {
@@ -210,7 +210,7 @@ export function applyDocumentMask(value: string): string {
   if (cleaned.length > 12) {
     formatted = `${cleaned.slice(0, 2)}.${cleaned.slice(2, 5)}.${cleaned.slice(5, 8)}/${cleaned.slice(8, 12)}-${cleaned.slice(12, 14)}`
   }
-  
+
   return formatted
 }
 
@@ -219,7 +219,7 @@ export function applyDocumentMask(value: string): string {
  */
 export function generateRandomCPF(): string {
   const random = (n: number) => Math.floor(Math.random() * n)
-  
+
   const n1 = random(10)
   const n2 = random(10)
   const n3 = random(10)
@@ -229,15 +229,15 @@ export function generateRandomCPF(): string {
   const n7 = random(10)
   const n8 = random(10)
   const n9 = random(10)
-  
+
   let d1 = n9 * 2 + n8 * 3 + n7 * 4 + n6 * 5 + n5 * 6 + n4 * 7 + n3 * 8 + n2 * 9 + n1 * 10
   d1 = 11 - (d1 % 11)
   if (d1 >= 10) d1 = 0
-  
+
   let d2 = d1 * 2 + n9 * 3 + n8 * 4 + n7 * 5 + n6 * 6 + n5 * 7 + n4 * 8 + n3 * 9 + n2 * 10 + n1 * 11
   d2 = 11 - (d2 % 11)
   if (d2 >= 10) d2 = 0
-  
+
   return `${n1}${n2}${n3}${n4}${n5}${n6}${n7}${n8}${n9}${d1}${d2}`
 }
 
@@ -246,9 +246,9 @@ export function generateRandomCPF(): string {
  */
 export function generateRandomCNPJ(): string {
   const random = (n: number) => Math.floor(Math.random() * n)
-  
+
   const n = Array.from({ length: 12 }, () => random(10))
-  
+
   let d1 = 0
   let weight = 5
   for (let i = 0; i < 12; i++) {
@@ -256,7 +256,7 @@ export function generateRandomCNPJ(): string {
     weight = weight === 2 ? 9 : weight - 1
   }
   d1 = d1 % 11 < 2 ? 0 : 11 - (d1 % 11)
-  
+
   let d2 = 0
   weight = 6
   for (let i = 0; i < 12; i++) {
@@ -265,7 +265,6 @@ export function generateRandomCNPJ(): string {
   }
   d2 += d1 * 2
   d2 = d2 % 11 < 2 ? 0 : 11 - (d2 % 11)
-  
+
   return `${n.join('')}${d1}${d2}`
 }
-
