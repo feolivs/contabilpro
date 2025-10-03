@@ -1,0 +1,12 @@
+{
+  "user_id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Obrigação Fiscal Vencendo",
+  "message": "DAS vence em 3 dias. Não esqueça de pagar!",
+  "data": {
+    "url": "/fiscal",
+    "type": "tax_obligation_due_3d",
+    "priority": "high",
+    "obligation_id": "123"
+  }
+}
+
