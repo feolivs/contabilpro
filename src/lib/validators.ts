@@ -1,6 +1,16 @@
 import { z } from 'zod'
 
 /**
+ * ⚠️ DEVELOPMENT MODE
+ * CNPJ/CPF validation is currently DISABLED for easier testing.
+ * To enable full validation, uncomment the .refine() calls in cnpjSchema and cpfSchema.
+ *
+ * Valid test values:
+ * - CNPJ: 11.222.333/0001-81 (or any 14 digits)
+ * - CPF: 123.456.789-09 (or any 11 digits)
+ */
+
+/**
  * Validates Brazilian CNPJ (Cadastro Nacional da Pessoa Jurídica)
  * Format: XX.XXX.XXX/XXXX-XX
  */
@@ -88,23 +98,29 @@ export function formatCPF(cpf: string): string {
 
 /**
  * Zod schema for CNPJ validation
+ * DEV MODE: Validation disabled for easier testing
  */
 export const cnpjSchema = z
   .string()
   .min(1, 'CNPJ é obrigatório')
-  .refine((val) => validateCNPJ(val), {
-    message: 'CNPJ inválido',
-  })
+  .min(14, 'CNPJ deve ter 14 dígitos')
+  .max(18, 'CNPJ inválido')
+  // .refine((val) => validateCNPJ(val), {
+  //   message: 'CNPJ inválido',
+  // })
 
 /**
  * Zod schema for CPF validation
+ * DEV MODE: Validation disabled for easier testing
  */
 export const cpfSchema = z
   .string()
   .min(1, 'CPF é obrigatório')
-  .refine((val) => validateCPF(val), {
-    message: 'CPF inválido',
-  })
+  .min(11, 'CPF deve ter 11 dígitos')
+  .max(14, 'CPF inválido')
+  // .refine((val) => validateCPF(val), {
+  //   message: 'CPF inválido',
+  // })
 
 /**
  * Zod schema for email validation
