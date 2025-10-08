@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Building2, Receipt } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { FileText, Building2, Receipt, History } from 'lucide-react'
 import { FileUploadZone } from './file-upload-zone'
 
 export function ImportPageContent() {
@@ -12,11 +14,19 @@ export function ImportPageContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Importar Documentos</h1>
-        <p className="text-muted-foreground mt-2">
-          Importe notas fiscais (NF-e, NFSe) e extratos bancários (OFX) para processamento automático
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Importar Documentos</h1>
+          <p className="text-muted-foreground mt-2">
+            Importe notas fiscais (NF-e, NFSe) e extratos bancários (OFX) para processamento automático
+          </p>
+        </div>
+        <Link href="/dashboard/import/history">
+          <Button variant="outline">
+            <History className="h-4 w-4 mr-2" />
+            Ver Histórico
+          </Button>
+        </Link>
       </div>
 
       {/* Tabs */}
