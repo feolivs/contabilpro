@@ -25,7 +25,7 @@ This document captures the machine-readable architecture summary referenced by `
 - `src/lib`: shared logic.
   - `supabase`: client/server helpers, RLS-aware middleware, generated types.
   - `validators`: input validation (Zod schemas for auth and domain entities).
-  - `query-client` and `providers`: TanStack Query setup.
+  - `providers`: TanStack Query setup with QueryClient instantiated per component mount to prevent state update errors.
   - `utils`: general helpers (`cn`, masks, formatters).
 - `src/stores`: Zustand stores for authenticated user data and selected client.
 - `src/hooks`: TanStack Query hooks (list, mutate, invalidate).
