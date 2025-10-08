@@ -5,12 +5,12 @@
 ##  Quick Start
 
 1. Install dependencies: 
-pm install
+npm install
 2. Copy .env.local.example to .env.local and add your Supabase credentials
 3. Run migrations: 
-px supabase db push
+npx supabase db push
 4. Start dev server: 
-pm run dev
+npm run dev
 
 ##  Documentation
 
