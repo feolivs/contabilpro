@@ -112,7 +112,7 @@ export function useDocumentUpload() {
         .from('documents')
         .update({
           status: 'failed',
-          error_message: error.message,
+          error_message: error instanceof Error ? error.message : 'Unknown error',
         })
         .eq('id', document.id)
 

@@ -66,7 +66,7 @@ export function FileUploadZone({
             return newMap
           })
 
-          toast.error(`Erro ao enviar ${file.name}: ${error.message}`)
+          toast.error(`Erro ao enviar ${file.name}: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
         }
       }
     },
