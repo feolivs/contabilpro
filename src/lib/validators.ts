@@ -168,3 +168,16 @@ export const registerSchema = z
 
 export type RegisterFormData = z.infer<typeof registerSchema>
 
+/**
+ * Client form schema
+ */
+export const clientSchema = z.object({
+  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  cnpj: cnpjSchema,
+  email: emailSchema.optional().or(z.literal('')),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+})
+
+export type ClientFormData = z.infer<typeof clientSchema>
+
