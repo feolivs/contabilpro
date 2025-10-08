@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, FileText, Upload, TrendingUp } from 'lucide-react'
@@ -91,7 +92,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <a
+            <Link
               href="/dashboard/clients/new"
               className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
@@ -102,7 +103,7 @@ export default async function DashboardPage() {
                   Cadastrar novo cliente
                 </p>
               </div>
-            </a>
+            </Link>
             <a
               href="/dashboard/import"
               className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
