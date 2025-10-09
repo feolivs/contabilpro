@@ -94,15 +94,13 @@ export function usePayrollDetail({ payrollId, enabled = true }: UsePayrollDetail
 // HOOK: Estatísticas de folha
 // ============================================================================
 
-interface PayrollStats {
-  totalMonths: number;
-  avgEmployees: number;
-  avgGrossSalary: number;
-  avgNetSalary: number;
-  avgSalaryPerEmployee: number;
-  totalPaid: number;
-  totalEncargos: number;
-  encargosPercentage: number;
+export interface PayrollStats {
+  totalEmployees: number;
+  totalGrossSalary: number;
+  totalNetSalary: number;
+  averageGrossSalary: number;
+  averageNetSalary: number;
+  monthsWithData: number;
 }
 
 interface UsePayrollStatsParams {
@@ -145,46 +143,27 @@ export function usePayrollStats({
 
       if (!data || data.length === 0) {
         return {
-          totalMonths: 0,
-          avgEmployees: 0,
-          avgGrossSalary: 0,
-          avgNetSalary: 0,
-          avgSalaryPerEmployee: 0,
-          totalPaid: 0,
-          totalEncargos: 0,
-          encargosPercentage: 0,
+          totalEmployees: 0,
+          totalGrossSalary: 0,
+          totalNetSalary: 0,
+          averageGrossSalary: 0,
+          averageNetSalary: 0,
+          monthsWithData: 0,
         };
       }
 
-      const totalMonths = data.length;
-      const totalEmployees = data.reduce((sum, p) => sum + p.total_employees, 0);
-      const totalGrossSalary = data.reduce((sum, p) => sum + p.total_gross_salary, 0);
-      const totalNetSalary = data.reduce((sum, p) => sum + p.total_net_salary, 0);
-      const totalEncargos = data.reduce(
-        (sum, p) =>
-          sum +
-          p.total_inss_employee +
-          p.total_inss_employer +
-          p.total_fgts +
-          p.total_irrf,
-        0
-      );
+      const monthsWithData = data.length;
+      const totalEmployees = data.reduce((sum: number, p: PayrollSummary) => sum + p.total_employees, 0);
+      const totalGrossSalary = data.reduce((sum: number, p: PayrollSummary) => sum + p.total_gross_salary, 0);
+      const totalNetSalary = data.reduce((sum: number, p: PayrollSummary) => sum + p.total_net_salary, 0);
 
       return {
-        totalMonths,
-        avgEmployees: Math.round(totalEmployees / totalMonths),
-        avgGrossSalary: Math.round(totalGrossSalary / totalMonths),
-        avgNetSalary: Math.round(totalNetSalary / totalMonths),
-        avgSalaryPerEmployee:
-          totalEmployees > 0
-            ? Math.round(totalGrossSalary / totalEmployees)
-            : 0,
-        totalPaid: totalNetSalary,
-        totalEncargos,
-        encargosPercentage:
-          totalGrossSalary > 0
-            ? Math.round((totalEncargos / totalGrossSalary) * 100 * 100) / 100
-            : 0,
+        totalEmployees: Math.round(totalEmployees / monthsWithData),
+        totalGrossSalary,
+        totalNetSalary,
+        averageGrossSalary: Math.round(totalGrossSalary / monthsWithData),
+        averageNetSalary: Math.round(totalNetSalary / monthsWithData),
+        monthsWithData,
       };
     },
     enabled: enabled && !!clientId,

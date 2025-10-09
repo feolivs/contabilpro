@@ -124,7 +124,7 @@ export function ImportPageContent() {
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
-                <p>Vá em "Extratos" ou "Movimentações"</p>
+                <p>Vá em &quot;Extratos&quot; ou &quot;Movimentações&quot;</p>
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />

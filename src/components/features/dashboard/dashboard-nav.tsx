@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
-import { LogOut, User as UserIcon, Settings, LayoutDashboard, Users, FileText, Upload } from 'lucide-react'
+import { LogOut, User as UserIcon, Settings, LayoutDashboard, Users, FileText, Upload, DollarSign } from 'lucide-react'
 
 interface DashboardNavProps {
   user: User
@@ -76,6 +76,13 @@ export function DashboardNav({ user }: DashboardNavProps) {
             >
               <Upload className="h-4 w-4" />
               <span>Importar</span>
+            </Link>
+            <Link
+              href="/dashboard/payroll"
+              className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <DollarSign className="h-4 w-4" />
+              <span>Folha</span>
             </Link>
             <Link
               href="/dashboard/reports"

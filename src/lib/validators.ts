@@ -197,3 +197,36 @@ export const clientSchema = z.object({
 
 export type ClientFormData = z.infer<typeof clientSchema>
 
+/**
+ * Payroll upload form schema
+ */
+export const payrollUploadSchema = z.object({
+  file: z
+    .instanceof(File, { message: 'Arquivo é obrigatório' })
+    .refine(
+      (file) => file.size <= 10 * 1024 * 1024,
+      'Arquivo muito grande (máximo 10MB)'
+    )
+    .refine(
+      (file) => {
+        const validExtensions = ['.csv', '.xlsx', '.xls']
+        return validExtensions.some((ext) =>
+          file.name.toLowerCase().endsWith(ext)
+        )
+      },
+      'Formato inválido. Use CSV ou Excel (.csv, .xlsx, .xls)'
+    ),
+  referenceMonth: z
+    .number()
+    .min(1, 'Mês inválido')
+    .max(13, 'Mês inválido (1-12 ou 13 para 13º salário)'),
+  referenceYear: z
+    .number()
+    .min(2020, 'Ano muito antigo')
+    .max(2030, 'Ano muito distante'),
+  inssEmployerEnabled: z.boolean().default(true),
+  fgtsEnabled: z.boolean().default(true),
+})
+
+export type PayrollUploadFormData = z.infer<typeof payrollUploadSchema>
+

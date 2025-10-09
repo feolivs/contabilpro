@@ -193,7 +193,7 @@ export function DocumentDetails({ documentId, open, onOpenChange }: DocumentDeta
                 <div>
                   <p className="text-sm font-medium mb-3">Informações Adicionais</p>
                   <div className="rounded-lg bg-muted p-4 space-y-2">
-                    {Object.entries(document.metadata as Record<string, any>).map(([key, value]) => (
+                    {Object.entries(document.metadata as Record<string, unknown>).map(([key, value]) => (
                       <div key={key} className="flex justify-between text-sm">
                         <span className="text-muted-foreground capitalize">
                           {key.replace(/_/g, ' ')}:
