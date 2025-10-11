@@ -1,26 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { createBrowserClient } from '@/lib/supabase/client';
+import type { Tables } from '@/lib/supabase/database.types';
 
-export interface PayrollSummary {
-  id: string;
-  document_id: string;
-  client_id: string;
-  user_id: string;
-  reference_month: number;
-  reference_year: number;
-  total_employees: number;
-  total_gross_salary: number;
-  total_inss_employee: number;
-  total_inss_employer: number;
-  total_fgts: number;
-  total_irrf: number;
-  total_other_discounts: number;
-  total_net_salary: number;
-  inss_employer_enabled: boolean;
-  fgts_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type PayrollSummary = Tables<'payroll_summaries'>;
+export type PayrollEntry = Tables<'payroll_entries'>;
 
 interface UsePayrollParams {
   clientId: string;
@@ -62,29 +45,45 @@ export function usePayroll({ clientId, referenceYear, enabled = true }: UsePayro
 // HOOK: Buscar folha específica
 // ============================================================================
 
-interface UsePayrollDetailParams {
-  payrollId: string;
-  enabled?: boolean;
+interface PayrollDetail {
+  summary: PayrollSummary;
+  entries: PayrollEntry[];
 }
 
-export function usePayrollDetail({ payrollId, enabled = true }: UsePayrollDetailParams) {
+export function usePayrollDetail(payrollId: string, enabled = true) {
   const supabase = createBrowserClient();
 
   return useQuery({
     queryKey: ['payroll', payrollId],
-    queryFn: async (): Promise<PayrollSummary> => {
-      const { data, error } = await supabase
+    queryFn: async (): Promise<PayrollDetail> => {
+      // Buscar summary
+      const { data: summary, error: summaryError } = await supabase
         .from('payroll_summaries')
         .select('*')
         .eq('id', payrollId)
         .single();
 
-      if (error) {
-        console.error('Error fetching payroll detail:', error);
-        throw new Error(`Erro ao buscar folha de pagamento: ${error.message}`);
+      if (summaryError) {
+        console.error('Error fetching payroll summary:', summaryError);
+        throw new Error(`Erro ao buscar folha de pagamento: ${summaryError.message}`);
       }
 
-      return data;
+      // Buscar entries
+      const { data: entries, error: entriesError } = await supabase
+        .from('payroll_entries')
+        .select('*')
+        .eq('payroll_summary_id', payrollId)
+        .order('employee_name', { ascending: true });
+
+      if (entriesError) {
+        console.error('Error fetching payroll entries:', entriesError);
+        throw new Error(`Erro ao buscar lançamentos: ${entriesError.message}`);
+      }
+
+      return {
+        summary,
+        entries: entries || [],
+      };
     },
     enabled: enabled && !!payrollId,
   });

@@ -107,7 +107,7 @@ export function PayrollCard({
             <div className="flex justify-between">
               <span className="text-muted-foreground">INSS Patronal:</span>
               <span className="font-medium text-orange-600 dark:text-orange-400">
-                {formatCurrency(payroll.total_inss_employer)}
+                {formatCurrency(payroll.total_inss_employer || 0)}
               </span>
             </div>
           )}
@@ -116,7 +116,7 @@ export function PayrollCard({
             <div className="flex justify-between">
               <span className="text-muted-foreground">FGTS:</span>
               <span className="font-medium text-blue-600 dark:text-blue-400">
-                {formatCurrency(payroll.total_fgts)}
+                {formatCurrency(payroll.total_fgts || 0)}
               </span>
             </div>
           )}
